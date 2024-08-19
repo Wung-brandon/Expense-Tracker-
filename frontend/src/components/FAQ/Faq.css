@@ -1,0 +1,30 @@
+
+  .faq {
+    width: 100%;
+    padding: 60px 20px;
+    border-radius: 10px;
+  }
+  
+  .faq h2 {
+    color: #6c63ff;
+    font-weight: bold;
+  }
+  
+  .accordion-button {
+    background-color: #fff;
+    border: none;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .accordion-button:not(.collapsed) {
+    color: #fff;
+    background-color: #6c63ff;
+  }
+  
+  .accordion-body {
+    font-size: 18px;
+    color: #666;
+    line-height: 1.5;
+  }
+  

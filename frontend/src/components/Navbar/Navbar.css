@@ -1,0 +1,32 @@
+/* Navbar.css */
+
+.nav-link {
+    font-size: 1.3rem; /* Increase font size */
+    color: #000; /* Default color */
+    transition: color 0.3s ease-in-out;
+    font-weight: 400;
+  }
+li a.active{
+    color: #6c63ff !important;
+}
+ 
+  .nav-link:hover {
+    color: #6c63ff; /* Color on hover */
+  }
+  
+
+  .signup-btn {
+    background-color: #9733ee !important; /* Purple background for Signup button */
+    border-color: #9733ee!important;
+    
+  }
+  .login{
+    border-color: #9733ee !important;
+  }
+  
+  .signup-btn:hover {
+    background-color: #5a54e6 !important; /* Darker purple on hover */
+    border-color: #5a54e6 !important;
+    transition: all ease-in 0.5s;
+  }
+  

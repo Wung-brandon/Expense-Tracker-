@@ -1,0 +1,15 @@
+/* Form.css */
+.form-container {
+    max-width: 500px;
+    margin: auto;
+  }
+  
+  .form-container .MuiTextField-root {
+    margin-bottom: 1rem;
+  }
+  
+  .form-container .MuiButton-root {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+  
