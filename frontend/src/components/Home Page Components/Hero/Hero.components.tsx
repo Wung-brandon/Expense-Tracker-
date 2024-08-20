@@ -1,5 +1,5 @@
 import "./Hero.css";
-import expenseImage from "../../assets/expense-tracker-app.png"; // Replace with your image path
+import expenseImage from "../../../assets/expense-tracker-app.png"; // Replace with your image path
 import { useNavigate } from "react-router-dom";
 
 function Hero() {

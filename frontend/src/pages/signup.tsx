@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from 'react';
 import Form from '../components/Form/Form.components';
 import signImg from "../../src/assets/expense-tracker-app.png"
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 
 const SignupPage: React.FC = () => {
@@ -9,6 +9,8 @@ const SignupPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+
+  const navigate = useNavigate()
 
   const handleSignupSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
@@ -24,7 +26,7 @@ const SignupPage: React.FC = () => {
   ];
 
   return (
-    <section className="vh-100" style={{ backgroundColor: "#c0c0c0" }}>
+    <section style={{ backgroundColor: "#c0c0c0", height:"650px" }}>
         <div className="d-flex justify-content-center align-items-center h-100 ">
             <div className="shadow rounded bg-light p-4" style={{ width: '100%', maxWidth: '1000px' }}>
                 <div className="row">
@@ -35,7 +37,7 @@ const SignupPage: React.FC = () => {
                         <h2 className="text-center mb-2 title-color">Signup</h2>
                         <p className='text-capitalize'>Create an account with <span className='title-color'>ExpenseEye</span> and track your expenses</p>
                         
-                        <Form fields={fields} onSubmit={handleSignupSubmit} submitText="Signup" />
+                        <Form fields={fields} onSubmit={handleSignupSubmit} navigate={() => navigate("/login")} submitText="Signup" />
                         <p className='text-capitalize mt-3'>already have an account? <NavLink className="text-decoration-none" to="/login">Login</NavLink></p>
                     </div>
                 </div>

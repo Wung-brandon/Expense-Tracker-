@@ -15,11 +15,20 @@ interface FormProps {
   fields: FieldProps[];
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   submitText: string;
+  navigate: () => void
 }
 
-const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText }) => {
+const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, navigate }) => {
   return (
-    <Box component="form" noValidate autoComplete="off" onSubmit={onSubmit} className="form-container">
+    <Box 
+      component="form" 
+      noValidate autoComplete="off"     
+      onSubmit={(e) => {
+        onSubmit(e);
+        navigate();
+      }} 
+      className="form-container"
+    >
       {fields.map((field, index) => (
         <TextField
           key={index}
@@ -39,6 +48,8 @@ const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText }) => {
         variant="contained"
         style={{background: "linear-gradient(to right bottom, #9733ee, #da22ff )"}}
         className="w-100 mt-2"
+        
+        
       >
         {submitText}
       </Button>

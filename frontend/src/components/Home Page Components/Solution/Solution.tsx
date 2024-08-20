@@ -1,6 +1,6 @@
-import React from 'react';
-import './Solution.css';
-import solutionImage from '../../assets/sol.png'; 
+
+import "./Solution.css";
+import solutionImage from "../../../assets/sol.png"; 
 
 function Solution() {
   return (

@@ -1,9 +1,9 @@
-import Hero from '../components/Hero/Hero.components'
-import Solution from '../components/Solution/Solution'
-import Benefit from '../components/Benefits/Benefits.components'
-import Features from '../components/Features/Features.components'
-import Reviews from '../components/Reviews/Review.components'
-import Faq from '../components/FAQ/Faq.components'
+import Hero from '../components/Home Page Components/Hero/Hero.components'
+import Solution from '../components/Home Page Components/Solution/Solution'
+import Benefit from '../components/Home Page Components/Benefits/Benefits.components'
+import Features from '../components/Home Page Components/Features/Features.components'
+import Reviews from '../components/Home Page Components/Reviews/Review.components'
+import Faq from '../components/Home Page Components/FAQ/Faq.components'
 
 
 

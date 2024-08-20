@@ -1,0 +1,27 @@
+.bottom{
+    display: flex;
+    align-items: center;
+    margin: 30px;
+}
+.color-option{
+    border: 1px solid #4a148c;
+    height: 30px;
+    width: 30px;
+    border-radius: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+.color-option:nth-child(1){
+    background-color: whitesmoke;
+}
+.color-option:nth-child(2){
+    background-color: #333;
+}
+@media (max-width: 600px) {
+    .MuiAppBar-root {
+      padding: 0 10px; /* Reduces padding on small screens */
+    }
+    .MuiDrawer-root {
+      width: 200px; /* Slightly narrower drawer for mobile */
+    }
+  }
