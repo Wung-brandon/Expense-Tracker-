@@ -11,7 +11,7 @@ function App() {
   return (
     
       <Router>
-        {/* <Navbar /> */}
+        <Navbar />
       
           <Routes>
             <Route index path='/' element={<HomePage />} />
