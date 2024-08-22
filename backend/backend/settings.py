@@ -11,20 +11,40 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
+import os
+
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+env = environ.Env(
+    DEBUG = (bool, False)
+)
+
+environ.Env.read_env(BASE_DIR / ".env")
+
+
+
+# Email configuration
+EMAIL_BACKEND = env('EMAIL_BACKEND',)
+EMAIL_HOST = env('EMAIL_HOST',)
+EMAIL_PORT = env.int('EMAIL_PORT',)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS',)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER',)
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD',)
+FRONTEND_URL = env('FRONTEND_URL',)
+
+print(EMAIL_HOST_USER, EMAIL_HOST, FRONTEND_URL)
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-m4q#pl*%#nf20w+unjii-1_xkxnlxukbep8ky-tq$uh9@w#h9("
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -40,9 +60,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     
     "accounts.apps.AccountsConfig",
+    "expense_api.apps.ExpenseApiConfig",
     
     "rest_framework",
     "corsheaders",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 
 AUTH_USER_MODEL = "accounts.User"

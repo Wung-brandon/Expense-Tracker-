@@ -23,12 +23,13 @@ class UserManager(BaseUserManager):
             raise ValueError("superuser must have is_staff=True")
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("superuser must have is_superuser=True")
-        return self.create_user(username=username, email=email, password=password, **extra_fields)
+        return self.create_user(username, email, password, **extra_fields)
 
 # Create your models here.
 class User(AbstractUser):
     username = models.CharField(max_length=200)
     email = models.EmailField(unique=True)
+    
     
     objects = UserManager()
     
