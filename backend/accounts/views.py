@@ -31,44 +31,46 @@ class SignUpView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                {"message": "Registration successful."},
-                status=status.HTTP_201_CREATED
-            )
+
+            try:
+                # Generate verification token and link
+                user_data = serializer.data
+                user = User.objects.get(email=user_data["email"])
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = PasswordResetTokenGenerator().make_token(user)
+                verification_link = request.build_absolute_uri(
+                    reverse('verify-email', kwargs={'uidb64': uid, 'token': token})
+                )
+
+                # Create the message as a string
+                message = (
+                    f"Hi {user.username},\n\n"
+                    f"Please click the link below to activate your Account:\n"
+                    f"{verification_link}\n\n"
+                    f"If you did not make this request, you can ignore this email.\n\n"
+                    f"Thanks,\n"
+                    f"Your Team"
+                )
+                subject = "Verify your Account"
+
+                # Send verification email
+                send_notification(user, message, subject)
+
+                return Response(
+                    {"message": "Registration successful. Please check your email to verify your account."},
+                    status=status.HTTP_201_CREATED
+                )
+             
+            except Exception as e:
+                return Response(
+                    {"message": f"Registration failed: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
         return Response(
                 {"message": "Something went wrong."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        # try:
-        #     # Generate verification token and link
-        #     uid = urlsafe_base64_encode(force_bytes(user.pk))
-        #     token = PasswordResetTokenGenerator().make_token(user)
-        #     verification_link = f"http://127.0.0.1:8000/verify-email/{uid}/{token}"
-
-        #     # Create the message as a string
-        #     message = (
-        #         f"Hi {user.username},\n\n"
-        #         f"Please click the link below to verify your email:\n"
-        #         f"{verification_link}\n\n"
-        #         f"If you did not make this request, you can ignore this email.\n\n"
-        #         f"Thanks,\n"
-        #         f"Your Team"
-        #     )
-        #     subject = "Verify your Account"
-
-        #     # Send verification email
-        #     send_notification(user, message, subject)
-
-        #     return Response(
-        #         {"message": "Registration successful. Please check your email to verify your account."},
-        #         status=status.HTTP_201_CREATED
-        #     )
-        # except Exception as e:
-        #     return Response(
-        #         {"message": f"Registration failed: {str(e)}"},
-        #         status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        #     )
             
 
 class GetUserView(RetrieveAPIView):
@@ -174,7 +176,6 @@ class ResetPasswordView(GenericAPIView):
         user.set_password(password)
         user.save()
         
-
         # Send a success email
         subject = "Password Reset Successful"
         message = f"Your password has been successfully reset."
@@ -185,10 +186,30 @@ class ResetPasswordView(GenericAPIView):
             {"message": "Password reset successful."},
             status=status.HTTP_200_OK,
         )
-
-
       
-        # send the email as mail to the user.
+
+class EmailVerificationView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, uidb64, token, *args, **kwargs):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and PasswordResetTokenGenerator().check_token(user, token):
+            user.is_verified = True
+            user.save()
+
+            # Send confirmation email
+            message = f"Hi {user.username},\n\nYour account has been activated successfully. You can now login\n\nThanks,\nYour Team"
+            subject = "Account Activated"
+            send_notification(user, message, subject)
+
+            return Response({"message": "Account activated successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Activation link is invalid"}, status=status.HTTP_400_BAD_REQUEST)
+        
 class ResendVerificationEmailView(GenericAPIView):
     serializer_class = ResendVerificationEmailSerializer
     permission_classes = [AllowAny]
@@ -196,26 +217,26 @@ class ResendVerificationEmailView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        email = serializer.validated_data["email"]
+        user = User.objects.get(email=email)
+
+        # Generate new verification token and link
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = PasswordResetTokenGenerator().make_token(user)
+        verification_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}"
+
+        # Create the message as a string
+        message = (
+            f"Hi {user.username},\n\n"
+            f"Please click the link below to verify your email:\n"
+            f"{verification_link}\n\n"
+            f"If you did not make this request, you can ignore this email.\n\n"
+            f"Thanks,\n"
+            f"Your Team"
+        )
+        subject = "Verify your Account"
+
+        # Send verification email
+        send_notification(user, message, subject)
+
         return Response({"message": "Verification email resent."}, status=status.HTTP_200_OK)
-
-# class EmailVerificationView(APIView):
-#   def get(self, request, uidb64, token, *args, **kwargs):
-#         try:
-#             uid = force_str(urlsafe_base64_decode(uidb64))
-#             user = User.objects.get(pk=uid)
-#         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-#             user = None
-
-#         if user is not None and PasswordResetTokenGenerator().check_token(user, token):
-#             user.is_active = True
-#             user.save()
-
-#             # Send confirmation email
-#             message = f"Hi {user.username},\n\nYour account has been activated successfully.\n\nThanks,\nYour Team"
-#             subject = "Account Activated"
-#             send_notification(user, message, subject)
-
-#             return Response({"message": "Account activated successfully"}, status=status.HTTP_200_OK)
-#         else:
-#             return Response({"message": "Activation link is invalid"}, status=status.HTTP_400_BAD_REQUEST)

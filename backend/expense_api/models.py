@@ -4,39 +4,15 @@ from django.dispatch import receiver
 from accounts.models import User
 from django.utils import timezone
 
-class Category(models.Model):
-    DEFAULT_CATEGORY = (
-        ("FOOD", "Food"),
-        ("TRANSPORTATION", "Transportation"),
-        ("HOUSING", "Housing"),
-        ("INSURANCE", "Insurance"),
-        ("DEBT", "Debt"),
-        ("ENTERTAINMENT", "Entertainment"),
-        ("CLOTHING", "Clothing"),
-        ("HEALTH_AND_WELLNESS", "Health and Wellness"),
-        ("PERSONAL_CARE", "Personal Care"),
-        ("EDUCATION", "Education"),
-        ("GIFTS", "Gifts")
-    )
-    
-    category = models.CharField(max_length=150, choices=DEFAULT_CATEGORY, default="FOOD")
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        verbose_name_plural = "Category"
-        
-    
-    def __str__(self):
-        return self.category
 
 class Income(models.Model):
     DEFAULT_SOURCE = (
-        ("SALARY", "Salary"),
-        ("SIDE_HUSTLE", "Side Hustle"),
-        ("INVESTMENTS", "Investments"),
-        ("INHERITANCE", "Inheritance"),
-        ("GIFTS", "Gifts"),
+        ("SALARY", "SALARY"),
+        ("SIDE_HUSTLE", "SIDE_HUSTLE"),
+        ("INVESTMENTS", "INVESTMENTS"),
+        ("INHERITANCE", "INHERITANCE"),
+        ("GIFTS", "GIFTS"),
+        ("OTHERS", "OTHERS"),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     source = models.CharField(max_length=150, choices=DEFAULT_SOURCE, default="SALARY")
@@ -46,17 +22,38 @@ class Income(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        verbose_name_plural = "Income"
+    
     def __str__(self):
         return f"{self.user.username} - {self.source} - {self.amount}"
 
 class Expense(models.Model):
+    DEFAULT_EXPENSE_CATEGORY = (
+        ("FOOD", "FOOD"),
+        ("TRANSPORTATION", "TRANSPORTATION"),
+        ("HOUSING", "HOUSING"),
+        ("INSURANCE", "INSURANCE"),
+        ("DEBT", "DEBT"),
+        ("ENTERTAINMENT", "ENTERTAINMENT"),
+        ("CLOTHING", "CLOTHING"),
+        ("HEALTH_AND_WELLNESS", "HEALTH_AND_WELLNESS"),
+        ("PERSONAL_CARE", "PERSONAL_CARE"),
+        ("EDUCATION", "EDUCATION"),
+        ("GIFTS", "GIFTS"),
+        ("ONLINE_SERVICES", "ONLINE_SERVICES"),
+        ("OTHERS", "OTHERS"),
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.CharField(choices=DEFAULT_EXPENSE_CATEGORY, default="FOOD", max_length=200)
     description = models.TextField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name_plural = "Expense"
     
     def __str__(self):
         return f"{self.user.username} - {self.category} - {self.amount}"
@@ -67,6 +64,9 @@ class Budget(models.Model):
     month = models.DateField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Budget"
     
     def __str__(self):
         return f"{self.user.username} - {self.month.strftime('%B %Y')} - {self.amount}"
@@ -80,6 +80,9 @@ class MonthlyReport(models.Model):
     total_budget = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Monthly Report"
     
     def __str__(self):
         return f"{self.user.username} - {self.date.strftime('%B %Y')} - Balance: {self.total_balance}"

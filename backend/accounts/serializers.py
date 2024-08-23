@@ -145,3 +145,15 @@ class EmailSerializer(serializers.Serializer):
 
     class Meta:
         fields = ("email",)
+        
+class ResendVerificationEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+            if user.is_verified:
+                raise serializers.ValidationError("This account is already verified.")
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User with this email does not exist.")
+        return value
