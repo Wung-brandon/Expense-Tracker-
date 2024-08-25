@@ -13,7 +13,7 @@ def send_notification(user, message, subject):
             send_host = settings.EMAIL_HOST
             send_port = settings.EMAIL_PORT
             receiver_email = user.email
-            print("host", send_host, send_port, sender_password)
+            # print("host", send_host, send_port, sender_password)
             
 
         # Create a multipart message

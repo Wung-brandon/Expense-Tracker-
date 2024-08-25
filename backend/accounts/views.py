@@ -1,23 +1,20 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import MyTokenObtainPairSerializer, SignUpSerializer, EmailSerializer, ResendVerificationEmailSerializer, UserSerializer, ResetPasswordSerializer, EmailVerificationSerializer
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import User
+from .serializers import MyTokenObtainPairSerializer, UserProfileSerializer, SignUpSerializer, EmailSerializer, ResendVerificationEmailSerializer, UserSerializer, ResetPasswordSerializer
+from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from .models import User, Profile
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import GenericAPIView
 from rest_framework import status
 from rest_framework.response import Response
 from django.urls import reverse
-from django.utils.encoding import force_bytes, force_str, smart_str
+from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.core.mail import send_mail
 from .utils import send_notification
 from django.conf import settings
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from rest_framework.parsers import FormParser, MultiPartParser
 
 # Create your views here.
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -72,14 +69,51 @@ class SignUpView(GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
             
-
 class GetUserView(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_object(self):
         return self.request.user
+
+    def get(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ListCreateUserProfileView(ListCreateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return Response("Profile Created Successfully", status=status.HTTP_200_OK)
+    
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+    
+class RetrieveUpdateUserProfileView(RetrieveUpdateDestroyAPIView):
+    queryset = Profile.objects.all()
+    lookup_field = "id"
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    
+    # def get_object(self):
+    #     return self.request.user
+    
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    # def get(self, request, *args, **kwargs):
+    #     user = self.get_object()
+    #     serializer = self.get_serializer(user)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+    
     
 
 class ForgotPasswordView(GenericAPIView):
@@ -202,7 +236,7 @@ class EmailVerificationView(APIView):
             user.save()
 
             # Send confirmation email
-            message = f"Hi {user.username},\n\nYour account has been activated successfully. You can now login\n\nThanks,\nYour Team"
+            message = f"Hi {user.username},\n\nYour account has been activated successfully.\n\nThanks,\nYour Team"
             subject = "Account Activated"
             send_notification(user, message, subject)
 
@@ -240,3 +274,4 @@ class ResendVerificationEmailView(GenericAPIView):
         send_notification(user, message, subject)
 
         return Response({"message": "Verification email resent."}, status=status.HTTP_200_OK)
+    

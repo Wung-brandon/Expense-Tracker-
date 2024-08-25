@@ -27,8 +27,14 @@ class UserManager(BaseUserManager):
 
 # Create your models here.
 class User(AbstractUser):
+    GENDER_OPTIONS = (
+        ("MALE", "MALE"),
+        ("FEMALE", "FEMALE"),
+        ("OTHER", "OTHER"),
+    )
     username = models.CharField(max_length=200)
     email = models.EmailField(unique=True)
+    gender = models.CharField(choices=GENDER_OPTIONS, default="OTHER", max_length=100)
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
 
@@ -42,10 +48,12 @@ class User(AbstractUser):
         return self.username
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
     full_name = models.CharField(max_length=250)
     bio = models.TextField()
-    profile_img = models.ImageField(default="default.png", upload_to="user_images")
+    phone_number = models.CharField(max_length=100, null=True, blank=True)  
+    location = models.CharField(max_length=150, null=True, blank=True)
+    profile_img = models.ImageField(default="default.png", upload_to="user_images", blank=True, null=True)
     
     def __str__(self):
         return self.full_name

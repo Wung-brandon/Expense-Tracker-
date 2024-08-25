@@ -23,12 +23,25 @@ class ExpenseSummaryStatsView(APIView):
             user=request.user, 
             date__range=(a_month_ago, today_date)
         ).values('category').annotate(total_amount=Sum('amount')).order_by('category')
+        
+         # Query to get total expenses
+        total_expenses = Expense.objects.filter(user=request.user, date__range=(a_month_ago, today_date)).aggregate(total_expense=Sum('amount'))
+
+        # Convert queryset to dictionary for JSON serialization
+        expense_summary_list = list(expense_summary)
+        total_expenses_amount = total_expenses['total_expense'] or 0  # Handle None case
 
         # Debug print statement (optional)
         print(f"Expenses: {expense_summary}")
+        print(f"Total Expenses: {total_expenses}")
 
         # Return JSON response
-        return Response({"category_data" : expense_summary}, status=status.HTTP_200_OK)
+        return Response(
+            {"category_data" : expense_summary_list,
+             "Total Expenses" : total_expenses_amount,
+             },
+            
+        status=status.HTTP_200_OK)
 
 class IncomeSummaryStatsView(APIView):
     permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
@@ -46,12 +59,23 @@ class IncomeSummaryStatsView(APIView):
             user=request.user, 
             date__range=(a_month_ago, today_date)
         ).values('source').annotate(total_amount=Sum('amount')).order_by('source')
+        
+        total_income = Income.objects.filter(user=request.user, date__range=(a_month_ago, today_date)).aggregate(total_income=Sum('amount'))
 
         # Debug print statement (optional)
-        print(f"Expenses: {income_summary}")
+        print(f"Income: {income_summary}")
+        print(f"Total Income: {total_income}")
+        
+        income_summary_list = list(income_summary)
+        total_income_amount = total_income['total_income'] or 0  # Handle None case
 
         # Return JSON response
-        return Response({"income_source_data" : income_summary}, status=status.HTTP_200_OK)
+        return Response(
+            {"income_source_data" : income_summary_list,
+             "Total Income" : total_income_amount,
+             },
+            
+            status=status.HTTP_200_OK)
     
 class IncomeVsExpenseStatsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -78,7 +102,7 @@ class IncomeVsExpenseStatsView(APIView):
 
         # Prepare the response
         income_data = {entry['date__month']: entry['total_income'] for entry in income_summary}
-        expense_data = {entry['date__month']: entry['total_expense'] for entry in expense_summary}
+        expense_data = {entry['date__month']: entry['total_expense'] for entry in expense_summary} 
 
         # Combine the results into a single dictionary
         result = {
@@ -87,3 +111,26 @@ class IncomeVsExpenseStatsView(APIView):
         }
 
         return Response({"income-vs-expenses data": result})
+    
+class TotalBalanceSummaryView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        today_date = datetime.date.today()
+        a_month_ago = today_date - relativedelta(months=1)
+        total_expenses = Expense.objects.filter(user=request.user, date__range=(a_month_ago, today_date)).aggregate(total_expense=Sum('amount'))
+        total_expenses_amount = total_expenses['total_expense'] or 0 
+        
+        total_income = Income.objects.filter(user=request.user, date__range=(a_month_ago, today_date)).aggregate(total_income=Sum('amount')) 
+        total_income_amount = total_income['total_income'] or 0 
+        
+        current_month = datetime.date.today().strftime("%B")
+        total_balance_amount = total_income_amount - total_expenses_amount
+        return Response(
+                         {
+                             "total_income": total_income_amount,
+                            "total_expenses": total_expenses_amount,
+                            f"Total balance for {current_month}": total_balance_amount,
+                         }
+                        )
+        
+    

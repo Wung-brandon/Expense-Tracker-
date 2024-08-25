@@ -37,7 +37,7 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER',)
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD',)
 FRONTEND_URL = env('FRONTEND_URL',)
 
-print(EMAIL_HOST_USER, EMAIL_HOST, FRONTEND_URL)
+# print(EMAIL_HOST_USER, EMAIL_HOST, FRONTEND_URL)
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -61,15 +61,19 @@ INSTALLED_APPS = [
     
     "accounts.apps.AccountsConfig",
     "expense_api.apps.ExpenseApiConfig",
+    "userstats.apps.UserstatsConfig",
     
     "rest_framework",
     "corsheaders",
+    "django_filters",
     "rest_framework_simplejwt.token_blacklist",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
 
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10, 
     'DEFAULT_AUTHENTICATION_CLASSES' : (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -77,6 +81,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated'
     )
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),

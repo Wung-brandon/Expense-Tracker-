@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
-from .models import User
+from .models import User, Profile
 
 import smtplib
 from email.mime.text import MIMEText
@@ -21,16 +21,39 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token["username"] = user.username
         token["email"] = user.email
+        token["gender"] = user.gender
         token["full_name"] = user.profile.full_name
         token["bio"] = user.profile.bio
+        token["location"] = user.profile.location
+        token["phone_number"] = user.profile.phone_number
         token["profile_img"] = str(user.profile.profile_img)
         return token
         
-    
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        models = User
-        fields = ["id", "username", "email"]
+        model = User
+        fields = ['id', 'username', 'email', 'gender'] 
+        
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')  # Or you can use user.id or any other user field
+    class Meta:
+        model = Profile
+        fields = ['id', 'user', 'full_name', 'bio', 'phone_number', 'location', 'profile_img']  # Include all fields you want to expose
+        read_only_fields = ['user']
+
+    def create(self, validated_data):
+        # Create a new Profile instance linked to the authenticated user
+        user = self.context['request'].user
+        # Check if the profile already exists
+        profile, created = Profile.objects.get_or_create(user=user, defaults=validated_data)
+        
+        if not created:
+            # Update the existing profile with the new data
+            for attr, value in validated_data.items():
+                setattr(profile, attr, value)
+            profile.save()
+        
+        return profile
 
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6, required=True, validators=[validate_password])
