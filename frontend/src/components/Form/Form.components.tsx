@@ -1,13 +1,15 @@
-import React from 'react';
-import { Button, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { Button, TextField, IconButton, InputAdornment, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import { Box } from '@mui/system';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
 interface FieldProps {
   label: string;
   type: string;
   name: string;
   value: string;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement>;
   required?: boolean;
 }
 
@@ -15,41 +17,108 @@ interface FormProps {
   fields: FieldProps[];
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   submitText: string;
-  navigate: () => void
 }
 
-const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, navigate }) => {
+const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handlePasswordToggle = () => setShowPassword(!showPassword);
+  const handleConfirmPasswordToggle = () => setShowConfirmPassword(!showConfirmPassword);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    let allFieldsFilled = true;
+
+    fields.forEach(field => {
+      if (field.required && !formData.get(field.name)) {
+        allFieldsFilled = false;
+      }
+    });
+
+    if (!allFieldsFilled) {
+      toast.warning('All fields are required');
+      return;
+    }
+
+    onSubmit(e);
+  };
+
   return (
-    <Box 
-      component="form" 
-      noValidate autoComplete="off"     
-      onSubmit={(e) => {
-        onSubmit(e);
-        navigate();
-      }} 
+    <Box
+      component="form"
+      noValidate
+      autoComplete="off"
+      onSubmit={handleSubmit}
       className="form-container"
     >
       {fields.map((field, index) => (
-        <TextField
-          key={index}
-          label={field.label}
-          type={field.type}
-          name={field.name}
-          value={field.value}
-          onChange={field.onChange}
-          variant="outlined"
-          size="small"
-          className="mb-4 mt-1 w-100"
-          required={field.required}
-        />
+        field.type === 'select' ? (
+          <FormControl variant="outlined" className="mb-4 mt-1 w-100" key={index}>
+            <InputLabel>{field.label}</InputLabel>
+            <Select
+              label={field.label}
+              name={field.name}
+              value={field.value}
+              onChange={field.onChange as React.ChangeEventHandler<HTMLSelectElement>}
+              required={field.required}
+            >
+              <MenuItem value=""><em>None</em></MenuItem>
+              <MenuItem value="MALE">Male</MenuItem>
+              <MenuItem value="FEMALE">Female</MenuItem>
+              <MenuItem value="OTHER">Other</MenuItem>
+            </Select>
+          </FormControl>
+        ) : (
+          <TextField
+            key={index}
+            label={field.label}
+            type={
+              field.name === 'password'
+                ? showPassword
+                  ? 'text'
+                  : 'password'
+                : field.name === 'confirmPassword'
+                  ? showConfirmPassword
+                    ? 'text'
+                    : 'password'
+                  : field.type
+            }
+            name={field.name}
+            value={field.value}
+            onChange={field.onChange}
+            variant="outlined"
+            size="small"
+            className="mb-4 mt-1 w-100"
+            required={field.required}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  {(field.name === 'password' || field.name === 'confirmPassword') && (
+                    <IconButton
+                      onClick={
+                        field.name === 'password'
+                          ? handlePasswordToggle
+                          : handleConfirmPasswordToggle
+                      }
+                      edge="end"
+                    >
+                      {field.name === 'password' && (showPassword ? <VisibilityOff /> : <Visibility />)}
+                      {field.name === 'confirmPassword' && (showConfirmPassword ? <VisibilityOff /> : <Visibility />)}
+                    </IconButton>
+                  )}
+                </InputAdornment>
+              ),
+            }}
+          />
+        )
       ))}
       <Button
         type="submit"
         variant="contained"
-        style={{background: "linear-gradient(to right bottom, #9733ee, #da22ff )"}}
+        style={{ background: "linear-gradient(to right bottom, #9733ee, #da22ff )" }}
         className="w-100 mt-2"
-        
-        
       >
         {submitText}
       </Button>

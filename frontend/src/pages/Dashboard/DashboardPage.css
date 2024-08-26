@@ -12,3 +12,10 @@
     background-color: #f5f5f5; /* Adjust background color if needed */
   }
   
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height to center spinner in the middle */
+  }
+  

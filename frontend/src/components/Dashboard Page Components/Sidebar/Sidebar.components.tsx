@@ -28,8 +28,11 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItem from '@mui/material/ListItem';
 import { Link } from 'react-router-dom';
-import dash from "../../../assets/dashboard.png";
 import "./Sidebar.css";
+import { useEffect, useState, useContext } from 'react';
+import AuthContext from '../../../context/AuthContext';
+import useAxios from '../../../utils/useAxios';
+import defaultImg from "../../../assets/defaults.jpeg"
 
 const drawerWidth = 240;
 
@@ -112,6 +115,40 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function Sidebar() {
+  const axiosInstance = useAxios();
+  const { authTokens, logoutUser } = useContext(AuthContext);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+  // Fetch user profile function
+  const fetchUserProfile = async () => {
+    if (!authTokens) {
+      console.error("No authentication token available");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.get("/user/profile/", {
+        headers: {
+          Authorization: `Bearer ${authTokens.access}`,
+        },
+      });
+      if (response.data && response.data.results.length > 0) {
+        setUserProfile(response.data.results[0]);
+      } else {
+        console.error("User profile not found");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("Profile Image:", userProfile.profile_img);
+    console.log("Default Image:", defaultImg);
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [authTokens]);
+
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -149,15 +186,43 @@ export default function Sidebar() {
           <IconButton color="inherit">
             <NotificationsIcon />
           </IconButton>
-          <IconButton color="inherit">
-            <AccountCircleIcon />
-          </IconButton>
-          <h5 className='me-3'>User Name</h5>
-          <img src={dash} className='rounded-circle image-fluid' style={{ width: "40px", height: "40px" }} alt="" />
+          {userProfile && (
+            userProfile.profile_img ? (
+              <>
+                <h5 className='me-3'>{userProfile.full_name ? userProfile.user : ''}</h5>  
+                <img 
+                  src={userProfile.profile_img} 
+                  className='rounded-circle img-fluid' 
+                  style={{ width: "40px", height: "40px" }} 
+                  alt="Profile"
+                />
+              </>
+            ) : (
+              <div className='d-flex align-items-center'>
+                <h5 className='me-3'>{userProfile.full_name ? userProfile.user : ''}</h5>  
+                <div 
+                  className='rounded-circle d-flex align-items-center justify-content-center' 
+                  style={{
+                    width: "40px", 
+                    height: "40px", 
+                    backgroundColor: "#6A0DAD",  // Purple background color
+                    color: "white",
+                    fontSize: "18px",
+                    fontWeight: "bold"
+                  }}
+                >
+                  {userProfile.email.charAt(0).toUpperCase()} {/* First letter of the email */}
+                </div>
+              </div>
+            )
+          )}
+
+
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
+          {userProfile && <h5 className='text-center fw-bold m-auto'>{userProfile.user || ''}</h5>}
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
@@ -172,13 +237,14 @@ export default function Sidebar() {
             { text: 'Report', icon: <ReportIcon />, link: '/report' },
             { text: 'Settings', icon: <SettingsIcon />, link: '/settings' },
             { text: 'Help', icon: <HelpIcon />, link: '/help' },
-            { text: 'Logout', icon: <LogoutIcon />, link: '/logout' },
+            { text: 'Logout', icon: <LogoutIcon />, link: '#', onClick: logoutUser },
           ].map((item, index) => (
             <React.Fragment key={item.text}>
               <ListItem disablePadding sx={{ display: 'block' }}>
                 <ListItemButton
                   component={Link}
                   to={item.link}
+                  onClick={item.onClick} // This handles the logout
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? 'initial' : 'center',
@@ -190,27 +256,18 @@ export default function Sidebar() {
                       minWidth: 0,
                       mr: open ? 3 : 'auto',
                       justifyContent: 'center',
-                      color: "#4a148c",
                     }}
                   >
                     {item.icon}
                   </ListItemIcon>
-                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} className='fw-bold fs-2' />
+                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
                 </ListItemButton>
               </ListItem>
-              {index === 0 && <Divider />}
+              {item.text === 'Dashboard' && <Divider />}
             </React.Fragment>
           ))}
         </List>
-        <Divider />
-        {open && (
-          <div className="bottom">
-            <div className="color-option"></div>
-            <div className="color-option"></div>
-          </div>
-        )}
       </Drawer>
-
     </Box>
   );
 }

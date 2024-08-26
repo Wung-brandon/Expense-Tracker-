@@ -4,8 +4,14 @@ import App from './App.tsx'
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import "bootstrap/dist/css/bootstrap.min.css"
 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    
+      <App />
+    
+            
+    
+    
   </StrictMode>,
 )

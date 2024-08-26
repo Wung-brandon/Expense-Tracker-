@@ -15,7 +15,7 @@ const reviews = [
   {
     name: "Michael Johnson",
     image: "https://via.placeholder.com/150",
-    comment: "The best expense tracker I've used so far. ExpenseEye makes budgeting so much easier.",
+    comment: "The best expense tracker I've used so far. ExpenseEye makes budgeting so much easier. I love ExpenseEye",
   },
 ];
 
