@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from "../../assets/expenseEye-removebg-preview.png";
-import "./Navbar.css"; // Assuming you have a separate CSS file for custom styles
+import "./Navbar.css"; 
 
 const Navbar = () => {
   return (

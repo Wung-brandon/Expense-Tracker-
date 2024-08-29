@@ -11,6 +11,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from './context/AuthContext';
 import Layout from './Layout/Layout';
 import ProtectedRoute from './utils/PrivateRoute';
+import Income from './pages/Income/income.pages';
+import Expense from './pages/Expense/Expense.pages';
+import Budget from './pages/Budget/Budget.pages';
 
 function App() {
   return (
@@ -19,13 +22,18 @@ function App() {
         <ToastContainer />
         <Routes>
           <Route path='/' element={<Layout><HomePage /></Layout>} />
-          <Route path='/signup' element={<Layout><SignupPage /></Layout>} />
+          <Route path='/signup' element={<SignupPage />} />
           <Route path='/login' element={<Layout><LoginPage /></Layout>} />
           <Route path='/forgot-password' element={<Layout><ForgotPasswordPage /></Layout>} />
-          <Route path='/reset-password' element={<Layout><ResetPasswordPage /></Layout>} />
+          <Route path='/reset-password/:uidb64/:token/' element={<Layout><ResetPasswordPage /></Layout>} />
           <Route path="*" element={<Layout><NotFoundPage /></Layout>} />
           
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}>
+              <Route path='income' element={<Income />} />
+              <Route path='expense' element={<Expense />} />
+              <Route path='budget' element={<Budget />} />
+          </Route>
+          
           
         </Routes>
       </AuthProvider>

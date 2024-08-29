@@ -21,7 +21,6 @@ import ReportIcon from '@mui/icons-material/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpIcon from '@mui/icons-material/HelpOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -161,7 +160,7 @@ export default function Sidebar() {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar sx={{ paddingLeft: open ? 2 : 0 }}>
@@ -180,49 +179,53 @@ export default function Sidebar() {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: "#4a148c", fontWeight: "bold" }}>
             ExpenseEye
           </Typography>
-          <IconButton color='inherit'>
-            <DarkModeOutlined />
-          </IconButton>
-          <IconButton color="inherit">
-            <NotificationsIcon />
-          </IconButton>
-          {userProfile && (
-            userProfile.profile_img ? (
-              <>
-                <h5 className='me-3'>{userProfile.full_name ? userProfile.user : ''}</h5>  
-                <img 
-                  src={userProfile.profile_img} 
-                  className='rounded-circle img-fluid' 
-                  style={{ width: "40px", height: "40px" }} 
-                  alt="Profile"
-                />
-              </>
-            ) : (
-              <div className='d-flex align-items-center'>
-                <h5 className='me-3'>{userProfile.full_name ? userProfile.user : ''}</h5>  
-                <div 
-                  className='rounded-circle d-flex align-items-center justify-content-center' 
-                  style={{
-                    width: "40px", 
-                    height: "40px", 
-                    backgroundColor: "#6A0DAD",  // Purple background color
-                    color: "white",
-                    fontSize: "18px",
-                    fontWeight: "bold"
-                  }}
-                >
-                  {userProfile.email.charAt(0).toUpperCase()} {/* First letter of the email */}
+          <div className="d-flex align-items-center justify-content-center">
+            <IconButton color='inherit'>
+              <DarkModeOutlined />
+            </IconButton>
+            <IconButton color="inherit">
+              <NotificationsIcon />
+            </IconButton>
+            {userProfile && (
+              userProfile.profile_img ? (
+                <>
+                  <h5 className='me-3 text-capitalize mt-2'>{userProfile.full_name ? userProfile.full_name : userProfile.user || ""}</h5>  
+                  <img 
+                    src={userProfile.profile_img} 
+                    className='rounded-circle img-fluid' 
+                    style={{ width: "40px", height: "40px" }} 
+                    alt="Profile"
+                  />
+                </>
+              ) : (
+                <div className='d-flex align-items-center'>
+                  <h5 className='me-3 text-capitalize mt-2'>{userProfile.full_name ? userProfile.full_name : userProfile.user || ""}</h5>  
+                  <div 
+                    className='rounded-circle d-flex align-items-center justify-content-center' 
+                    style={{
+                      width: "40px", 
+                      height: "40px", 
+                      backgroundColor: "#6A0DAD",  // Purple background color
+                      color: "white",
+                      fontSize: "18px",
+                      fontWeight: "bold"
+                    }}
+                  >
+                    {userProfile.email.charAt(0).toUpperCase()} {/* First letter of the email */}
+                  </div>
                 </div>
-              </div>
-            )
-          )}
+              )
+            )}
 
+
+          </div>
+          
 
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
-          {userProfile && <h5 className='text-center fw-bold m-auto'>{userProfile.user || ''}</h5>}
+          {userProfile && <h5 className='text-center text-capitalize fw-bold m-auto'>{userProfile.user || ''}</h5>}
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
@@ -231,9 +234,9 @@ export default function Sidebar() {
         <List>
           {[
             { text: 'Dashboard', icon: <DashboardIcon />, link: '/dashboard' },
-            { text: 'Income', icon: <AttachMoneyIcon />, link: '/income' },
-            { text: 'Expenses', icon: <ReceiptIcon />, link: '/expenses' },
-            { text: 'Set Budget', icon: <BudgetIcon />, link: '/budget' },
+            { text: 'Income', icon: <AttachMoneyIcon />, link: 'income' },
+            { text: 'Expenses', icon: <ReceiptIcon />, link: 'expense' },
+            { text: 'Budget', icon: <BudgetIcon />, link: 'budget' },
             { text: 'Report', icon: <ReportIcon />, link: '/report' },
             { text: 'Settings', icon: <SettingsIcon />, link: '/settings' },
             { text: 'Help', icon: <HelpIcon />, link: '/help' },

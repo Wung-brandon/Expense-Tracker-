@@ -40,7 +40,7 @@ const SignupPage: React.FC = () => {
   ];
 
   return (
-    <section style={{ backgroundColor: "#c0c0c0", height: "700px" }}>
+    <section style={{ backgroundColor: "#c0c0c0", height: "100vh" }}>
       <div className="d-flex justify-content-center align-items-center h-100">
         <div className="shadow rounded bg-light p-4" style={{ width: '100%', maxWidth: '950px' }}>
           <div className="row">

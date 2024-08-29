@@ -24,7 +24,7 @@ interface AuthContextProps {
     uidb64: string,
     token: string,
     newPassword: string,
-    confirmPassword: string
+    confirm_password: string
   ) => Promise<void>;
   requestVerificationResend: (email: string) => Promise<void>;
 }
@@ -108,8 +108,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       );
       if (response.status === 201) {
         toast.success('Registration successful. Please check your email to activate your account.');
-        // Optionally navigate to login page if needed
-        // navigate('/login'); // Uncomment if you want to navigate immediately
       } else {
         toast.error('Registration failed');
         throw new Error('Registration failed');
@@ -130,13 +128,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const forgotPassword = async (email: string) => {
     try {
-      await axios.post('http://127.0.0.1:8000/api/forgot-password/', {
+      const response = await axios.post('http://127.0.0.1:8000/api/forgot-password/', {
         email,
       });
-      toast.success('Reset Password link has been sent to your email');
+      
+      if (response.status === 200){
+        toast.success('Reset Password link has been sent to your email');
+      }else{
+        toast.error("Invalid email")
+      }
+  
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 400){
+        toast.error("Invalid email")
+      }
+      else{
+        toast.error('An error occurred during password reset');
+      }
       console.log(error);
-      toast.error('An error occurred during password reset');
+      
     }
   };
 
@@ -144,25 +154,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     uidb64: string,
     token: string,
     newPassword: string,
-    confirmPassword: string
-  ) => {
+    confirm_password: string
+    ) => {
     try {
-      const response = await axios.patch(
-        `http://127.0.0.1:8000/api/reset-password/${uidb64}/${token}/`,
-        { password: newPassword, confirm_password: confirmPassword }
-      );
+        const response = await axios.patch(
+            `http://127.0.0.1:8000/api/reset-password/${uidb64}/${token}/`,
+            { password: newPassword, confirm_password: confirm_password }
+        );
 
-      if (response.status === 200) {
-        toast.success('Password reset successful! You can now log in with your new password.');
-        navigate('/login'); // Navigate to login page after successful reset
-      } else {
-        toast.error('Password reset failed!');
-      }
+        if (response.status === 200) {
+            toast.success('Password reset successful! You can now log in with your new password.');
+            navigate('/login'); // Navigate to login page after successful reset
+        } else {
+            toast.error('Password reset failed!');
+        }
     } catch (error) {
-      console.log(error);
-      toast.error('An error occurred during the password reset process.');
+        if (axios.isAxiosError(error) && error.response?.status === 400) {
+              toast.error("Invalid or mismatched passwords");
+        } else {
+            toast.error('An unexpected error occurred');
+        }
+        console.log(error);
     }
-  };
+};
 
   const verifyEmail = async (uidb64: string, token: string) => {
     try {

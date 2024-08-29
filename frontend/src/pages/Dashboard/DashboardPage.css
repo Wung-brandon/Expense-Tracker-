@@ -1,21 +1,12 @@
 /* DashboardPage.css */
 
-.dashboard-container {
-    display: flex;
-    height: 100vh;
-  }
+/* .dashboard-container {
+    
+  } */
   
   .main-content {
-    flex-grow: 6;
-    padding: 16px; /* Adjust padding as needed */
-    overflow-y: auto;
-    background-color: #f5f5f5; /* Adjust background color if needed */
+    flex: 6;
+    padding: 3rem; /* Adjust padding as needed */
+    /* background-color: aqua; */
+    
   }
-  
-  .spinner-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* Full viewport height to center spinner in the middle */
-  }
-  

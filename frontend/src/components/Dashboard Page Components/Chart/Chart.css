@@ -1,0 +1,12 @@
+.income-chart {
+    background-color: #fafafa;
+    padding: 1rem;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .income-chart h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
