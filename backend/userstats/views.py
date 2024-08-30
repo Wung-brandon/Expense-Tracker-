@@ -1,6 +1,6 @@
 import datetime
 from django.db.models import Sum
-from expense_api.models import Expense, Income
+from expense_api.models import Expense, Income, Budget
 from rest_framework.views import APIView
 from dateutil.relativedelta import relativedelta
 from rest_framework.permissions import IsAuthenticated
@@ -61,18 +61,18 @@ class IncomeSummaryStatsView(APIView):
         ).values('source').annotate(total_amount=Sum('amount')).order_by('source')
         
         total_income = Income.objects.filter(user=request.user, date__range=(a_month_ago, today_date)).aggregate(total_income=Sum('amount'))
-
+       
         # Debug print statement (optional)
-        print(f"Income: {income_summary}")
-        print(f"Total Income: {total_income}")
+        # print(f"Income: {income_summary}")
+        # print(f"Total Income: {total_income}")
         
         income_summary_list = list(income_summary)
         total_income_amount = total_income['total_income'] or 0  # Handle None case
 
         # Return JSON response
         return Response(
-            {"income_source_data" : income_summary_list,
-             "Total Income" : total_income_amount,
+            {"income_source_data" : income_summary,
+             "total_income" : total_income_amount,
              },
             
             status=status.HTTP_200_OK)

@@ -22,6 +22,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["username"] = user.username
         token["email"] = user.email
         token["gender"] = user.gender
+        token["is_verified"] = user.is_verified
         token["full_name"] = user.profile.full_name
         token["bio"] = user.profile.bio
         token["location"] = user.profile.location
@@ -32,14 +33,17 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'gender'] 
+        fields = ['id', 'username', 'is_verified', 'email', 'gender'] 
+        read_only_fields = ['id','is_verified']
         
 class UserProfileSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')  # Or you can use user.id or any other user field
+    user = serializers.ReadOnlyField(source='user.username') 
+    email = serializers.EmailField(source='user.email', read_only=True)
+    gender = serializers.ReadOnlyField(source='user.gender', read_only=True)
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'full_name', 'bio', 'phone_number', 'location', 'profile_img']  # Include all fields you want to expose
-        read_only_fields = ['user']
+        fields = ['id', 'user', 'full_name', 'bio', 'phone_number', 'gender', 'email', 'location', 'profile_img']  # Include all fields you want to expose
+        read_only_fields = ['id','user', 'email', 'gender']
 
     def create(self, validated_data):
         # Create a new Profile instance linked to the authenticated user

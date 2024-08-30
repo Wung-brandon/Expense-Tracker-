@@ -7,8 +7,8 @@ urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name="refresh"),
     path("signup/", SignUpView.as_view(), name="signup"), 
     path("user/", GetUserView.as_view(), name="userId"),
-    path("user-profile/", ListCreateUserProfileView.as_view(), name="user-profile"),
-    path("user-profile/<int:id>/", RetrieveUpdateUserProfileView.as_view(), name="user-profileId"),
+    path("user/profile/", ListCreateUserProfileView.as_view(), name="user-profile"),
+    path("user/profile/<int:id>/", RetrieveUpdateUserProfileView.as_view(), name="user-profileId"),
     
 
     path('verify-email/<uidb64>/<token>/', EmailVerificationView.as_view(), name='verify-email'),

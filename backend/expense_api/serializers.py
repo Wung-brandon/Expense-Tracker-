@@ -4,19 +4,21 @@ from rest_framework import serializers
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Income
-        fields = ["id", "amount", "source", "description", "date"]
-        
+        fields = ["id", 'user', "amount", "source", "description", "date"]
+        read_only_fields = ['id','user']
 
 class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
-        fields = ["id", "amount", "category", "description", "date"]
+        fields = ["id", "amount", "category", 'user', "description", "date"]
+        read_only_fields = ['id','user']
         
 
 class BudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Budget
-        fields = ["id", "amount", "month"]
+        fields = ["id", "amount", 'user', "month"]
+        read_only_fields = ['id','user']
         
 class MonthlyReportSerializer(serializers.ModelSerializer):
     class Meta:

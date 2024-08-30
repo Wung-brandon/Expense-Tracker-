@@ -9,6 +9,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework import status
 from rest_framework.response import Response
 from django.urls import reverse
+from django.shortcuts import redirect
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -131,17 +132,15 @@ class ForgotPasswordView(GenericAPIView):
         if user:
             encoded_pk = urlsafe_base64_encode(force_bytes(user.pk))
             token = PasswordResetTokenGenerator().make_token(user)
-            reset_url = reverse(
-                "reset-password",
-                kwargs={"uidb64": encoded_pk, "token": token}
-            )
-            reset_link = f"{request.build_absolute_uri(reset_url)}"
+           
+            # Construct the frontend reset URL
+            reset_url = f"http://localhost:5173/reset-password/{encoded_pk}/{token}/"
 
             # Create the message as a string
             message = (
                 f"Hi {user.username},\n\n"
                 f"Please click the link below to reset your password:\n"
-                f"{reset_link}\n\n"
+                f"{reset_url}\n\n"
                 f"If you did not make this request, you can ignore this email.\n\n"
                 f"Thanks,\n"
                 f"Your Team"
@@ -151,11 +150,15 @@ class ForgotPasswordView(GenericAPIView):
             
             send_notification(user, message, subject)
             
+            return redirect(reset_url)
+            
+            # redirect_url = f"http://localhost:5173/reset-password"
+            # return redirect(redirect_url)
 
-            return Response(
-                {"message": "Password reset link has been sent to your email."},
-                status=status.HTTP_200_OK,
-            )
+            # return Response(
+            #     {"message": "Password reset link has been sent to your email."},
+            #     status=status.HTTP_200_OK,
+            # )
         else:
             return Response(
                 {"message": "User does not exist."},
@@ -234,13 +237,22 @@ class EmailVerificationView(APIView):
         if user is not None and PasswordResetTokenGenerator().check_token(user, token):
             user.is_verified = True
             user.save()
-
-            # Send confirmation email
+            
+            
+            # Construct the redirect URL with a success message
+            redirect_url = f"http://localhost:5173/login?account_verified=True"
+            
+             # Send confirmation email
             message = f"Hi {user.username},\n\nYour account has been activated successfully.\n\nThanks,\nYour Team"
             subject = "Account Activated"
             send_notification(user, message, subject)
 
-            return Response({"message": "Account activated successfully"}, status=status.HTTP_200_OK)
+
+            # Redirect the user to the frontend login page
+            return redirect(redirect_url)
+
+           
+            # return Response({"message": "Account activated successfully"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Activation link is invalid"}, status=status.HTTP_400_BAD_REQUEST)
         

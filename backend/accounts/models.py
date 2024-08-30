@@ -53,7 +53,7 @@ class Profile(models.Model):
     bio = models.TextField()
     phone_number = models.CharField(max_length=100, null=True, blank=True)  
     location = models.CharField(max_length=150, null=True, blank=True)
-    profile_img = models.ImageField(default="default.png", upload_to="user_images", blank=True, null=True)
+    profile_img = models.ImageField(upload_to="user_images", blank=True, null=True)
     
     def __str__(self):
         return self.full_name

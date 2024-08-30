@@ -8,6 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ExpenseFilter, IncomeFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+import logging
 
 # Create your views here.
 class ExpenseListCreateView(ListCreateAPIView):
@@ -36,14 +37,15 @@ class ExpenseRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
-    
+   
+logger = logging.getLogger(__name__) 
     
 class IncomeListCreateView(ListCreateAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = IncomeFilter
     filterset_fields = ["source", "amount", "date"]
     search_fields = ["source", "amount"]
-    ordering_fields = ["amount", "date"]
+    ordering_fields = ["id", "amount", "date"]
     pagination_class = PageNumberPagination
     
     serializer_class = IncomeSerializer
@@ -51,11 +53,17 @@ class IncomeListCreateView(ListCreateAPIView):
     queryset = Income.objects.all()
     
     def perform_create(self, serializer):
-        return serializer.save(user=self.request.user)
-    
+        try:
+            return serializer.save(user=self.request.user)
+        except Exception as e:
+            logger.error(f"Error while saving income: {e}")
+            raise
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
-    
+        try:
+            return self.queryset.filter(user=self.request.user)
+        except Exception as e:
+            logger.error(f"Error while filtering queryset: {e}")
+            raise
 class IncomeRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
     queryset = Income.objects.all()

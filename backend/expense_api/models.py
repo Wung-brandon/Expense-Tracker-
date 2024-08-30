@@ -25,7 +25,7 @@ class Income(models.Model):
     source = models.CharField(max_length=150, choices=DEFAULT_SOURCE, default="SALARY")
     description = models.TextField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    date = models.DateField(default=timezone.now())
+    date = models.DateField(default=timezone.now)  # Ensure this is a DateField
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
@@ -61,7 +61,7 @@ class Expense(models.Model):
     category = models.CharField(choices=DEFAULT_EXPENSE_CATEGORY, default="FOOD", max_length=200)
     description = models.TextField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    date = models.DateField()
+    date = models.DateField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
@@ -134,7 +134,7 @@ class Expense(models.Model):
 class Budget(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    month = models.DateField()
+    month = models.DateField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
@@ -168,7 +168,7 @@ class Budget(models.Model):
         super().save(*args, **kwargs)
 class MonthlyReport(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(default=timezone.now)
     total_income = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_expense = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
