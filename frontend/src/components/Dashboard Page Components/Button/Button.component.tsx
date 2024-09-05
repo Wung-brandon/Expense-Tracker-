@@ -10,7 +10,7 @@ interface ButtonComponentProps {
 const ButtonComponent: React.FC<ButtonComponentProps> = ({ text, onClick }) => {
   return (
     <div>
-      <button className="btn btn-primary text-white" onClick={onClick}>
+      <button className="btn text-white" style={{backgroundColor:"#4a148c"}} onClick={onClick}>
         {text}
       </button>
     </div>

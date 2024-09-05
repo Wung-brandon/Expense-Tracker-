@@ -14,10 +14,14 @@ import ProtectedRoute from './utils/PrivateRoute';
 import Income from './pages/Income/income.pages';
 import Expense from './pages/Expense/Expense.pages';
 import Budget from './pages/Budget/Budget.pages';
+import { ThemeProvider } from './context/BackgroundContext';
+import "./app.css"
 
 function App() {
   return (
     <Router>
+      <ThemeProvider>
+      
       <AuthProvider>
         <ToastContainer />
         <Routes>
@@ -34,9 +38,9 @@ function App() {
               <Route path='budget' element={<Budget />} />
           </Route>
           
-          
         </Routes>
       </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

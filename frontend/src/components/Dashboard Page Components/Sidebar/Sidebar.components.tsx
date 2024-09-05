@@ -19,7 +19,6 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import BudgetIcon from '@mui/icons-material/AccountBalanceWallet';
 import ReportIcon from '@mui/icons-material/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
-import HelpIcon from '@mui/icons-material/HelpOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -32,9 +31,11 @@ import { useEffect, useState, useContext } from 'react';
 import AuthContext from '../../../context/AuthContext';
 import useAxios from '../../../utils/useAxios';
 import defaultImg from "../../../assets/defaults.jpeg"
+import { useThemeBackground } from '../../../context/BackgroundContext';
 
 const drawerWidth = 240;
 
+// Define styles for opened and closed drawer states
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -42,9 +43,13 @@ const openedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: 'hidden',
-  backgroundColor: '#ffffff',
-  boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
-  color: '#000000',
+  ...(theme.palette.mode === 'light' && {
+    backgroundColor: '#4a148c', // Purple color for light mode
+  }),
+  ...(theme.palette.mode === 'dark' && {
+    backgroundColor: '#ffffff', // White color for dark mode
+  }),
+  color: theme.palette.mode === 'light' ? '#ffffff' : '#4a148c', // Text color
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -57,10 +62,36 @@ const closedMixin = (theme: Theme): CSSObject => ({
   [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
-  backgroundColor: '#ffffff',
-  boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
-  color: '#000000',
+  ...(theme.palette.mode === 'light' && {
+    backgroundColor: '#4a148c', // Purple color for light mode
+  }),
+  ...(theme.palette.mode === 'dark' && {
+    backgroundColor: '#ffffff', // White color for dark mode
+  }),
+  color: theme.palette.mode === 'light' ? '#ffffff' : '#4a148c', // Text color
 });
+
+// Drawer component styled with conditional theme-based styles
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+    ...(open && {
+      ...openedMixin(theme),
+      '& .MuiDrawer-paper': {
+        ...openedMixin(theme),
+      },
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      '& .MuiDrawer-paper': {
+        ...closedMixin(theme),
+      },
+    }),
+  }),
+);
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -83,8 +114,8 @@ const AppBar = styled(MuiAppBar, {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  backgroundColor: '#ffffff',
-  color: '#000000',
+  backgroundColor: '#4a148c', // Purple color for AppBar
+  color: '#ffffff', // White color for text and icons
   boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
   ...(open && {
     marginLeft: drawerWidth,
@@ -96,27 +127,34 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-  }),
-);
+// const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+//   ({ theme, open }) => ({
+//     width: drawerWidth,
+//     flexShrink: 0,
+//     whiteSpace: 'nowrap',
+//     boxSizing: 'border-box',
+//     ...(open && {
+//       ...openedMixin(theme),
+//       '& .MuiDrawer-paper': {
+//         ...openedMixin(theme),
+//         backgroundColor: '#f5f5f5', // Light grey color for Drawer
+//         color: '#000000', // Black color for text
+//       },
+//     }),
+//     ...(!open && {
+//       ...closedMixin(theme),
+//       '& .MuiDrawer-paper': {
+//         ...closedMixin(theme),
+//         backgroundColor: '#f5f5f5', // Light grey color for Drawer
+//         color: '#000000', // Black color for text
+//       },
+//     }),
+//   }),
+// );
 
 export default function Sidebar() {
   const axiosInstance = useAxios();
   const { authTokens, logoutUser } = useContext(AuthContext);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [userProfile, setUserProfile] = useState<any>(null);
 
   // Fetch user profile function
@@ -140,8 +178,6 @@ export default function Sidebar() {
     } catch (error) {
       console.log(error);
     }
-    console.log("Profile Image:", userProfile.profile_img);
-    console.log("Default Image:", defaultImg);
   };
 
   useEffect(() => {
@@ -159,6 +195,12 @@ export default function Sidebar() {
     setOpen(false);
   };
 
+  const { isDarkMode, toggleTheme } = useThemeBackground();
+
+  useEffect(() => {
+    document.body.classList.toggle('dark-mode', isDarkMode);
+  }, [isDarkMode]);
+
   return (
     <Box>
       <CssBaseline />
@@ -172,15 +214,16 @@ export default function Sidebar() {
             sx={{
               marginRight: 2,
               ...(open && { display: 'none' }),
+              
             }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: "#4a148c", fontWeight: "bold" }}>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             ExpenseEye
           </Typography>
           <div className="d-flex align-items-center justify-content-center">
-            <IconButton color='inherit'>
+            <IconButton onClick={toggleTheme} color='inherit'>
               <DarkModeOutlined />
             </IconButton>
             <IconButton color="inherit">
@@ -189,7 +232,7 @@ export default function Sidebar() {
             {userProfile && (
               userProfile.profile_img ? (
                 <>
-                  <h5 className='me-3 text-capitalize mt-2'>{userProfile.full_name ? userProfile.full_name : userProfile.user || ""}</h5>  
+                  <h5 className='me-3 text-capitalize mt-2' style={{ color: "#ffffff" }}>{userProfile.full_name ? userProfile.full_name : userProfile.user || ""}</h5>
                   <img 
                     src={userProfile.profile_img} 
                     className='rounded-circle img-fluid' 
@@ -199,14 +242,14 @@ export default function Sidebar() {
                 </>
               ) : (
                 <div className='d-flex align-items-center'>
-                  <h5 className='me-3 text-capitalize mt-2'>{userProfile.full_name ? userProfile.full_name : userProfile.user || ""}</h5>  
+                  <h5 className='me-3 text-capitalize mt-2' style={{ color: "#ffffff" }}>{userProfile.full_name ? userProfile.full_name : userProfile.user || ""}</h5>
                   <div 
                     className='rounded-circle d-flex align-items-center justify-content-center' 
                     style={{
                       width: "40px", 
                       height: "40px", 
-                      backgroundColor: "#6A0DAD",  // Purple background color
-                      color: "white",
+                      backgroundColor: "#6A0DAD", // Purple background color
+                      color: "#ffffff",
                       fontSize: "18px",
                       fontWeight: "bold"
                     }}
@@ -216,59 +259,75 @@ export default function Sidebar() {
                 </div>
               )
             )}
-
-
           </div>
-          
-
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           {userProfile && <h5 className='text-center text-capitalize fw-bold m-auto'>{userProfile.user || ''}</h5>}
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
         <Divider />
+        <List >
+          <Link to="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <ListItem button>
+              <ListItemIcon sx={{color:"#fff"}}>
+                <DashboardIcon />
+              </ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+          </Link>
+          <Link to="expense" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <ListItem button>
+              <ListItemIcon sx={{color:"#fff"}}>
+                <AttachMoneyIcon />
+              </ListItemIcon>
+              <ListItemText primary="Expenses" />
+            </ListItem>
+          </Link>
+          <Link to="income" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <ListItem button>
+              <ListItemIcon sx={{color:"#fff"}}>
+                <ReceiptIcon  />
+              </ListItemIcon>
+              <ListItemText primary="Income" />
+            </ListItem>
+          </Link>
+          <Link to="/budget" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <ListItem button>
+              <ListItemIcon sx={{color:"#fff"}}>
+                <BudgetIcon />
+              </ListItemIcon>
+              <ListItemText primary="Budget" />
+            </ListItem>
+          </Link>
+          <Link to="/reports" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <ListItem button>
+              <ListItemIcon sx={{color:"#fff"}}>
+                <ReportIcon />
+              </ListItemIcon>
+              <ListItemText primary="Reports" />
+            </ListItem>
+          </Link>
+          <Link to="/settings" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <ListItem button>
+              <ListItemIcon sx={{color:"#fff"}}>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItem>
+          </Link>
+        </List>
+        <Divider style={{background:"#fff"}} />
         <List>
-          {[
-            { text: 'Dashboard', icon: <DashboardIcon />, link: '/dashboard' },
-            { text: 'Income', icon: <AttachMoneyIcon />, link: 'income' },
-            { text: 'Expenses', icon: <ReceiptIcon />, link: 'expense' },
-            { text: 'Budget', icon: <BudgetIcon />, link: 'budget' },
-            { text: 'Report', icon: <ReportIcon />, link: '/report' },
-            { text: 'Settings', icon: <SettingsIcon />, link: '/settings' },
-            { text: 'Help', icon: <HelpIcon />, link: '/help' },
-            { text: 'Logout', icon: <LogoutIcon />, link: '#', onClick: logoutUser },
-          ].map((item, index) => (
-            <React.Fragment key={item.text}>
-              <ListItem disablePadding sx={{ display: 'block' }}>
-                <ListItemButton
-                  component={Link}
-                  to={item.link}
-                  onClick={item.onClick} // This handles the logout
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
-                </ListItemButton>
-              </ListItem>
-              {item.text === 'Dashboard' && <Divider />}
-            </React.Fragment>
-          ))}
+          <ListItem button onClick={logoutUser}>
+            <ListItemIcon sx={{color:"#fff"}}>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItem>
         </List>
       </Drawer>
     </Box>

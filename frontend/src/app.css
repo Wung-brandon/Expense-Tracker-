@@ -1,0 +1,32 @@
+/* src/index.css or src/App.css */
+
+body {
+    transition: background-color 0.3s ease;
+  }
+  
+  .dark-mode {
+    background-color: #121212;
+    color: #fff;
+  }
+  
+/* src/styles/global.css */
+
+/* body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.dark-mode .MuiAppBar-root {
+  background-color: #1c1c1c;
+  color: #fff;
+}
+
+.dark-mode .MuiDrawer-paper {
+  background-color: #1c1c1c;
+  color: #fff;
+}
+
+.dark-mode .MuiTable-root {
+  background-color: #1c1c1c;
+  color: #fff;
+} */

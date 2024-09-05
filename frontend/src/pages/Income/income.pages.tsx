@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AttachMoney } from '@mui/icons-material';
 import PieChart from '../../components/Dashboard Page Components/Chart/Chart';
@@ -7,6 +8,8 @@ import KeepMountedModal from '../../components/Dashboard Page Components/Modal/M
 import './income.css';
 import { toast } from 'react-toastify';
 import DataTable from '../../components/Dashboard Page Components/Table/Table';
+import ConfirmationModal from '../../components/Dashboard Page Components/Modal/confirmModal';
+// import { useThemeBackground } from '../../context/BackgroundContext';
 
 interface Data {
   id: number;
@@ -31,9 +34,15 @@ const Income: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState<Data | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [open, setOpen] = useState<boolean>(false);
+
+  // const {isDarkMode, toggleTheme} = useThemeBackground()
 
   const axiosInstance = useAxios();
 
@@ -93,7 +102,7 @@ const Income: React.FC = () => {
       options: [
         { label: 'SALARY', value: 'SALARY' },
         { label: 'BUSINESS', value: 'BUSINESS' },
-        { label: 'SIDE HUSTLE', value: 'SIDE_HUSTLE' },
+        { label: 'SIDE HUSTLE', value: 'SIDE HUSTLE' },
         { label: 'INVESTMENTS', value: 'INVESTMENTS' },
         { label: 'INHERITANCE', value: 'INHERITANCE' },
         { label: 'GIFTS', value: 'GIFTS' },
@@ -154,11 +163,13 @@ const Income: React.FC = () => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     setPage(newPage);
+    fetchAllData();
   };
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+    fetchAllData()
   };
 
   const handleEdit = (row: Data) => {
@@ -170,6 +181,36 @@ const Income: React.FC = () => {
     setDate(row.date);
     setModalOpen(true);
   };
+
+  const handleDeleteClick = (id: number) => {
+    setSelectedId(id);
+    setOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedId !== null) {
+      try {
+        const response = await axiosInstance.delete(`track/income/${selectedId}/`);
+        if (response.status === 204) {
+          toast.success('Successfully deleted');
+          setIncomeData((prevData) => prevData.filter((item) => item.id !== selectedId));
+        } else {
+          toast.error('Error deleting');
+        }
+      } catch (error: unknown) {
+        toast.error('Error deleting');
+      } finally {
+        setOpen(false);
+        setSelectedId(null);
+      }
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setOpen(false);
+    setSelectedId(null);
+  };
+
 
   const closeModal = () => {
     setEditMode(false);
@@ -199,7 +240,9 @@ const Income: React.FC = () => {
           <TotalCard title="Total Income" total={total} icon={AttachMoney} />
         </div>
         <div className="col-12 col-md-6">
-          <PieChart data={data} labels={labels} title="Income sources" />
+          {total === 0 ? <h2 className='text-center mt-5'>No Income Source</h2> : 
+            <PieChart data={data} labels={labels} title="Income sources" />
+          } 
         </div>
       </div>
       <div className="row shadow mt-5">
@@ -210,9 +253,16 @@ const Income: React.FC = () => {
             page={page}
             text="Income Data"
             count={count}
+            onDeleteClick={handleDeleteClick}
+            onEditClick={handleEdit}
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
+          />
+          <ConfirmationModal 
+            open={open} 
+            handleClose={handleCancelDelete} 
+            handleConfirm={handleConfirmDelete} 
           />
         </div>
       </div>

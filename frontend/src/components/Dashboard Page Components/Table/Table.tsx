@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { alpha } from '@mui/material/styles';
+import React from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,12 +15,12 @@ import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
-import { visuallyHidden } from '@mui/utils';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import KeepMountedModal from '../Modal/Modal.component';
+import { visuallyHidden } from '@mui/utils';
 
 interface Data {
+  id: number;
   [key: string]: string | number;
 }
 
@@ -35,24 +34,26 @@ interface DataTableProps {
   columns: Column[];
   data: Data[];
   count: number;
-  text:string;
+  text: string;
   page: number;
   rowsPerPage: number;
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onEditClick: (row: Data) => void;
+  onEditClick: (row: any) => void;
+  onDeleteClick: (id: number) => void;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
   columns,
   data,
   count,
-  page,
   text,
+  page,
   rowsPerPage,
   onPageChange,
   onRowsPerPageChange,
   onEditClick,
+  onDeleteClick,
 }) => {
   const [order, setOrder] = React.useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = React.useState<string>(columns[0].id);
@@ -60,7 +61,7 @@ const DataTable: React.FC<DataTableProps> = ({
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
-    property: string,
+    property: string
   ) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -89,7 +90,7 @@ const DataTable: React.FC<DataTableProps> = ({
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selected.slice(selectedIndex + 1)
       );
     }
     setSelected(newSelected);
@@ -126,7 +127,12 @@ const DataTable: React.FC<DataTableProps> = ({
           )}
           {selected.length > 0 ? (
             <Tooltip title="Delete">
-              <IconButton>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteClick(selected[0]);
+                }}
+              >
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
@@ -145,8 +151,12 @@ const DataTable: React.FC<DataTableProps> = ({
                 <TableCell padding="checkbox">
                   <Checkbox
                     color="primary"
-                    indeterminate={selected.length > 0 && selected.length < data.length}
-                    checked={data.length > 0 && selected.length === data.length}
+                    indeterminate={
+                      selected.length > 0 && selected.length < data.length
+                    }
+                    checked={
+                      data.length > 0 && selected.length === data.length
+                    }
                     onChange={handleSelectAllClick}
                     inputProps={{
                       'aria-label': 'select all items',
@@ -168,13 +178,15 @@ const DataTable: React.FC<DataTableProps> = ({
                       {column.label}
                       {orderBy === column.id ? (
                         <Box component="span" sx={visuallyHidden}>
-                          {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                          {order === 'desc'
+                            ? 'sorted descending'
+                            : 'sorted ascending'}
                         </Box>
                       ) : null}
                     </TableSortLabel>
                   </TableCell>
                 ))}
-                <TableCell align="center">Actions</TableCell> {/* Add Actions column */}
+                <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -203,14 +215,21 @@ const DataTable: React.FC<DataTableProps> = ({
                       />
                     </TableCell>
                     {columns.map((column) => (
-                      <TableCell align={column.numeric ? 'right' : 'left'} sx={{textDecoration:"capitalize"}} key={column.id}>
+                      <TableCell
+                        align={column.numeric ? 'right' : 'left'}
+                        key={column.id}
+                        sx={{ textDecoration: 'capitalize' }}
+                      >
                         {row[column.id]}
                       </TableCell>
                     ))}
                     <TableCell align="center">
                       <IconButton
                         color="primary"
-                        onClick={() => onEditClick(row)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditClick(row);
+                        }}
                       >
                         <EditIcon />
                       </IconButton>
@@ -219,8 +238,8 @@ const DataTable: React.FC<DataTableProps> = ({
                 );
               })}
               {count - data.length > 0 && (
-                <TableRow style={{ height: 53, textDecoration:"capitalize" }}>
-                  <TableCell colSpan={columns.length + 1} />
+                <TableRow style={{ height: 53 }}>
+                  <TableCell colSpan={columns.length + 2} />
                 </TableRow>
               )}
             </TableBody>
