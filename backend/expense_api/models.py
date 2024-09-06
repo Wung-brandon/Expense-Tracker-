@@ -15,7 +15,7 @@ class Income(models.Model):
     DEFAULT_SOURCE = (
         ("SALARY", "SALARY"),
         ("BUSINESS", "BUSINESS"),
-        ("SIDE_HUSTLE", "SIDE_HUSTLE"),
+        ("SIDE HUSTLE", "SIDE HUSTLE"),
         ("INVESTMENTS", "INVESTMENTS"),
         ("INHERITANCE", "INHERITANCE"),
         ("GIFTS", "GIFTS"),
@@ -50,11 +50,11 @@ class Expense(models.Model):
         ("DEBT", "DEBT"),
         ("ENTERTAINMENT", "ENTERTAINMENT"),
         ("CLOTHING", "CLOTHING"),
-        ("HEALTH_AND_WELLNESS", "HEALTH_AND_WELLNESS"),
-        ("PERSONAL_CARE", "PERSONAL_CARE"),
+        ("HEALTH AND WELLNESS", "HEALTH AND WELLNESS"),
+        ("PERSONAL CARE", "PERSONAL CARE"),
         ("EDUCATION", "EDUCATION"),
         ("GIFTS", "GIFTS"),
-        ("ONLINE_SERVICES", "ONLINE_SERVICES"),
+        ("ONLINE SERVICES", "ONLINE SERVICES"),
         ("OTHERS", "OTHERS"),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)

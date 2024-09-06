@@ -28,17 +28,17 @@ class ExpenseSummaryStatsView(APIView):
         total_expenses = Expense.objects.filter(user=request.user, date__range=(a_month_ago, today_date)).aggregate(total_expense=Sum('amount'))
 
         # Convert queryset to dictionary for JSON serialization
-        expense_summary_list = list(expense_summary)
+        # expense_summary_list = list(expense_summary)
         total_expenses_amount = total_expenses['total_expense'] or 0  # Handle None case
 
         # Debug print statement (optional)
         print(f"Expenses: {expense_summary}")
-        print(f"Total Expenses: {total_expenses}")
+        print(f"total_expenses: {total_expenses}")
 
         # Return JSON response
         return Response(
-            {"category_data" : expense_summary_list,
-             "Total Expenses" : total_expenses_amount,
+            {"category_data" : expense_summary,
+             "total_expenses" : total_expenses_amount,
              },
             
         status=status.HTTP_200_OK)
@@ -66,7 +66,7 @@ class IncomeSummaryStatsView(APIView):
         # print(f"Income: {income_summary}")
         # print(f"Total Income: {total_income}")
         
-        income_summary_list = list(income_summary)
+        # income_summary_list = list(income_summary)
         total_income_amount = total_income['total_income'] or 0  # Handle None case
 
         # Return JSON response
@@ -77,6 +77,7 @@ class IncomeSummaryStatsView(APIView):
             
             status=status.HTTP_200_OK)
     
+
 class IncomeVsExpenseStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -100,17 +101,64 @@ class IncomeVsExpenseStatsView(APIView):
             total_expense=Sum('amount')
         ).order_by('date__month')
 
-        # Prepare the response
-        income_data = {entry['date__month']: entry['total_income'] for entry in income_summary}
-        expense_data = {entry['date__month']: entry['total_expense'] for entry in expense_summary} 
+        # Prepare the data for each month
+        monthly_summary = []
+        months = set([entry['date__month'] for entry in income_summary] + [entry['date__month'] for entry in expense_summary])
+        for month in sorted(months):
+            income_amount = next((entry['total_income'] for entry in income_summary if entry['date__month'] == month), 0)
+            expense_amount = next((entry['total_expense'] for entry in expense_summary if entry['date__month'] == month), 0)
+            monthly_summary.append({
+                'month': f"{today_date.year}-{month:02d}",
+                'income': income_amount,
+                'expenses': expense_amount
+            })
 
-        # Combine the results into a single dictionary
-        result = {
-            'income': income_data,
-            'expenses': expense_data
-        }
+        return Response({"income_vs_expenses_summary": monthly_summary})
+    
+class ExpenseVsBudgetStatsView(APIView):
+    permission_classes = [IsAuthenticated]
 
-        return Response({"income-vs-expenses data": result})
+    def get(self, request):
+        today_date = datetime.date.today()
+        a_month_ago = today_date - relativedelta(months=1)
+
+        # Aggregate budget data for the current month
+        budget_summary = Budget.objects.filter(
+            user=request.user,
+            month__year=today_date.year,
+            month__month=today_date.month
+        ).aggregate(total_budget=Sum('amount'))
+        
+        total_budget = budget_summary['total_budget'] or 0
+
+        # Aggregate expense data
+        expense_summary = Expense.objects.filter(
+            user=request.user, 
+            date__range=(a_month_ago, today_date)
+        ).values('date__month').annotate(
+            total_expense=Sum('amount')
+        ).order_by('date__month')
+
+        # Prepare the data for each month
+        monthly_summary = []
+        months = set([today_date.month] + [entry['date__month'] for entry in expense_summary])
+        for month in sorted(months):
+            # Format month as YYYY-MM
+            month_str = f"{today_date.year}-{month:02d}"
+
+            # Get budget data (assuming a single month budget)
+            budget_amount = total_budget if month == today_date.month else 0
+
+            # Get expense data
+            expense_amount = next((entry['total_expense'] for entry in expense_summary if entry['date__month'] == month), 0)
+
+            monthly_summary.append({
+                'month': month_str,
+                'budget': budget_amount,
+                'expenses': expense_amount
+            })
+
+        return Response({"budget_vs_expenses_summary": monthly_summary})
     
 class TotalBalanceSummaryView(APIView):
     permission_classes = [IsAuthenticated]
@@ -125,12 +173,77 @@ class TotalBalanceSummaryView(APIView):
         
         current_month = datetime.date.today().strftime("%B")
         total_balance_amount = total_income_amount - total_expenses_amount
+        total_budget = Budget.objects.filter(
+            user=request.user,
+            month__year=today_date.year,
+            month__month=today_date.month
+        ).aggregate(total_budget=Sum('amount'))['total_budget'] or 0
         return Response(
                          {
-                             "total_income": total_income_amount,
-                            "total_expenses": total_expenses_amount,
-                            f"Total balance for {current_month}": total_balance_amount,
+                             f"total_income": total_income_amount,
+                             f"total_budget": total_budget,
+                            f"total_expenses": total_expenses_amount,
+                            f"total_balance": total_balance_amount,
                          }
                         )
         
-    
+
+class MonthlySummaryStatsView(APIView):
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
+
+    def get(self, request):
+        today_date = datetime.date.today()
+        start_date = today_date.replace(day=1) - relativedelta(years=1)  # Start from a year ago
+
+        # Aggregate income data
+        income_summary = Income.objects.filter(
+            user=request.user,
+            date__range=(start_date, today_date)
+        ).values('date__year', 'date__month').annotate(
+            total_income=Sum('amount')
+        ).order_by('date__year', 'date__month')
+
+        # Aggregate expense data
+        expense_summary = Expense.objects.filter(
+            user=request.user,
+            date__range=(start_date, today_date)
+        ).values('date__year', 'date__month').annotate(
+            total_expense=Sum('amount')
+        ).order_by('date__year', 'date__month')
+
+        # Aggregate budget data
+        budget_summary = Budget.objects.filter(
+            user=request.user,
+            month__range=(start_date, today_date)
+        ).values('month__year', 'month__month').annotate(
+            total_budget=Sum('amount')
+        ).order_by('month__year', 'month__month')
+
+        # Prepare data structures
+        monthly_summary = {}
+
+        # Process income data
+        for entry in income_summary:
+            year_month = f"{entry['date__year']}-{entry['date__month']:02d}"
+            if year_month not in monthly_summary:
+                monthly_summary[year_month] = {'income': 0, 'expenses': 0, 'budget': 0}
+            monthly_summary[year_month]['income'] = entry['total_income']
+
+        # Process expense data
+        for entry in expense_summary:
+            year_month = f"{entry['date__year']}-{entry['date__month']:02d}"
+            if year_month not in monthly_summary:
+                monthly_summary[year_month] = {'income': 0, 'expenses': 0, 'budget': 0}
+            monthly_summary[year_month]['expenses'] = entry['total_expense']
+
+        # Process budget data
+        for entry in budget_summary:
+            year_month = f"{entry['month__year']}-{entry['month__month']:02d}"
+            if year_month not in monthly_summary:
+                monthly_summary[year_month] = {'income': 0, 'expenses': 0, 'budget': 0}
+            monthly_summary[year_month]['budget'] = entry['total_budget']
+
+        # Convert to list of dictionaries for JSON serialization
+        result = [{'month': month, **data} for month, data in monthly_summary.items()]
+
+        return Response({"monthly_summary": result}, status=status.HTTP_200_OK)

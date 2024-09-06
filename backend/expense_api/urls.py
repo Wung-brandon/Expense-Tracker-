@@ -9,5 +9,5 @@ urlpatterns = [
     
     # Income Urls
     path("income/", IncomeListCreateView.as_view(), name="income"),
-    path("income/<int:id>/", ExpenseRetrieveUpdateDeleteView.as_view(), name="incomeId"),
+    path("income/<int:id>/", IncomeRetrieveUpdateDeleteView.as_view(), name="incomeId"),
 ]
