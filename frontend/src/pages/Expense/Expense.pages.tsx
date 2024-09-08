@@ -46,21 +46,42 @@ const Expense: React.FC = () => {
   const axiosInstance = useAxios();
 
   useEffect(() => {
-    axiosInstance.get('/userstats/expense-summary/')
-      .then(response => {
-        console.log(response.data);
-        const responseData = response.data.category_data;
-        const totalAmount = response.data.total_expenses;
-        setTotal(totalAmount);
-        const labels = responseData.map((item: any) => item.category);
-        const data = responseData.map((item: any) => item.total_amount);
-        setData(data);
-        setLabels(labels);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
-  }, [axiosInstance]);
+    const fetchData = () => {
+      axiosInstance.get('/userstats/monthly-summary/')
+        .then(response => {
+          const responseData = response.data.monthly_summary;
+          const currentMonth = new Date().toISOString().slice(0, 7); // Get current month in 'YYYY-MM' format
+
+          // Find the summary for the current month
+          const currentMonthSummary = responseData.find((item: any) => item.month === currentMonth);
+
+          if (currentMonthSummary) {
+            // Set total income for the current month
+            setTotal(currentMonthSummary.expenses);
+
+            // Extract income sources and amounts
+            const categories = currentMonthSummary.expense_categories.map((category: any) => category.category);
+            const amounts = currentMonthSummary.expense_categories.map((category: any) => category.total_amount);
+
+            // Set data for chart or display
+            setLabels(categories);
+            setData(amounts);
+          } else {
+            console.log('No data available for the current month.');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    };
+
+    // Fetch data every second
+    const intervalId = setInterval(fetchData, 1000); // 1000ms = 1 second
+
+    // Cleanup function to clear the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []); // Empty dependency array so this runs once when the component mounts
+
 
   const handleExpenseSubmit = (formData: { [key: string]: any }) => {
     if (typeof formData.amount === 'string') {
@@ -226,8 +247,11 @@ const Expense: React.FC = () => {
 
   if (loading) return <div>Loading...</div>;
 
+  const currentDate = new Date()
+  const currentMonth = currentDate.toLocaleString("default", {month: "long"})
+
   return (
-    <div className="income mt-4">
+    <div className="income" style={{margin: "7rem"}}>
       <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-4">
         <h2 className="text-center mb-3 mb-sm-0">Expense Summary</h2>
         <KeepMountedModal 
@@ -243,11 +267,11 @@ const Expense: React.FC = () => {
       </div>
       <div className="row shadow">
         <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3">
-          <TotalCard title="Total Expense" total={total} icon={AttachMoney} />
+          <TotalCard title={`Total Expenses For ${currentMonth}`} total={total} icon={AttachMoney} />
         </div>
         <div className="col-12 col-md-6">
           {total === 0 ? <h2 className='text-center mt-5'>No Expense Category</h2> : 
-            <PieChart data={data} labels={labels} title="Expense Category" />
+            <PieChart data={data} labels={labels} title={`Expense Category For ${currentMonth}`} />
           } 
         </div>
       </div>

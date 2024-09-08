@@ -18,11 +18,9 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import BudgetIcon from '@mui/icons-material/AccountBalanceWallet';
 import ReportIcon from '@mui/icons-material/BarChart';
-import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItem from '@mui/material/ListItem';
 import { Link } from 'react-router-dom';
@@ -30,7 +28,7 @@ import "./Sidebar.css";
 import { useEffect, useState, useContext } from 'react';
 import AuthContext from '../../../context/AuthContext';
 import useAxios from '../../../utils/useAxios';
-import defaultImg from "../../../assets/defaults.jpeg"
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useThemeBackground } from '../../../context/BackgroundContext';
 
 const drawerWidth = 240;
@@ -127,30 +125,6 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-// const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-//   ({ theme, open }) => ({
-//     width: drawerWidth,
-//     flexShrink: 0,
-//     whiteSpace: 'nowrap',
-//     boxSizing: 'border-box',
-//     ...(open && {
-//       ...openedMixin(theme),
-//       '& .MuiDrawer-paper': {
-//         ...openedMixin(theme),
-//         backgroundColor: '#f5f5f5', // Light grey color for Drawer
-//         color: '#000000', // Black color for text
-//       },
-//     }),
-//     ...(!open && {
-//       ...closedMixin(theme),
-//       '& .MuiDrawer-paper': {
-//         ...closedMixin(theme),
-//         backgroundColor: '#f5f5f5', // Light grey color for Drawer
-//         color: '#000000', // Black color for text
-//       },
-//     }),
-//   }),
-// );
 
 export default function Sidebar() {
   const axiosInstance = useAxios();
@@ -233,29 +207,35 @@ export default function Sidebar() {
               userProfile.profile_img ? (
                 <>
                   <h5 className='me-3 text-capitalize mt-2' style={{ color: "#ffffff" }}>{userProfile.full_name ? userProfile.full_name : userProfile.user || ""}</h5>
-                  <img 
-                    src={userProfile.profile_img} 
-                    className='rounded-circle img-fluid' 
-                    style={{ width: "40px", height: "40px" }} 
-                    alt="Profile"
-                  />
+                  <Link to="/dashboard/profile">
+                    <img 
+                      src={userProfile.profile_img} 
+                      className='rounded-circle img-fluid' 
+                      style={{ width: "40px", height: "40px" }} 
+                      alt="Profile"
+                    />
+                  </Link>
+                  
                 </>
               ) : (
                 <div className='d-flex align-items-center'>
                   <h5 className='me-3 text-capitalize mt-2' style={{ color: "#ffffff" }}>{userProfile.full_name ? userProfile.full_name : userProfile.user || ""}</h5>
-                  <div 
-                    className='rounded-circle d-flex align-items-center justify-content-center' 
-                    style={{
-                      width: "40px", 
-                      height: "40px", 
-                      backgroundColor: "#6A0DAD", // Purple background color
-                      color: "#ffffff",
-                      fontSize: "18px",
-                      fontWeight: "bold"
-                    }}
-                  >
-                    {userProfile.email.charAt(0).toUpperCase()} {/* First letter of the email */}
+                  <Link to="/dashboard/profile" >
+                    <div 
+                      className='rounded-circle d-flex align-items-center justify-content-center' 
+                      style={{
+                        width: "40px", 
+                        height: "40px", 
+                        backgroundColor: "#6A0DAD", 
+                        color: "#ffffff",
+                        fontSize: "18px",
+                        fontWeight: "bold"
+                      }}
+                    >
+                      {userProfile.email.charAt(0).toUpperCase()}
                   </div>
+                  </Link>
+                  
                 </div>
               )
             )}
@@ -266,7 +246,7 @@ export default function Sidebar() {
         <DrawerHeader>
           {userProfile && <h5 className='text-center text-capitalize fw-bold m-auto'>{userProfile.user || ''}</h5>}
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+            {theme.direction === 'ltr' ? <ChevronLeftIcon sx={{color:"#fff"}}/> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
         <Divider />
@@ -279,7 +259,7 @@ export default function Sidebar() {
               <ListItemText primary="Dashboard" />
             </ListItem>
           </Link>
-          <Link to="expense" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link to="/dashboard/expense" style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItem button>
               <ListItemIcon sx={{color:"#fff"}}>
                 <AttachMoneyIcon />
@@ -287,7 +267,7 @@ export default function Sidebar() {
               <ListItemText primary="Expenses" />
             </ListItem>
           </Link>
-          <Link to="income" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link to="/dashboard/income" style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItem button>
               <ListItemIcon sx={{color:"#fff"}}>
                 <ReceiptIcon  />
@@ -295,7 +275,7 @@ export default function Sidebar() {
               <ListItemText primary="Income" />
             </ListItem>
           </Link>
-          <Link to="/budget" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link to="/dashboard/budget" style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItem button>
               <ListItemIcon sx={{color:"#fff"}}>
                 <BudgetIcon />
@@ -303,7 +283,7 @@ export default function Sidebar() {
               <ListItemText primary="Budget" />
             </ListItem>
           </Link>
-          <Link to="/reports" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link to="/dashboard/reports" style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItem button>
               <ListItemIcon sx={{color:"#fff"}}>
                 <ReportIcon />
@@ -311,12 +291,12 @@ export default function Sidebar() {
               <ListItemText primary="Reports" />
             </ListItem>
           </Link>
-          <Link to="/settings" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link to="/dashboard/profile" style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItem button>
               <ListItemIcon sx={{color:"#fff"}}>
-                <SettingsIcon />
+                <AccountCircleIcon />
               </ListItemIcon>
-              <ListItemText primary="Settings" />
+              <ListItemText primary="Profile" />
             </ListItem>
           </Link>
         </List>

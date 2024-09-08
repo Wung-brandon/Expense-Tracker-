@@ -1,32 +1,30 @@
-/* src/index.css or src/App.css */
-
+/* App.css */
 body {
-    transition: background-color 0.3s ease;
-  }
-  
-  .dark-mode {
-    background-color: #121212;
-    color: #fff;
-  }
-  
-/* src/styles/global.css */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
-/* body.dark-mode {
+.dark-mode {
   background-color: #121212;
-  color: #e0e0e0;
-}
-
-.dark-mode .MuiAppBar-root {
-  background-color: #1c1c1c;
   color: #fff;
 }
 
-.dark-mode .MuiDrawer-paper {
-  background-color: #1c1c1c;
+.light-mode {
+  background-color: #f4f6f8;
+  color: #000;
+}
+
+/* Ensure tables, charts, etc. are also affected */
+.table, .chart-container {
+  transition: background-color 0.3s ease, color 0.3s ease;
   color: #fff;
 }
 
-.dark-mode .MuiTable-root {
-  background-color: #1c1c1c;
+.dark-mode .table, .dark-mode .chart-container {
+  background-color: #1e1e1e;
   color: #fff;
-} */
+}
+
+.light-mode .table, .light-mode .chart-container {
+  background-color: #fff;
+  color: #000;
+}

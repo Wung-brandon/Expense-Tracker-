@@ -1,23 +1,24 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
+// Reusable Chart Component Interface
 interface ChartDataProps {
-  data: number[];           // Array for income, expenses, or other data
-  labels: string[];         // Labels like ["Income", "Expenses"] or ["Budget", "Expenses"]
-  title?: string;           // Chart title
-  colors?: string[];        // Colors for the bars
+  data: number[];
+  labels: string[];
+  title?: string;
+  colors?: string[];
 }
 
 const ReusableBarChart: React.FC<ChartDataProps> = ({
   data,
   labels,
   title = "Chart",
-  colors = ["#4a148c", "#4CAF50"],  // Default colors
+  colors = ["#4a148c", "#4CAF50"],
 }) => {
   const series = [
     {
       name: "Amount",
-      data,  // Data to be displayed (income, expenses, budget, etc.)
+      data,
     },
   ];
 
@@ -40,9 +41,9 @@ const ReusableBarChart: React.FC<ChartDataProps> = ({
       enabled: false,
     },
     xaxis: {
-      categories: labels,  // Dynamically sets the categories (e.g., "Income" and "Expenses")
+      categories: labels,
     },
-    colors, // Dynamic colors based on props
+    colors,
     title: {
       text: title,
       align: "center",

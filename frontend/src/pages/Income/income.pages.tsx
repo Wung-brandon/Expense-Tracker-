@@ -43,24 +43,44 @@ const Income: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
 
   // const {isDarkMode, toggleTheme} = useThemeBackground()
-
   const axiosInstance = useAxios();
 
   useEffect(() => {
-    axiosInstance.get('/userstats/income-summary/')
-      .then(response => {
-        const responseData = response.data.income_source_data;
-        const totalAmount = response.data.total_income;
-        setTotal(totalAmount);
-        const labels = responseData.map((item: any) => item.source);
-        const data = responseData.map((item: any) => item.total_amount);
-        setData(data);
-        setLabels(labels);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
-  }, [axiosInstance]);
+    const fetchData = () => {
+      axiosInstance.get('/userstats/monthly-summary/')
+        .then(response => {
+          const responseData = response.data.monthly_summary;
+          const currentMonth = new Date().toISOString().slice(0, 7); // Get current month in 'YYYY-MM' format
+
+          // Find the summary for the current month
+          const currentMonthSummary = responseData.find((item: any) => item.month === currentMonth);
+
+          if (currentMonthSummary) {
+            // Set total income for the current month
+            setTotal(currentMonthSummary.income);
+
+            // Extract income sources and amounts
+            const sources = currentMonthSummary.income_sources.map((source: any) => source.source);
+            const amounts = currentMonthSummary.income_sources.map((source: any) => source.total_amount);
+
+            // Set data for chart or display
+            setLabels(sources);
+            setData(amounts);
+          } else {
+            console.log('No data available for the current month.');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    };
+
+    // Fetch data every second
+    const intervalId = setInterval(fetchData, 1000); // 1000ms = 1 second
+
+    // Cleanup function to clear the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []); // Empty dependency array so this runs once when the component mounts
 
   const handleIncomeSubmit = (formData: { [key: string]: any }) => {
     if (typeof formData.amount === 'string') {
@@ -220,8 +240,11 @@ const Income: React.FC = () => {
 
   if (loading) return <div>Loading...</div>;
 
+  const currentDate = new Date()
+  const currentMonth = currentDate.toLocaleString("default", {month: "long"})
+
   return (
-    <div className="income mt-4">
+    <div className="income" style={{margin: "7rem"}}>
       <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-4">
         <h2 className="text-center mb-3 mb-sm-0">Income Summary</h2>
         <KeepMountedModal 
@@ -237,11 +260,11 @@ const Income: React.FC = () => {
       </div>
       <div className="row shadow">
         <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3">
-          <TotalCard title="Total Income" total={total} icon={AttachMoney} />
+          <TotalCard title={`Total Income For ${currentMonth}`} total={total} icon={AttachMoney} />
         </div>
         <div className="col-12 col-md-6">
           {total === 0 ? <h2 className='text-center mt-5'>No Income Source</h2> : 
-            <PieChart data={data} labels={labels} title="Income sources" />
+            <PieChart data={data} labels={labels} title={`Income Sources For ${currentMonth}`} />
           } 
         </div>
       </div>
