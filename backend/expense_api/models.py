@@ -118,7 +118,7 @@ class Expense(models.Model):
             # }
             # send_notification(user, message, subject)
             raise ValueError("Total expenses cannot exceed the allocated budget for the selected month.")
-        elif budget and (budget - new_total_expense) <= Decimal("3000"):
+        # elif budget and (budget - new_total_expense) <= Decimal("3000"):
             # user = self.user.email
             # subject = f"Approaching Budget Limit for {self.date.strftime('%B %Y')}"
             # message = {
@@ -126,7 +126,7 @@ class Expense(models.Model):
             #     f'Hi {self.user.username} \n Your expenses are approaching your budget for {self.date.strftime("%B %Y")}.',
             #     'expenseeye24@gmail.com',
             # }
-            return ValueError(f"Your expenses are approaching your budget for {self.date.strftime('%B %Y')}")
+            # return ValueError(f"Your expenses are approaching your budget for {self.date.strftime('%B %Y')}")
         
         return super().save(*args, **kwargs)
             
