@@ -99,13 +99,14 @@ const DataTable: React.FC<DataTableProps> = ({
   const isSelected = (id: number) => selected.indexOf(id) !== -1;
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+    <Box sx={{ width: '100%' }} className="shadow">
+      <Paper sx={{ width: '100%', mb: 2 }} className='bag'>
         <Toolbar
           sx={{
             pl: { sm: 2 },
             pr: { xs: 1, sm: 1 },
           }}
+          className='tablecell'
         >
           {selected.length > 0 ? (
             <Typography
@@ -128,6 +129,7 @@ const DataTable: React.FC<DataTableProps> = ({
           {selected.length > 0 ? (
             <Tooltip title="Delete">
               <IconButton
+              className='tablecell'
                 onClick={(e) => {
                   e.stopPropagation();
                   onDeleteClick(selected[0]);
@@ -138,14 +140,14 @@ const DataTable: React.FC<DataTableProps> = ({
             </Tooltip>
           ) : (
             <Tooltip title="Filter list">
-              <IconButton>
+              <IconButton className='tablecell'>
                 <FilterListIcon />
               </IconButton>
             </Tooltip>
           )}
         </Toolbar>
-        <TableContainer>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
+        <TableContainer className='bag'>
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" className='tablecell'>
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox">
@@ -161,6 +163,7 @@ const DataTable: React.FC<DataTableProps> = ({
                     inputProps={{
                       'aria-label': 'select all items',
                     }}
+                    className='tablecell'
                   />
                 </TableCell>
                 {columns.map((column) => (
@@ -169,15 +172,17 @@ const DataTable: React.FC<DataTableProps> = ({
                     align={column.numeric ? 'right' : 'left'}
                     padding="normal"
                     sortDirection={orderBy === column.id ? order : false}
+                    className='tablecell'
                   >
                     <TableSortLabel
                       active={orderBy === column.id}
                       direction={orderBy === column.id ? order : 'asc'}
                       onClick={(event) => handleRequestSort(event, column.id)}
+                      className='tablecell'
                     >
                       {column.label}
                       {orderBy === column.id ? (
-                        <Box component="span" sx={visuallyHidden}>
+                        <Box component="span" sx={visuallyHidden} className='tablecell'>
                           {order === 'desc'
                             ? 'sorted descending'
                             : 'sorted ascending'}
@@ -186,10 +191,10 @@ const DataTable: React.FC<DataTableProps> = ({
                     </TableSortLabel>
                   </TableCell>
                 ))}
-                <TableCell align="center">Actions</TableCell>
+                <TableCell align="center" className='tablecell'>Actions</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
+            <TableBody className='tablecell'>
               {data.map((row, index) => {
                 const isItemSelected = isSelected(row.id as number);
                 const labelId = `data-table-checkbox-${index}`;
@@ -204,14 +209,16 @@ const DataTable: React.FC<DataTableProps> = ({
                     key={row.id}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
+                    className='tablecell'
                   >
-                    <TableCell padding="checkbox">
+                    <TableCell padding="checkbox" className='tablecell'>
                       <Checkbox
                         color="primary"
                         checked={isItemSelected}
                         inputProps={{
                           'aria-labelledby': labelId,
                         }}
+                        className='tablecell'
                       />
                     </TableCell>
                     {columns.map((column) => (
@@ -219,11 +226,12 @@ const DataTable: React.FC<DataTableProps> = ({
                         align={column.numeric ? 'right' : 'left'}
                         key={column.id}
                         sx={{ textDecoration: 'capitalize' }}
+                        className='tablecell'
                       >
                         {row[column.id]}
                       </TableCell>
                     ))}
-                    <TableCell align="center">
+                    <TableCell align="center" className='tablecell'>
                       <IconButton
                         color="primary"
                         onClick={(e) => {
@@ -238,8 +246,8 @@ const DataTable: React.FC<DataTableProps> = ({
                 );
               })}
               {count - data.length > 0 && (
-                <TableRow style={{ height: 53 }}>
-                  <TableCell colSpan={columns.length + 2} />
+                <TableRow style={{ height: 53 }} className='tablecell'>
+                  <TableCell colSpan={columns.length + 2} className='tablecell'/>
                 </TableRow>
               )}
             </TableBody>
@@ -253,6 +261,7 @@ const DataTable: React.FC<DataTableProps> = ({
           page={page}
           onPageChange={onPageChange}
           onRowsPerPageChange={onRowsPerPageChange}
+          className='bag'
         />
       </Paper>
     </Box>

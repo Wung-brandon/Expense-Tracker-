@@ -34,7 +34,7 @@ export const CurrentMonthChart: React.FC<{ data: { budget: number; expenses: num
   };
 
   return (
-    <div className="chart-container">
+    <div className="chart-container tablecell">
       <ReactApexChart options={options} series={series} type="bar" height={400} />
     </div>
   );

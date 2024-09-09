@@ -258,7 +258,7 @@ const Income: React.FC = () => {
           initialData={editData}
         />
       </div>
-      <div className="row shadow">
+      <div className="row shadow" style={{borderRadius:"1.5rem"}}>
         <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3">
           <TotalCard title={`Total Income For ${currentMonth}`} total={total} icon={AttachMoney} />
         </div>
@@ -268,8 +268,8 @@ const Income: React.FC = () => {
           } 
         </div>
       </div>
-      <div className="row shadow mt-5">
-        <div className="col-12">
+      <div className="row mt-5 ">
+        <div className="col-12 bag">
           <DataTable 
             columns={columns} 
             data={incomeData}

@@ -172,6 +172,7 @@ function DashboardPage() {
             </div>
             <div className="col-lg-6 col-sm-12">
               <ReusableBarChart
+              
                 data={[currentMonthIncome, currentMonthBudget]}
                 labels={["Income", "Budget"]}
                 title={`Income vs Budget in ${month}`}

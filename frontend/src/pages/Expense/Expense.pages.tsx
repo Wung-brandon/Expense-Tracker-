@@ -265,8 +265,8 @@ const Expense: React.FC = () => {
           initialData={editData}
         />
       </div>
-      <div className="row shadow">
-        <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3">
+      <div className="row shadow" style={{borderRadius:"1.5rem"}}>
+        <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3 rounded">
           <TotalCard title={`Total Expenses For ${currentMonth}`} total={total} icon={AttachMoney} />
         </div>
         <div className="col-12 col-md-6">
@@ -275,7 +275,7 @@ const Expense: React.FC = () => {
           } 
         </div>
       </div>
-      <div className="row shadow mt-5">
+      <div className="row mt-5">
         <div className="col-12">
           <DataTable 
             columns={columns} 

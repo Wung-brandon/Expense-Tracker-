@@ -1,13 +1,16 @@
+import { colors } from "@mui/material";
 import React from "react";
 import Chart from "react-apexcharts";
+import { useThemeBackground } from "../../../context/BackgroundContext";
 
 interface AreaChartProps {
-  title: string;
+  title?: string;
   series: Array<{ name: string; data: number[] }>;
   categories: string[];
 }
 
 const AreaChart: React.FC<AreaChartProps> = ({ title, series, categories }) => {
+  const {isDarkMode} = useThemeBackground()
   const options = {
     chart: {
       type: "area",
@@ -15,6 +18,7 @@ const AreaChart: React.FC<AreaChartProps> = ({ title, series, categories }) => {
       toolbar: {
         show: true,
       },
+      foreColor: !isDarkMode ? '#FFFFFF' : '#808080',
     },
     colors: ["#00E396", "#FF4560", "#008FFB", "#FEB019"],
     dataLabels: {
@@ -25,16 +29,46 @@ const AreaChart: React.FC<AreaChartProps> = ({ title, series, categories }) => {
     },
     xaxis: {
       categories: categories, // Months on the X-axis
+      labels: {
+        style: {
+          colors: !isDarkMode ? '#FFFFFF' : '#808080', // Conditional X-axis label color
+        },
+      },
+      axisBorder: {
+        color: !isDarkMode ? '#FFFFFF' : '#808080', // X-axis border color
+      },
+      axisTicks: {
+        color: !isDarkMode ? '#FFFFFF' : '#808080', // X-axis ticks color
+      },
+      
     },
     yaxis: {
       title: {
         text: "Amount",
+        style: {
+          color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis title color
+        },
+        labels: {
+          style: {
+            colors: !isDarkMode ? '#FFFFFF' : '#808080', // Conditional Y-axis label color
+          },
+          formatter: (val) => `$${val}`, // Format the Y-axis values with a dollar sign
+        },
+        axisBorder: {
+          color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis border color
+        },
+        axisTicks: {
+          color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis ticks color
+        },
       },
     },
     tooltip: {
       y: {
         formatter: (val: number) => `$${val.toLocaleString()}`, // Format numbers as currency
       },
+    },
+    grid: {
+      borderColor: !isDarkMode ? '#505050' : '#808080', // Change the grid line color
     },
     fill: {
       opacity: 0.8,

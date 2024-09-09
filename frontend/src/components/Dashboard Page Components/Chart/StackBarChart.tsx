@@ -1,6 +1,7 @@
 // BarChart.tsx
 import React from 'react';
 import Chart from 'react-apexcharts';
+import { useThemeBackground } from '../../../context/BackgroundContext';
 
 interface BarChartProps {
   categories: string[];
@@ -10,11 +11,13 @@ interface BarChartProps {
 }
 
 const StackBarChart: React.FC<BarChartProps> = ({ categories, series, title, stacked = false }) => {
+  const {isDarkMode} = useThemeBackground()
   const options = {
     chart: {
       id: 'bar-chart',
       toolbar: { show: true },
       stacked: stacked,
+      foreColor: !isDarkMode ? '#FFFFFF' : '#808080',
     },
     xaxis: { categories },
     title: { text: title, align: 'center' },

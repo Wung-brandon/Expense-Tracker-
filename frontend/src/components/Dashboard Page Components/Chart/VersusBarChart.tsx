@@ -1,5 +1,6 @@
-import React from "react";
+
 import ReactApexChart from "react-apexcharts";
+import { useThemeBackground } from "../../../context/BackgroundContext";
 
 // Reusable Chart Component Interface
 interface ChartDataProps {
@@ -15,6 +16,8 @@ const ReusableBarChart: React.FC<ChartDataProps> = ({
   title = "Chart",
   colors = ["#4a148c", "#4CAF50"],
 }) => {
+  const {isDarkMode} = useThemeBackground()
+
   const series = [
     {
       name: "Amount",
@@ -29,6 +32,7 @@ const ReusableBarChart: React.FC<ChartDataProps> = ({
       toolbar: {
         show: false,
       },
+      foreColor: isDarkMode ? "#808080" : "#000", 
     },
     plotOptions: {
       bar: {
@@ -43,22 +47,29 @@ const ReusableBarChart: React.FC<ChartDataProps> = ({
     xaxis: {
       categories: labels,
     },
-    colors,
+    colors: colors, 
     title: {
       text: title,
       align: "center",
       style: {
         fontSize: "20px",
         fontWeight: "bold",
+        color: isDarkMode ? "#808080" : "#000", 
       },
     },
     yaxis: {
       title: {
         text: "Amount",
+        style: {
+          color: isDarkMode ? "##808080" : "#000", 
+        },
       },
       labels: {
         formatter: function (value: number) {
           return `$${value}`;
+        },
+        style: {
+          colors: isDarkMode ? "#808080" : "#000", 
         },
       },
     },
@@ -81,6 +92,9 @@ const ReusableBarChart: React.FC<ChartDataProps> = ({
           xaxis: {
             labels: {
               show: true,
+              style: {
+                colors: isDarkMode ? "#808080" : "#000", 
+              },
             },
           },
         },

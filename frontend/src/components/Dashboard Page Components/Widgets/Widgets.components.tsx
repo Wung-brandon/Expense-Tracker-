@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Typography, Box } from '@mui/material';
 import { SvgIconComponent } from '@mui/icons-material';
+import { useThemeBackground } from '../../../context/BackgroundContext';
 
 interface TotalCardProps {
   title: string;
@@ -9,6 +10,7 @@ interface TotalCardProps {
 }
 
 const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon }) => {
+  const {isDarkMode} = useThemeBackground()
   return (
     <Card
       sx={{
@@ -36,13 +38,14 @@ const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon }) => {
           },
         },
       }}
+      className="widget"
     >
-      <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, marginBottom: { xs: 2, sm: 0 } }}>
+      <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, marginBottom: { xs: 2, sm: 0 } }} >
         <Typography variant="h6">{title}</Typography>
         <Typography variant="h4" fontWeight="bold">{total}</Typography>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Icon sx={{ fontSize: 40, color: '#4a148c' }} />
+        <Icon sx={{ fontSize: 40, color: isDarkMode ? "#32cd32" : '#4a148c' }} />
       </Box>
     </Card>
   );

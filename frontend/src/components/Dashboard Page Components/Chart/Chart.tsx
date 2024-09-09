@@ -1,5 +1,6 @@
 import React from 'react';
 import Chart from 'react-apexcharts';
+import { useThemeBackground } from '../../../context/BackgroundContext';
 
 // Define the props for the PieChart component
 interface PieChartProps {
@@ -10,6 +11,7 @@ interface PieChartProps {
 
 // Create a reusable PieChart component
 const PieChart: React.FC<PieChartProps> = ({ data, labels, title }) => {
+  const {isDarkMode} = useThemeBackground()
   // Define the chart options and series
   const chartOptions = {
     chart: {
@@ -23,11 +25,11 @@ const PieChart: React.FC<PieChartProps> = ({ data, labels, title }) => {
       style: {
         fontSize: '16px',
         fontWeight: 'bold',
-        color: '#333', // Adjust title color
+        color: isDarkMode ? '#808080' : '#333', // Adjust title color
       },
     },
     colors: [
-      '#FF6384', // Custom colors for the chart slices
+      '#FF6384', 
       '#36A2EB',
       '#FFCE56',
       '#4BC0C0',
@@ -68,7 +70,7 @@ const PieChart: React.FC<PieChartProps> = ({ data, labels, title }) => {
       floating: false, // Ensure the legend does not float over the chart
       fontSize: '14px',
       labels: {
-        colors: '#333',
+        colors: isDarkMode ? '#808080' : '#333',
       },
     },
   };

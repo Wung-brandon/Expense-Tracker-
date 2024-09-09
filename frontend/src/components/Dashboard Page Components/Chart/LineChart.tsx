@@ -1,6 +1,7 @@
 // LineChart.tsx
 import React from 'react';
 import Chart from 'react-apexcharts';
+import { useThemeBackground } from '../../../context/BackgroundContext';
 
 interface LineChartProps {
   categories: string[];
@@ -9,12 +10,14 @@ interface LineChartProps {
 }
 
 const LineChart: React.FC<LineChartProps> = ({ categories, series, title }) => {
+  const {isDarkMode} = useThemeBackground()
   const options = {
     chart: {
       id: 'line-chart',
       toolbar: {
         show: true,
       },
+      foreColor: isDarkMode ? '#808080' : '#000',
     },
     xaxis: {
       categories,

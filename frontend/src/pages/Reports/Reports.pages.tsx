@@ -221,9 +221,15 @@ const Reports: React.FC = () => {
         </div>
         
       </div>
-      <AreaChart title="Monthly Financial Overview" series={series} categories={categories} />
-      <LineChart categories={categories} series={series} title="Monthly Financial Overview" />
-      <StackBarChart categories={categories} series={series} title="Monthly Financial Overview (Bar Chart)" />
+      <div className="chart-container">
+        <AreaChart title="Monthly Financial Overview" series={series} categories={categories} />
+      </div>
+      <div className="chart-container">
+        <LineChart categories={categories} series={series} title="Monthly Financial Overview" />
+      </div>
+      <div className="chart-container">
+        <StackBarChart categories={categories} series={series} title="Monthly Financial Overview" />
+      </div>
 
     </div>
   );
