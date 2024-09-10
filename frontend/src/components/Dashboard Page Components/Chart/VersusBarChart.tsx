@@ -61,7 +61,7 @@ const ReusableBarChart: React.FC<ChartDataProps> = ({
       title: {
         text: "Amount",
         style: {
-          color: isDarkMode ? "##808080" : "#000", 
+          color: isDarkMode ? "#808080" : "#000", 
         },
       },
       labels: {

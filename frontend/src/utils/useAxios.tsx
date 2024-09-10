@@ -33,7 +33,7 @@ const useAxios = () => {
     if (authTokens?.access) {
       const user = jwtDecode<DecodedToken>(authTokens.access);
       const isExpired = dayjs().isAfter(dayjs.unix(user.exp));
-      console.log("bool", isExpired)
+      // console.log("bool", isExpired)
 
       if (isExpired) {
         try {
@@ -42,7 +42,7 @@ const useAxios = () => {
           });
           if (response.status === 200) {
             setAuthToken(response.data);
-            console.log("refresh tokens:",response.data)
+            // console.log("refresh tokens:",response.data)
             setUser(jwtDecode(response.data.access));
             config.headers.Authorization = `Bearer ${response.data.access}`;
             // toast.success("Token refreshed successfully.");

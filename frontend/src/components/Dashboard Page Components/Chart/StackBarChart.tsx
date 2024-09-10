@@ -17,7 +17,7 @@ const StackBarChart: React.FC<BarChartProps> = ({ categories, series, title, sta
       id: 'bar-chart',
       toolbar: { show: true },
       stacked: stacked,
-      foreColor: !isDarkMode ? '#FFFFFF' : '#808080',
+      foreColor: !isDarkMode ? '#000' : '#808080',
     },
     xaxis: { categories },
     title: { text: title, align: 'center' },

@@ -57,3 +57,6 @@ body {
   background-color: #111;
   color: #808080;
 }
+.dark-mode .text{
+  color: #808080;
+}

@@ -1,16 +1,21 @@
 import React from 'react';
 import { Card, Typography, Box } from '@mui/material';
 import { SvgIconComponent } from '@mui/icons-material';
-import { useThemeBackground } from '../../../context/BackgroundContext';
+// import { useThemeBackground } from '../../../context/BackgroundContext';
 
 interface TotalCardProps {
   title: string;
   total: number;
   icon: SvgIconComponent;
+  backgroundColor?: string;  
+  hoverBackgroundColor?: string;  
+  iconColor?: string;  
+  hoverIconColor?: string;  
 }
 
-const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon }) => {
-  const {isDarkMode} = useThemeBackground()
+const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon, backgroundColor, hoverBackgroundColor, iconColor, hoverIconColor }) => {
+  // const { isDarkMode } = useThemeBackground();
+  
   return (
     <Card
       sx={{
@@ -22,7 +27,7 @@ const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon }) => {
         margin: 6,
         height: 'auto',
         width: '100%',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: backgroundColor,  
         borderRadius: 7,
         boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
         cursor: 'pointer',
@@ -30,22 +35,22 @@ const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon }) => {
         '&:hover': {
           transform: 'scale(1.05)',  
           boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',  
-          backgroundColor:"#4a148c",
-          color: "white",
-          transition: "all 0.3s ease",
+          backgroundColor: hoverBackgroundColor,  // Apply hover background color from props
+          color: 'white',
+          transition: 'all 0.3s ease',
           '& .MuiSvgIcon-root': { 
-            color: 'white',
+            color: hoverIconColor,  // Apply hover icon color from props
           },
         },
       }}
       className="widget"
     >
-      <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, marginBottom: { xs: 2, sm: 0 } }} >
+      <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, marginBottom: { xs: 2, sm: 0 } }}>
         <Typography variant="h6">{title}</Typography>
         <Typography variant="h4" fontWeight="bold">{total}</Typography>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Icon sx={{ fontSize: 40, color: isDarkMode ? "#32cd32" : '#4a148c' }} />
+        <Icon sx={{ fontSize: 40, color: iconColor }} />  {/* Apply icon color from props */}
       </Box>
     </Card>
   );

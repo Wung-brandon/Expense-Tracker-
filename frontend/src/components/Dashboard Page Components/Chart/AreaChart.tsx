@@ -18,7 +18,7 @@ const AreaChart: React.FC<AreaChartProps> = ({ title, series, categories }) => {
       toolbar: {
         show: true,
       },
-      foreColor: !isDarkMode ? '#FFFFFF' : '#808080',
+      foreColor: !isDarkMode ? '#000' : '#808080',
     },
     colors: ["#00E396", "#FF4560", "#008FFB", "#FEB019"],
     dataLabels: {
@@ -31,14 +31,14 @@ const AreaChart: React.FC<AreaChartProps> = ({ title, series, categories }) => {
       categories: categories, // Months on the X-axis
       labels: {
         style: {
-          colors: !isDarkMode ? '#FFFFFF' : '#808080', // Conditional X-axis label color
+          colors: !isDarkMode ? '#000' : '#808080', // Conditional X-axis label color
         },
       },
       axisBorder: {
-        color: !isDarkMode ? '#FFFFFF' : '#808080', // X-axis border color
+        color: !isDarkMode ? '#000' : '#808080', // X-axis border color
       },
       axisTicks: {
-        color: !isDarkMode ? '#FFFFFF' : '#808080', // X-axis ticks color
+        color: !isDarkMode ? '#000' : '#808080', // X-axis ticks color
       },
       
     },
@@ -46,19 +46,19 @@ const AreaChart: React.FC<AreaChartProps> = ({ title, series, categories }) => {
       title: {
         text: "Amount",
         style: {
-          color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis title color
+          color: !isDarkMode ? '#000' : '#808080', // Y-axis title color
         },
         labels: {
           style: {
-            colors: !isDarkMode ? '#FFFFFF' : '#808080', // Conditional Y-axis label color
+            colors: !isDarkMode ? '#000' : '#808080', // Conditional Y-axis label color
           },
           formatter: (val) => `$${val}`, // Format the Y-axis values with a dollar sign
         },
         axisBorder: {
-          color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis border color
+          color: !isDarkMode ? '#000' : '#808080', // Y-axis border color
         },
         axisTicks: {
-          color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis ticks color
+          color: !isDarkMode ? '#000' : '#808080', // Y-axis ticks color
         },
       },
     },
@@ -68,7 +68,7 @@ const AreaChart: React.FC<AreaChartProps> = ({ title, series, categories }) => {
       },
     },
     grid: {
-      borderColor: !isDarkMode ? '#505050' : '#808080', // Change the grid line color
+      borderColor: !isDarkMode ? '#000' : '#808080', // Change the grid line color
     },
     fill: {
       opacity: 0.8,
@@ -80,7 +80,7 @@ const AreaChart: React.FC<AreaChartProps> = ({ title, series, categories }) => {
 
   return (
     <div className="container-fluid">
-      <h2 className="text-center mt-4">{title}</h2>
+      <h2 className="text-center mt-4 text">{title}</h2>
       <div className="row justify-content-center">
         <div className="col-lg-10 col-md-12">
           <Chart options={options} series={series} type="area" height={350} />

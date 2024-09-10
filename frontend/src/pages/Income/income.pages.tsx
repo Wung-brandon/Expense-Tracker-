@@ -260,7 +260,15 @@ const Income: React.FC = () => {
       </div>
       <div className="row shadow" style={{borderRadius:"1.5rem"}}>
         <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3">
-          <TotalCard title={`Total Income For ${currentMonth}`} total={total} icon={AttachMoney} />
+          <TotalCard 
+              title={`Total Income For ${currentMonth}`} 
+              total={total} 
+              icon={AttachMoney} 
+              backgroundColor="#E8F5E9"
+              hoverBackgroundColor="#4CAF50"  
+              iconColor="#2E7D32"
+              hoverIconColor="#FFFFFF"
+          />
         </div>
         <div className="col-12 col-md-6">
           {total === 0 ? <h2 className='text-center mt-5'>No Income Source</h2> : 

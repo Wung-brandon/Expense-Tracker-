@@ -48,34 +48,34 @@ const ReportApexBarChart: React.FC<ReusableApexBarChartProps> = ({
       categories,
       labels: {
         style: {
-          colors: !isDarkMode ? '#FFFFFF' : '#808080', // Conditional X-axis label color
+          colors: !isDarkMode ? '#000' : '#808080', // Conditional X-axis label color
         },
       },
       axisBorder: {
-        color: !isDarkMode ? '#FFFFFF' : '#808080', // X-axis border color
+        color: !isDarkMode ? '#000' : '#808080', // X-axis border color
       },
       axisTicks: {
-        color: !isDarkMode ? '#FFFFFF' : '#808080', // X-axis ticks color
+        color: !isDarkMode ? '#000' : '#808080', // X-axis ticks color
       },
     },
     yaxis: {
       title: {
         text: 'Amount ($)',
         style: {
-          color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis title color
+          color: !isDarkMode ? '#000' : '#808080', // Y-axis title color
         },
       },
       labels: {
         style: {
-          colors: !isDarkMode ? '#FFFFFF' : '#808080', // Conditional Y-axis label color
+          colors: !isDarkMode ? '#000' : '#808080', // Conditional Y-axis label color
         },
         formatter: (val) => `$${val}`, // Format the Y-axis values with a dollar sign
       },
       axisBorder: {
-        color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis border color
+        color: !isDarkMode ? '#000' : '#808080', // Y-axis border color
       },
       axisTicks: {
-        color: !isDarkMode ? '#FFFFFF' : '#808080', // Y-axis ticks color
+        color: !isDarkMode ? '#000' : '#808080', // Y-axis ticks color
       },
     },
     fill: {
@@ -83,7 +83,7 @@ const ReportApexBarChart: React.FC<ReusableApexBarChartProps> = ({
       colors: colors, // Apply the custom colors or default colors
     },
     grid: {
-      borderColor: !isDarkMode ? '#505050' : '#808080', // Change the grid line color
+      borderColor: !isDarkMode ? '#000' : '#808080', // Change the grid line color
     },
     tooltip: {
       y: {
@@ -96,7 +96,7 @@ const ReportApexBarChart: React.FC<ReusableApexBarChartProps> = ({
       style: {
         fontSize: '18px',
         fontWeight: 'bold',
-        color: !isDarkMode ? '#FFFFFF' : '#808080', // Conditional title color
+        color: !isDarkMode ? '#000' : '#808080', // Conditional title color
       },
     },
   };

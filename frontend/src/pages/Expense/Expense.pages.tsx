@@ -8,6 +8,7 @@ import KeepMountedModal from '../../components/Dashboard Page Components/Modal/M
 import { toast } from 'react-toastify';
 import DataTable from '../../components/Dashboard Page Components/Table/Table';
 import ConfirmationModal from '../../components/Dashboard Page Components/Modal/confirmModal';
+import { MoneyOff } from '@mui/icons-material';
 // import { useThemeBackground } from '../../context/BackgroundContext';
 
 interface Data {
@@ -41,6 +42,8 @@ const Expense: React.FC = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
+  const [totalIncome, setTotalIncome] = useState<number>(0);
+
   // const {isDarkMode, toggleTheme} = useThemeBackground()
 
   const axiosInstance = useAxios();
@@ -50,6 +53,7 @@ const Expense: React.FC = () => {
       axiosInstance.get('/userstats/monthly-summary/')
         .then(response => {
           const responseData = response.data.monthly_summary;
+          
           const currentMonth = new Date().toISOString().slice(0, 7); // Get current month in 'YYYY-MM' format
 
           // Find the summary for the current month
@@ -58,7 +62,8 @@ const Expense: React.FC = () => {
           if (currentMonthSummary) {
             // Set total income for the current month
             setTotal(currentMonthSummary.expenses);
-
+            setTotalIncome(currentMonthSummary.income)
+            console.log("total income", currentMonthSummary.income)
             // Extract income sources and amounts
             const categories = currentMonthSummary.expense_categories.map((category: any) => category.category);
             const amounts = currentMonthSummary.expense_categories.map((category: any) => category.total_amount);
@@ -86,6 +91,10 @@ const Expense: React.FC = () => {
   const handleExpenseSubmit = (formData: { [key: string]: any }) => {
     if (typeof formData.amount === 'string') {
       formData.amount = parseFloat(formData.amount);
+      if (formData.amount > totalIncome){
+        // console.log("expenses cannot exceed total income")
+        toast.warning("Expenses cannot exceed total income")
+      }
     }
 
     if (formData.date) {
@@ -267,7 +276,15 @@ const Expense: React.FC = () => {
       </div>
       <div className="row shadow" style={{borderRadius:"1.5rem"}}>
         <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3 rounded">
-          <TotalCard title={`Total Expenses For ${currentMonth}`} total={total} icon={AttachMoney} />
+          <TotalCard 
+              title={`Total Expenses For ${currentMonth}`} 
+              total={total} 
+              icon={MoneyOff} 
+              backgroundColor="#FFEBEE"
+              hoverBackgroundColor="#F44336"  
+              iconColor="#D32F2F"
+              hoverIconColor="#FFFFFF"
+          />
         </div>
         <div className="col-12 col-md-6">
           {total === 0 ? <h2 className='text-center mt-5'>No Expense Category</h2> : 
