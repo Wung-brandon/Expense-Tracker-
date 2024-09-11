@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useState, useEffect } from 'react';
 import { AttachMoney } from '@mui/icons-material';
 import PieChart from '../../components/Dashboard Page Components/Chart/Chart';
@@ -9,11 +10,8 @@ import './income.css';
 import { toast } from 'react-toastify';
 import DataTable from '../../components/Dashboard Page Components/Table/Table';
 import ConfirmationModal from '../../components/Dashboard Page Components/Modal/confirmModal';
-// import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
-// import FilterBar from '../../components/Dashboard Page Components/Filter/FilterBar';
 import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
-import FilterBar from '../../components/Dashboard Page Components/Filter/FillterBar';
-
+// import { useThemeBackground } from '../../context/BackgroundContext';
 
 interface Data {
   id: number;
@@ -34,79 +32,23 @@ const Income: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [incomeData, setIncomeData] = useState<Data[]>([]);
   const [filteredData, setFilteredData] = useState<Data[]>([]);
+
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState<Data | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [open, setOpen] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState<string>('');
-  const [filterSource, setFilterSource] = useState<string>('');
-  const [filterMinAmount, setFilterMinAmount] = useState<number | ''>('');
-  const [filterMaxAmount, setFilterMaxAmount] = useState<number | ''>('');
-  const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
-  const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
 
+  const [searchText, setSearchText] = useState<string>("")
+
+  // const {isDarkMode, toggleTheme} = useThemeBackground()
   const axiosInstance = useAxios();
-
-  useEffect(() => {
-    fetchAllData();
-  }, [page, rowsPerPage, filterSource, filterMinAmount, filterMaxAmount, filterStartDate, filterEndDate]);
-
-  const fetchAllData = async () => {
-    setLoading(true);
-    try {
-      const queryParams = new URLSearchParams();
-      queryParams.append('page', (page + 1).toString());
-      queryParams.append('size', rowsPerPage.toString());
-      if (filterSource) queryParams.append('source', filterSource);
-      if (filterMinAmount !== '') queryParams.append('min_amount', filterMinAmount.toString());
-      if (filterMaxAmount !== '') queryParams.append('max_amount', filterMaxAmount.toString());
-      if (filterStartDate) queryParams.append('start_date', filterStartDate.toISOString().split('T')[0]);
-      if (filterEndDate) queryParams.append('end_date', filterEndDate.toISOString().split('T')[0]);
-
-      const response = await axiosInstance.get(`/track/income/?${queryParams.toString()}`);
-      const responseData = response.data;
-      setIncomeData(responseData.results);
-      setFilteredData(responseData.results)
-      setCount(responseData.count);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    }
-  };
-
-  const handleIncomeSubmit = (formData: { [key: string]: any }) => {
-    if (typeof formData.amount === 'string') {
-      formData.amount = parseFloat(formData.amount);
-    }
-
-    if (formData.date) {
-      formData.date = new Date(formData.date).toISOString().split('T')[0];
-    }
-
-    const request = editMode
-      ? axiosInstance.put(`/track/income/${editData?.id}/`, formData)
-      : axiosInstance.post('/track/income/', formData);
-
-    request
-      .then(response => {
-        toast.success(editMode ? 'Income updated successfully.' : 'Income added successfully.');
-        setAmount('');
-        setDescription('');
-        setDate('');
-        setSource('');
-        setEditMode(false);
-        setEditData(null);
-        fetchAllData(); // Refresh data after add/update
-      })
-      .catch(error => {
-        toast.error(`Error ${editMode ? 'updating' : 'adding'} income: ${error.response?.data?.message || error.message}`);
-      });
-  };
 
   useEffect(() => {
     const fetchData = () => {
@@ -145,13 +87,42 @@ const Income: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []); // Empty dependency array so this runs once when the component mounts
 
+  const handleIncomeSubmit = (formData: { [key: string]: any }) => {
+    if (typeof formData.amount === 'string') {
+      formData.amount = parseFloat(formData.amount);
+    }
+
+    if (formData.date) {
+      formData.date = new Date(formData.date).toISOString().split('T')[0];
+    }
+
+    const request = editMode
+      ? axiosInstance.put(`/track/income/${editData?.id}/`, formData)
+      : axiosInstance.post('/track/income/', formData);
+
+    request
+      .then(response => {
+        toast.success(editMode ? 'Income updated successfully.' : 'Income added successfully.');
+        setAmount('');
+        setDescription('');
+        setDate('');
+        setSource('');
+        setEditMode(false);
+        setEditData(null);
+        fetchAllData(); // Refresh data after add/update
+      })
+      .catch(error => {
+        toast.error(`Error ${editMode ? 'updating' : 'adding'} income: ${error.response?.data?.message || error.message}`);
+      });
+  };
+
   const incomeFields = [
     {
       label: 'Source',
       type: 'select',
       name: 'source',
       value: source,
-      onChange: (e: React.ChangeEvent<{ value: unknown }>) => setSource(e.target.value as string),
+      onChange: (e: React.ChangeEvent<{ value: unknown }>) => setSource(e.target.value as string), 
       required: true,
       options: [
         { label: 'SALARY', value: 'SALARY' },
@@ -168,7 +139,7 @@ const Income: React.FC = () => {
       type: 'textarea',
       name: 'description',
       value: description,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value),
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value), 
       required: true,
     },
     {
@@ -176,7 +147,7 @@ const Income: React.FC = () => {
       type: 'number',
       name: 'amount',
       value: amount,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value),
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value), 
       required: true,
     },
     {
@@ -197,6 +168,25 @@ const Income: React.FC = () => {
     { id: 'description', label: 'Description', numeric: false },
   ];
 
+  useEffect(() => {
+    fetchAllData();
+  }, [page, rowsPerPage]);
+
+  const fetchAllData = async () => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get(`/track/income/?page=${page + 1}&size=${rowsPerPage}`);
+      const responseData = response.data;
+      setIncomeData(responseData.results);
+      console.log("result: " + responseData.results);
+      setCount(responseData.count);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
   const handlePageChange = (event: unknown, newPage: number) => {
     setPage(newPage);
     fetchAllData();
@@ -205,7 +195,7 @@ const Income: React.FC = () => {
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-    fetchAllData();
+    fetchAllData()
   };
 
   const handleEdit = (row: Data) => {
@@ -234,7 +224,6 @@ const Income: React.FC = () => {
           toast.error('Error deleting');
         }
       } catch (error: unknown) {
-        console.log(error);
         toast.error('Error deleting');
       } finally {
         setOpen(false);
@@ -248,6 +237,7 @@ const Income: React.FC = () => {
     setSelectedId(null);
   };
 
+
   const closeModal = () => {
     setEditMode(false);
     setEditData(null);
@@ -256,51 +246,13 @@ const Income: React.FC = () => {
 
   if (loading) return <div>Loading...</div>;
 
-  function handleSearch(){
-    const filtered = incomeData.filter(item =>
-      item.source.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.amount.toString().includes(searchText) ||
-      item.date.includes(searchText)
-    );
-    setFilteredData(filtered);
-    setSearchText("")
-  }
+  const currentDate = new Date()
+  const currentMonth = currentDate.toLocaleString("default", {month: "long"})
 
-  const handleFilter = async () => {
-    const params: Record<string, any> = {};
-  
-    // Add your filters (source, amount, dates)
-    if (filterSource) params.source = filterSource;
-    if (filterMinAmount !== '') params['amount__gt'] = filterMinAmount;
-    if (filterMaxAmount !== '') params['amount__lt'] = filterMaxAmount;
-    if (filterStartDate) params['date__gte'] = filterStartDate.toISOString().split('T')[0];
-    if (filterEndDate) params['date__lte'] = filterEndDate.toISOString().split('T')[0];
-  
-    // Set pagination params
-    params.page = 1;
-    params.size = 10;  // Adjust according to your pagination setup
-  
-    try {
-      const response = await axiosInstance.get('/track/income/', { params });
-      const paginatedData = response.data.results || response.data; 
-      console.log("paginated data: " + paginatedData)
-      setIncomeData(paginatedData);
-      setFilteredData(paginatedData);
-      setFilterMinAmount("")
-      setFilterMaxAmount("")
-      setFilterStartDate(null)
-      setFilterEndDate(null)
-    } catch (error) {
-      console.error('Error fetching filtered income:', error);
-    }
-  };
-  
-  const currentDate = new Date();
-  const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
+  // console.log("search Text", searchText)
 
   return (
-    <div className="income" style={{ margin: '7rem' }}>
+    <div className="income" style={{margin: "7rem"}}>
       <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-4">
         <h2 className="text-center mb-3 mb-sm-0">Income Summary</h2>
         
@@ -315,66 +267,50 @@ const Income: React.FC = () => {
           initialData={editData}
         />
       </div>
-
       <div className="row shadow" style={{borderRadius:"1.5rem"}}>
         <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3">
-            <TotalCard 
-                title={`Total Income For ${currentMonth}`} 
-                total={`$${total}`} 
-                icon={AttachMoney} 
-                backgroundColor="#E8F5E9"
-                hoverBackgroundColor="#4CAF50"  
-                iconColor="#2E7D32"
-                hoverIconColor="#FFFFFF"
-            />
-          </div>
-
+          <TotalCard 
+              title={`Total Income For ${currentMonth}`} 
+              total={total} 
+              icon={AttachMoney} 
+              backgroundColor="#E8F5E9"
+              hoverBackgroundColor="#4CAF50"  
+              iconColor="#2E7D32"
+              hoverIconColor="#FFFFFF"
+          />
+        </div>
         <div className="col-12 col-md-6">
           {total === 0 ? <h2 className='text-center mt-5'>No Income Source</h2> : 
             <PieChart data={data} labels={labels} title={`Income Sources For ${currentMonth}`} />
           } 
         </div>
       </div>
-      <div className="d-flex flex-column">
-
-        <DataTable 
+      <div className="row mt-5 ">
+        
+        <div className="col-12 bag">
+          <DataTable 
             columns={columns} 
-            data={filteredData}
+            data={incomeData}
             page={page}
             text={<SearchBar 
-                      placeholder='Search by Source, Description'
-                      value={searchText}
-                      onChange={(e:any) => setSearchText(e.target.value)}
-                      onClick={handleSearch}
+                    placeholder='Search by Source, Description' 
+                    value={searchText} 
+                    onChange={(e:any) => setSearchText(e.target.value)}
+                    onClick={() => alert("button clicked")}
                   />}
-            filterData={<FilterBar
-              filterSource={filterSource}
-              setFilterSource={setFilterSource}
-              filterMinAmount={filterMinAmount}
-              setFilterMinAmount={setFilterMinAmount}
-              filterMaxAmount={filterMaxAmount}
-              setFilterMaxAmount={setFilterMaxAmount}
-              filterStartDate={filterStartDate}
-              setFilterStartDate={setFilterStartDate}
-              filterEndDate={filterEndDate}
-              setFilterEndDate={setFilterEndDate}
-              filterButtonText='Apply Filter'
-              filterClick={handleFilter}
-            />}
             count={count}
             onDeleteClick={handleDeleteClick}
             onEditClick={handleEdit}
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
-            emptyMessage = "No data available"
           />
-  
-        <ConfirmationModal
-          open={open}
-          handleConfirm={handleConfirmDelete}
-          handleClose={handleCancelDelete}
-        />
+          <ConfirmationModal 
+            open={open} 
+            handleClose={handleCancelDelete} 
+            handleConfirm={handleConfirmDelete} 
+          />
+        </div>
       </div>
     </div>
   );

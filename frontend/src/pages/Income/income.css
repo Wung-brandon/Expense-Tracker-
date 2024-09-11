@@ -1,11 +1,8 @@
 .income {
   display: flex;
   flex-direction: column;
-  margin-left: 8rem;
-  margin-right: 4rem;
-  width: "60%";
+  width: "100%";
   height: 100vh;
- 
 }
 
 .card {

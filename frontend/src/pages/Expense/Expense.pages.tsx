@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { AttachMoney } from '@mui/icons-material';
 import PieChart from '../../components/Dashboard Page Components/Chart/Chart';
 import useAxios from '../../utils/useAxios';
 import TotalCard from '../../components/Dashboard Page Components/Widgets/Widgets.components';
@@ -9,6 +8,7 @@ import { toast } from 'react-toastify';
 import DataTable from '../../components/Dashboard Page Components/Table/Table';
 import ConfirmationModal from '../../components/Dashboard Page Components/Modal/confirmModal';
 import { MoneyOff } from '@mui/icons-material';
+import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
 // import { useThemeBackground } from '../../context/BackgroundContext';
 
 interface Data {
@@ -298,7 +298,7 @@ const Expense: React.FC = () => {
             columns={columns} 
             data={expenseData}
             page={page}
-            text="Expense Data"
+            text={<SearchBar placeholder='Search by Categories'/>}
             count={count}
             onDeleteClick={handleDeleteClick}
             onEditClick={handleEdit}

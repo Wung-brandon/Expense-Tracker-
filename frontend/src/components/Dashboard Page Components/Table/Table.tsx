@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -16,7 +17,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
+// import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 
 interface Data {
@@ -34,9 +35,11 @@ interface DataTableProps {
   columns: Column[];
   data: Data[];
   count: number;
-  text: string;
+  text?: any;
+  filterData?: any;
   page: number;
   rowsPerPage: number;
+  emptyMessage?: string;
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onEditClick: (row: any) => void;
@@ -54,6 +57,8 @@ const DataTable: React.FC<DataTableProps> = ({
   onRowsPerPageChange,
   onEditClick,
   onDeleteClick,
+  filterData,
+  emptyMessage
 }) => {
   const [order, setOrder] = React.useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = React.useState<string>(columns[0].id);
@@ -139,130 +144,146 @@ const DataTable: React.FC<DataTableProps> = ({
               </IconButton>
             </Tooltip>
           ) : (
-            <Tooltip title="Filter list">
-              <IconButton className='tablecell'>
-                <FilterListIcon />
-              </IconButton>
-            </Tooltip>
+            // <Tooltip title="Filter list">
+            //   <IconButton className='tablecell'>
+            //     <FilterListIcon />
+            //   </IconButton>
+            // </Tooltip>
+            <>
+              {filterData}
+            </>
+            
           )}
         </Toolbar>
+        {data.length > 0 ? (
+          <>
         <TableContainer className='bag'>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" className='tablecell'>
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    color="primary"
-                    indeterminate={
-                      selected.length > 0 && selected.length < data.length
-                    }
-                    checked={
-                      data.length > 0 && selected.length === data.length
-                    }
-                    onChange={handleSelectAllClick}
-                    inputProps={{
-                      'aria-label': 'select all items',
-                    }}
-                    className='tablecell'
-                  />
-                </TableCell>
-                {columns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    align={column.numeric ? 'right' : 'left'}
-                    padding="normal"
-                    sortDirection={orderBy === column.id ? order : false}
-                    className='tablecell'
-                  >
-                    <TableSortLabel
-                      active={orderBy === column.id}
-                      direction={orderBy === column.id ? order : 'asc'}
-                      onClick={(event) => handleRequestSort(event, column.id)}
+          
+              <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" className='tablecell'>
+              <TableHead>
+                <TableRow>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      color="primary"
+                      indeterminate={
+                        selected.length > 0 && selected.length < data.length
+                      }
+                      checked={
+                        data.length > 0 && selected.length === data.length
+                      }
+                      onChange={handleSelectAllClick}
+                      inputProps={{
+                        'aria-label': 'select all items',
+                      }}
+                      className='tablecell'
+                    />
+                  </TableCell>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      align={column.numeric ? 'right' : 'left'}
+                      padding="normal"
+                      sortDirection={orderBy === column.id ? order : false}
                       className='tablecell'
                     >
-                      {column.label}
-                      {orderBy === column.id ? (
-                        <Box component="span" sx={visuallyHidden} className='tablecell'>
-                          {order === 'desc'
-                            ? 'sorted descending'
-                            : 'sorted ascending'}
-                        </Box>
-                      ) : null}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-                <TableCell align="center" className='tablecell'>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody className='tablecell'>
-              {data.map((row, index) => {
-                const isItemSelected = isSelected(row.id as number);
-                const labelId = `data-table-checkbox-${index}`;
-
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.id as number)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={row.id}
-                    selected={isItemSelected}
-                    sx={{ cursor: 'pointer' }}
-                    className='tablecell'
-                  >
-                    <TableCell padding="checkbox" className='tablecell'>
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          'aria-labelledby': labelId,
-                        }}
-                        className='tablecell'
-                      />
-                    </TableCell>
-                    {columns.map((column) => (
-                      <TableCell
-                        align={column.numeric ? 'right' : 'left'}
-                        key={column.id}
-                        sx={{ textDecoration: 'capitalize' }}
+                      <TableSortLabel
+                        active={orderBy === column.id}
+                        direction={orderBy === column.id ? order : 'asc'}
+                        onClick={(event) => handleRequestSort(event, column.id)}
                         className='tablecell'
                       >
-                        {row[column.id]}
-                      </TableCell>
-                    ))}
-                    <TableCell align="center" className='tablecell'>
-                      <IconButton
-                        color="primary"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEditClick(row);
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
+                        {column.label}
+                        {orderBy === column.id ? (
+                          <Box component="span" sx={visuallyHidden} className='tablecell'>
+                            {order === 'desc'
+                              ? 'sorted descending'
+                              : 'sorted ascending'}
+                          </Box>
+                        ) : null}
+                      </TableSortLabel>
                     </TableCell>
-                  </TableRow>
-                );
-              })}
-              {count - data.length > 0 && (
-                <TableRow style={{ height: 53 }} className='tablecell'>
-                  <TableCell colSpan={columns.length + 2} className='tablecell'/>
+                  ))}
+                  <TableCell align="center" className='tablecell'>Actions</TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHead>
+              <TableBody className='tablecell'>
+                {data.map((row, index) => {
+                  const isItemSelected = isSelected(row.id as number);
+                  const labelId = `data-table-checkbox-${index}`;
+  
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, row.id as number)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={row.id}
+                      selected={isItemSelected}
+                      sx={{ cursor: 'pointer' }}
+                      className='tablecell'
+                    >
+                      <TableCell padding="checkbox" className='tablecell'>
+                        <Checkbox
+                          color="primary"
+                          checked={isItemSelected}
+                          inputProps={{
+                            'aria-labelledby': labelId,
+                          }}
+                          className='tablecell'
+                        />
+                      </TableCell>
+                      {columns.map((column) => (
+                        <TableCell
+                          align={column.numeric ? 'right' : 'left'}
+                          key={column.id}
+                          sx={{ textDecoration: 'capitalize' }}
+                          className='tablecell'
+                        >
+                          {row[column.id]}
+                        </TableCell>
+                      ))}
+                      <TableCell align="center" className='tablecell'>
+                        <IconButton
+                          color="primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditClick(row);
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {count - data.length > 0 && (
+                  <TableRow style={{ height: 53 }} className='tablecell'>
+                    <TableCell colSpan={columns.length + 2} className='tablecell'/>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+        
+          
         </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={count}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={onPageChange}
-          onRowsPerPageChange={onRowsPerPageChange}
-          className='bag'
-        />
+
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={count}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={onPageChange}
+            onRowsPerPageChange={onRowsPerPageChange}
+            className='bag'
+          /> 
+        </>
+        ) : 
+            <h3 className='text-center pt-2'>{emptyMessage}</h3>
+        }
+        
+        
       </Paper>
     </Box>
   );

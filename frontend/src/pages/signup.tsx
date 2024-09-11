@@ -30,13 +30,53 @@ const SignupPage: React.FC = () => {
     }
     console.log({ username, email, password, gender, confirm_password });
   };
-
+  
   const fields = [
-    { label: 'Username', type: 'text', name: 'username', value: username, onChange: (e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value), required: true },
-    { label: 'Email', type: 'email', name: 'email', value: email, onChange: (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value), required: true },
-    { label: 'Gender', type: 'select', name: 'gender', value: gender, onChange: (e: ChangeEvent<HTMLSelectElement>) => setGender(e.target.value), required: true },
-    { label: 'Password', type: 'password', name: 'password', value: password, onChange: (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), required: true },
-    { label: 'Confirm Password', type: 'password', name: 'confirmPassword', value: confirm_password, onChange: (e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value), required: true }
+    { 
+      label: 'Username', 
+      type: 'text', 
+      name: 'username', 
+      value: username, 
+      onChange: (e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value), 
+      required: true 
+    },
+    { 
+      label: 'Email', 
+      type: 'email', 
+      name: 'email', 
+      value: email, 
+      onChange: (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value), 
+      required: true 
+    },
+    { 
+      label: 'Gender', 
+      type: 'select', 
+      name: 'gender', 
+      options: [
+        { label: 'MALE', value: 'MALE' },
+        { label: 'FEMALE', value: 'FEMALE' },
+        { label: 'OTHER', value: 'OTHER' },
+    ],
+      value: gender, 
+      onChange: (e: ChangeEvent<HTMLSelectElement>) => setGender(e.target.value), 
+      required: true 
+    },
+    { 
+      label: 'Password', 
+      type: 'password', 
+      name: 'password', 
+      value: password, 
+      onChange: (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), 
+      required: true 
+    },
+    { 
+      label: 'Confirm Password', 
+      type: 'password', 
+      name: 'confirmPassword', 
+      value: confirm_password, 
+      onChange: (e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value), 
+      required: true 
+    }
   ];
 
   return (

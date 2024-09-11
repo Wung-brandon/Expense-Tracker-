@@ -19,7 +19,11 @@ const ResetPasswordPage: React.FC = () => {
     event.preventDefault();
     if (newPassword != confirm_password){
       toast.error("Passwords do not match")
-    }else{
+    }
+    else if (newPassword.length < 6 || confirm_password.length < 6){
+      toast.warning("Password is too short")
+    }
+    else{
       resetPassword(uidb64, token, newPassword, confirm_password)
       setPassword("")
       setConfirmPassword("")

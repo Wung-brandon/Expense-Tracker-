@@ -19,6 +19,7 @@ import Reports from './pages/Reports/Reports.pages';
 import { ThemeProvider } from './context/BackgroundContext';
 import "./app.css"
 import DashboardLayout from './Layout/DashboardLayout';
+import ProfilePage from './pages/UserProfile/profile';
 
 function App() {
   return (
@@ -41,7 +42,8 @@ function App() {
           <Route path='/dashboard/expense' element={<DashboardLayout><Expense /></DashboardLayout>} />
           <Route path='/dashboard/budget' element={<DashboardLayout><Budget /></DashboardLayout>} />
           <Route path='/dashboard/reports' element={<DashboardLayout><Reports /></DashboardLayout>} />
-          
+          <Route path='/dashboard/profile' element={<DashboardLayout><ProfilePage /></DashboardLayout>} />
+
         </Routes>
       </AuthProvider>
       </ThemeProvider>

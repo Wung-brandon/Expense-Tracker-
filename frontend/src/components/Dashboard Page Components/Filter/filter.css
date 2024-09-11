@@ -1,0 +1,14 @@
+/* Filter.css */
+.filter-container {
+    padding: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-width: 400px;
+    background-color: #fff;
+  }
+  
+  .amount-range-inputs .MuiTextField-root, 
+  .date-range-inputs .MuiTextField-root {
+    flex: 1;
+  }
+  

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -139,11 +140,7 @@ export default function Sidebar() {
     }
 
     try {
-      const response = await axiosInstance.get("/user/profile/", {
-        headers: {
-          Authorization: `Bearer ${authTokens.access}`,
-        },
-      });
+      const response = await axiosInstance.get("/user/profile/");
       if (response.data && response.data.results.length > 0) {
         setUserProfile(response.data.results[0]);
       } else {
@@ -229,7 +226,9 @@ export default function Sidebar() {
                         backgroundColor: "#6A0DAD", 
                         color: "#ffffff",
                         fontSize: "18px",
-                        fontWeight: "bold"
+                        fontWeight: "bold",
+                        textDecoration:"none",
+                        listStyle: "none"
                       }}
                     >
                       {userProfile.email.charAt(0).toUpperCase()}
@@ -302,7 +301,7 @@ export default function Sidebar() {
         </List>
         <Divider style={{background:"#fff"}} />
         <List>
-          <ListItem button onClick={logoutUser}>
+          <ListItem button onClick={logoutUser} style={{cursor:"pointer"}}>
             <ListItemIcon sx={{color:"#fff"}}>
               <LogoutIcon />
             </ListItemIcon>

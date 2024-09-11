@@ -11,7 +11,7 @@ import DataTable from '../../components/Dashboard Page Components/Table/Table';
 import ConfirmationModal from '../../components/Dashboard Page Components/Modal/confirmModal';
 // import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
 // import FilterBar from '../../components/Dashboard Page Components/Filter/FilterBar';
-import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
+import SearchBar from '../../components/Dashboard Page Components/Filter/search';
 import FilterBar from '../../components/Dashboard Page Components/Filter/FillterBar';
 
 
@@ -256,46 +256,6 @@ const Income: React.FC = () => {
 
   if (loading) return <div>Loading...</div>;
 
-  function handleSearch(){
-    const filtered = incomeData.filter(item =>
-      item.source.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.amount.toString().includes(searchText) ||
-      item.date.includes(searchText)
-    );
-    setFilteredData(filtered);
-    setSearchText("")
-  }
-
-  const handleFilter = async () => {
-    const params: Record<string, any> = {};
-  
-    // Add your filters (source, amount, dates)
-    if (filterSource) params.source = filterSource;
-    if (filterMinAmount !== '') params['amount__gt'] = filterMinAmount;
-    if (filterMaxAmount !== '') params['amount__lt'] = filterMaxAmount;
-    if (filterStartDate) params['date__gte'] = filterStartDate.toISOString().split('T')[0];
-    if (filterEndDate) params['date__lte'] = filterEndDate.toISOString().split('T')[0];
-  
-    // Set pagination params
-    params.page = 1;
-    params.size = 10;  // Adjust according to your pagination setup
-  
-    try {
-      const response = await axiosInstance.get('/track/income/', { params });
-      const paginatedData = response.data.results || response.data; 
-      console.log("paginated data: " + paginatedData)
-      setIncomeData(paginatedData);
-      setFilteredData(paginatedData);
-      setFilterMinAmount("")
-      setFilterMaxAmount("")
-      setFilterStartDate(null)
-      setFilterEndDate(null)
-    } catch (error) {
-      console.error('Error fetching filtered income:', error);
-    }
-  };
-  
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
 
@@ -342,11 +302,10 @@ const Income: React.FC = () => {
             data={filteredData}
             page={page}
             text={<SearchBar 
-                      placeholder='Search by Source, Description'
-                      value={searchText}
-                      onChange={(e:any) => setSearchText(e.target.value)}
-                      onClick={handleSearch}
-                  />}
+                    searchText={searchText} 
+                    setSearchText={setSearchText} 
+                    placeholder='Search By Source, Description'
+                    />}
             filterData={<FilterBar
               filterSource={filterSource}
               setFilterSource={setFilterSource}
@@ -358,8 +317,6 @@ const Income: React.FC = () => {
               setFilterStartDate={setFilterStartDate}
               filterEndDate={filterEndDate}
               setFilterEndDate={setFilterEndDate}
-              filterButtonText='Apply Filter'
-              filterClick={handleFilter}
             />}
             count={count}
             onDeleteClick={handleDeleteClick}
@@ -367,7 +324,6 @@ const Income: React.FC = () => {
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
-            emptyMessage = "No data available"
           />
   
         <ConfirmationModal

@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import useAxios from '../../utils/useAxios';
 import ReportApexBarChart from '../../components/Dashboard Page Components/Chart/ReportChart';
-import AreaChart from '../../components/Dashboard Page Components/Chart/AreaChart';
-import LineChart from '../../components/Dashboard Page Components/Chart/LineChart';
+// import AreaChart from '../../components/Dashboard Page Components/Chart/AreaChart';
+// import LineChart from '../../components/Dashboard Page Components/Chart/LineChart';
 import StackBarChart from '../../components/Dashboard Page Components/Chart/StackBarChart';
+// import { ProgressBar } from 'react-bootstrap';
 
 interface MonthlySummary {
   month: string;
@@ -14,7 +15,26 @@ interface MonthlySummary {
   // balance: number;
 }
 
+interface MonthlyExpenseSummaryTableData {
+  id? : number;
+  category : string;
+  amount: number;
+  description: string;
+  date: string;
+}
+
 const Reports: React.FC = () => {
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const monthNumber = currentDate.getMonth() + 1
+  // console.log(`month: ${monthNumber}`)
+  // console.log("current year: " + currentYear)
+  const currentMonth = currentDate.toLocaleString("default", {month: "long"})
+  // console.log(`month name: ${currentMonth}`)
+
+  const [year, setYear] = useState<number>(currentYear)
+  const [month, setMonth] = useState<number>(monthNumber)
+  
   const [overallIncomeData, setOverallIncomeData] = useState<number[]>([]);
   const [overallIncomeLabels, setOverallIncomeLabels] = useState<string[]>([]);
 
@@ -30,6 +50,9 @@ const Reports: React.FC = () => {
 
   const [monthlyData, setMonthlyData] = useState<MonthlySummary[]>([]);
 
+  const [monthlyExpenseTableData, setMonthlyExpenseTableData] = useState<MonthlyExpenseSummaryTableData[]>([]);
+
+  
 
   const axiosInstance = useAxios();
 
@@ -77,9 +100,9 @@ const Reports: React.FC = () => {
       axiosInstance.get('/userstats/monthly-summary/')
         .then(response => {
           const responseData = response.data.monthly_summary;
-          console.log("monthly summary", responseData);
+          // console.log("monthly summary", responseData);
           const currentMonth = new Date().toISOString().slice(0, 7); 
-          console.log("Current month: " + currentMonth)
+          // console.log("Current month: " + currentMonth)
           const currentMonthSummary = responseData.find((item: any) => item.month === currentMonth);
 
           if (currentMonthSummary) {    
@@ -156,8 +179,7 @@ const Reports: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const currentDate = new Date()
-  const currentMonth = currentDate.toLocaleString("default", {month: "long"})
+  
 
   const series = [
     {
@@ -181,8 +203,35 @@ const Reports: React.FC = () => {
   // X-axis categories (months)
   const categories = monthlyData.map((item) => item.month);
 
+  const columns = [
+    // { id: 'id', label: 'Id', numeric: true },
+    { id: 'amount', label: 'Amount', numeric: true },
+    { id: 'date', label: 'Date', numeric: false },
+    { id: 'category', label: 'Category', numeric: false },
+    { id: 'description', label: 'Description', numeric: false },
+  ];
+
+  useEffect(() => {
+    const fetchMonthlyExpenseTableData = async () => {
+      const response = await axiosInstance.get(`/userstats/expenses/${year}/${month}/`)
+      const expenseData = response.data.expenses
+      // console.log("expenses data year and month", expenseData)
+      setMonthlyExpenseTableData(expenseData)
+    }
+
+    const intervalId = setInterval(fetchMonthlyExpenseTableData, 1000); 
+
+    return () => clearInterval(intervalId);
+  }, [])
+
+  
+
+  
+  
+
   return (
     <div style={{margin: "7rem"}}>
+  
       <div className="row justify-content-center align-items-center">
         <div className="col-lg-6 col-sm-12 mb-4">
           <ReportApexBarChart
@@ -221,12 +270,12 @@ const Reports: React.FC = () => {
         </div>
         
       </div>
-      <div className="chart-container">
+      {/* <div className="chart-container">
         <AreaChart title="Monthly Financial Overview" series={series} categories={categories} />
       </div>
       <div className="chart-container">
         <LineChart categories={categories} series={series} title="Monthly Financial Overview" />
-      </div>
+      </div> */}
       <div className="chart-container">
         <StackBarChart categories={categories} series={series} title="Monthly Financial Overview" />
       </div>

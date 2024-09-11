@@ -44,7 +44,9 @@ const useAxios = () => {
             setAuthToken(response.data);
             // console.log("refresh tokens:",response.data)
             setUser(jwtDecode(response.data.access));
+            localStorage.setItem("authTokens", JSON.stringify(response.data))
             config.headers.Authorization = `Bearer ${response.data.access}`;
+            
             // toast.success("Token refreshed successfully.");
           } else {
             // toast.error('Token refresh failed. Please login again.');
