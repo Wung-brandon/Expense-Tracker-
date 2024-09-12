@@ -44,7 +44,7 @@ class IncomeListCreateView(ListCreateAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = IncomeFilter
     filterset_fields = ["source", "amount", "date"]
-    search_fields = ["source", "amount"]
+    search_fields = ["source", "description"]
     ordering_fields = ["id", "amount", "date"]
     pagination_class = PageNumberPagination
     
@@ -60,7 +60,11 @@ class IncomeListCreateView(ListCreateAPIView):
             raise
     def get_queryset(self):
         try:
-            return self.queryset.filter(user=self.request.user)
+            qs = self.queryset.filter(user=self.request.user)
+            logger.info(f"Filtering queryset with params: {self.request.GET}")
+            return qs
+            # return self.queryset.filter(user=self.request.user)
+       
         except Exception as e:
             logger.error(f"Error while filtering queryset: {e}")
             raise

@@ -6,6 +6,9 @@ from dateutil.relativedelta import relativedelta
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models.functions import TruncWeek
+from django.utils import timezone
+from expense_api.serializers import ExpenseSerializer
 
 class ExpenseSummaryStatsView(APIView):
     permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
@@ -267,4 +270,116 @@ class MonthlySummaryStatsView(APIView):
         result = [{'month': month, **data} for month, data in monthly_summary.items()]
 
         return Response({"monthly_summary": result}, status=status.HTTP_200_OK)
+
+class WeeklySummaryStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        today_date = datetime.date.today()
+        start_date = today_date - relativedelta(weeks=52)  # Start from 52 weeks ago (one year)
+
+        # Aggregate income data by week
+        income_summary = Income.objects.filter(
+            user=request.user,
+            date__range=(start_date, today_date)
+        ).annotate(week=TruncWeek('date')).values('week').annotate(
+            total_income=Sum('amount')
+        ).order_by('week')
+
+        # Aggregate expense data by week
+        expense_summary = Expense.objects.filter(
+            user=request.user,
+            date__range=(start_date, today_date)
+        ).annotate(week=TruncWeek('date')).values('week').annotate(
+            total_expense=Sum('amount')
+        ).order_by('week')
+
+        # Aggregate budget data by week
+        budget_summary = Budget.objects.filter(
+            user=request.user,
+            month__range=(start_date, today_date)
+        ).annotate(week=TruncWeek('month')).values('week').annotate(
+            total_budget=Sum('amount')
+        ).order_by('week')
+
+        # Prepare data structure to hold the weekly summary
+        weekly_summary = {}
+
+        # Process income data by week
+        for entry in income_summary:
+            week_str = entry['week'].strftime('%Y-%W')  # Format as Year-Week
+            if week_str not in weekly_summary:
+                weekly_summary[week_str] = {
+                    'income': 0, 'expenses': 0, 'budget': 0, 
+                    'income_sources': [], 'expense_categories': []
+                }
+            weekly_summary[week_str]['income'] = entry['total_income']
+
+            # Get income source summary for the current week
+            income_source_summary = Income.objects.filter(
+                user=request.user,
+                date__week=entry['week'].isocalendar()[1],
+                date__year=entry['week'].year
+            ).values('source').annotate(total_amount=Sum('amount')).order_by('source')
+            weekly_summary[week_str]['income_sources'] = list(income_source_summary)
+
+        # Process expense data by week
+        for entry in expense_summary:
+            week_str = entry['week'].strftime('%Y-%W')  # Format as Year-Week
+            if week_str not in weekly_summary:
+                weekly_summary[week_str] = {
+                    'income': 0, 'expenses': 0, 'budget': 0, 
+                    'income_sources': [], 'expense_categories': []
+                }
+            weekly_summary[week_str]['expenses'] = entry['total_expense']
+
+            # Get expense category summary for the current week
+            expense_category_summary = Expense.objects.filter(
+                user=request.user,
+                date__week=entry['week'].isocalendar()[1],
+                date__year=entry['week'].year
+            ).values('category').annotate(total_amount=Sum('amount')).order_by('category')
+            weekly_summary[week_str]['expense_categories'] = list(expense_category_summary)
+
+        # Process budget data by week
+        for entry in budget_summary:
+            week_str = entry['week'].strftime('%Y-%W')  # Format as Year-Week
+            if week_str not in weekly_summary:
+                weekly_summary[week_str] = {
+                    'income': 0, 'expenses': 0, 'budget': 0, 
+                    'income_sources': [], 'expense_categories': []
+                }
+            weekly_summary[week_str]['budget'] = entry['total_budget']
+
+        # Convert to list of dictionaries for JSON serialization
+        result = [{'week': week, **data} for week, data in weekly_summary.items()]
+
+        return Response({"weekly_summary": result}, status=status.HTTP_200_OK)
+
+class MonthlyExpensesView(APIView):
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
     
+
+    def get(self, request, year, month):
+        """
+        Fetch all expenses for the given month and year.
+        """
+        try:
+            # Get the first and last date of the month
+            start_date = timezone.datetime(year=year, month=month, day=1)
+            # Get the last day of the month
+            if month == 12:
+                end_date = timezone.datetime(year=year + 1, month=1, day=1) - timezone.timedelta(days=1)
+            else:
+                end_date = timezone.datetime(year=year, month=month + 1, day=1) - timezone.timedelta(days=1)
+
+            # Filter expenses for the logged-in user within the date range
+            expenses = Expense.objects.filter(user=request.user, date__range=(start_date, end_date))
+
+            # Serialize the expenses data
+            serializer = ExpenseSerializer(expenses, many=True)
+
+            return Response({"expenses": serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

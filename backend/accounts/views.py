@@ -94,24 +94,22 @@ class ListCreateUserProfileView(ListCreateAPIView):
         return Response("Profile Created Successfully", status=status.HTTP_200_OK)
     
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+        return self.queryset.filter(user=self.request.user).order_by("id")
     
 class RetrieveUpdateUserProfileView(RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     lookup_field = "id"
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
     
     # def get_object(self):
     #     return self.request.user
     
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+        return self.queryset.filter(user=self.request.user).order_by("id")
 
-    # def get(self, request, *args, **kwargs):
-    #     user = self.get_object()
-    #     serializer = self.get_serializer(user)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+
     
     
     

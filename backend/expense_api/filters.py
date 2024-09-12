@@ -14,7 +14,7 @@ class IncomeFilter(FilterSet):
     class Meta:
         model = Income
         fields = {
-            'source': ['exact'],  # Lookup should be in a list
+            'source': ['exact'],  
             'amount': ['gt', 'lt'],
             'date': ['gte', 'lte'],
         }

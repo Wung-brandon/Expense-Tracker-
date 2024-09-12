@@ -162,7 +162,7 @@ function DashboardPage() {
 
   const currentYearWeekNumber = getWeekNumber(date)
   const previousYearWeekNumber = currentYearWeekNumber - 1;
-  console.log("previous week number",previousYearWeekNumber)
+  // console.log("previous week number",previousYearWeekNumber)
 
   useEffect(() => {
     const fetchWeeklyExpenseData = async () => {
@@ -203,8 +203,8 @@ function DashboardPage() {
     return () => clearInterval(intervalId);
   }, [])
 
-  console.log(`current week ${currentYearWeekNumber} - ${currentWeekExpenseData}`)
-  console.log(`current week ${previousYearWeekNumber} - ${previousWeekExpenseData}`)
+  // console.log(`current week ${currentYearWeekNumber} - ${currentWeekExpenseData}`)
+  // console.log(`current week ${previousYearWeekNumber} - ${previousWeekExpenseData}`)
 
   const totalWeekExpenses = currentWeekExpenseData.reduce((acc, amount) => acc + amount, 0);
 

@@ -38,12 +38,13 @@ class UserSerializer(serializers.ModelSerializer):
         
 class UserProfileSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username') 
-    email = serializers.EmailField(source='user.email', read_only=True)
-    gender = serializers.ReadOnlyField(source='user.gender', read_only=True)
+    email = serializers.EmailField(source='user.email', required=False)
+    gender = serializers.CharField(source='user.gender', required=False)
     class Meta:
         model = Profile
         fields = ['id', 'user', 'full_name', 'bio', 'phone_number', 'gender', 'email', 'location', 'profile_img']  # Include all fields you want to expose
-        read_only_fields = ['id','user', 'email', 'gender']
+        # read_only_fields = ['id']
+        
 
     def create(self, validated_data):
         # Create a new Profile instance linked to the authenticated user
@@ -58,6 +59,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
             profile.save()
         
         return profile
+    def update(self, instance, validated_data):
+        # Handle user fields
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+        if 'email' in user_data:
+            user.email = user_data['email']
+        if 'gender' in user_data:
+            user.gender = user_data['gender']
+        user.save()
+
+        # Handle profile fields
+        return super().update(instance, validated_data)
 
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6, required=True, validators=[validate_password])
