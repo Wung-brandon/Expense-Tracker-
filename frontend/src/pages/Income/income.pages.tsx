@@ -33,7 +33,6 @@ const Income: React.FC = () => {
   const [date, setDate] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [incomeData, setIncomeData] = useState<Data[]>([]);
-  const [filteredData, setFilteredData] = useState<Data[]>([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -50,27 +49,16 @@ const Income: React.FC = () => {
   const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
 
   const axiosInstance = useAxios();
-
   useEffect(() => {
     fetchAllData();
-  }, [page, rowsPerPage, filterSource, filterMinAmount, filterMaxAmount, filterStartDate, filterEndDate]);
-
+  }, []);
+  
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams();
-      queryParams.append('page', (page + 1).toString());
-      queryParams.append('size', rowsPerPage.toString());
-      if (filterSource) queryParams.append('source', filterSource);
-      if (filterMinAmount !== '') queryParams.append('min_amount', filterMinAmount.toString());
-      if (filterMaxAmount !== '') queryParams.append('max_amount', filterMaxAmount.toString());
-      if (filterStartDate) queryParams.append('start_date', filterStartDate.toISOString().split('T')[0]);
-      if (filterEndDate) queryParams.append('end_date', filterEndDate.toISOString().split('T')[0]);
-
-      const response = await axiosInstance.get(`/track/income/?${queryParams.toString()}`);
+      const response = await axiosInstance.get(`/track/income/?page=${page + 1}&size=${rowsPerPage}`);
       const responseData = response.data;
       setIncomeData(responseData.results);
-      setFilteredData(responseData.results)
       setCount(responseData.count);
       setLoading(false);
     } catch (error) {
@@ -82,6 +70,9 @@ const Income: React.FC = () => {
   const handleIncomeSubmit = (formData: { [key: string]: any }) => {
     if (typeof formData.amount === 'string') {
       formData.amount = parseFloat(formData.amount);
+      if (formData.amount < 0){
+        toast.warning("Income cannot be negative")
+      }
     }
 
     if (formData.date) {
@@ -104,7 +95,8 @@ const Income: React.FC = () => {
         fetchAllData(); // Refresh data after add/update
       })
       .catch(error => {
-        toast.error(`Error ${editMode ? 'updating' : 'adding'} income: ${error.response?.data?.message || error.message}`);
+        // toast.error(`Error ${editMode ? 'updating' : 'adding'} income: ${error.response?.data?.message || error.message}`);
+        console.error(error)
       });
   };
 
@@ -263,7 +255,7 @@ const Income: React.FC = () => {
       item.amount.toString().includes(searchText) ||
       item.date.includes(searchText)
     );
-    setFilteredData(filtered);
+    setIncomeData(filtered);
     setSearchText("")
   }
 
@@ -283,18 +275,31 @@ const Income: React.FC = () => {
   
     try {
       const response = await axiosInstance.get('/track/income/', { params });
-      const paginatedData = response.data.results || response.data; 
-      console.log("paginated data: " + paginatedData)
-      setIncomeData(paginatedData);
-      setFilteredData(paginatedData);
-      setFilterMinAmount("")
-      setFilterMaxAmount("")
-      setFilterStartDate(null)
-      setFilterEndDate(null)
+      const paginatedData = response.data.results || response.data;
+      console.log("data" ,paginatedData)
+  
+      // Log the paginated data to inspect it
+      console.log("Paginated Data: ", JSON.stringify(paginatedData, null, 2));
+  
+      if (Array.isArray(paginatedData)) {
+        setIncomeData(paginatedData);
+
+      } else {
+        console.error('Received data is not an array');
+      }
+  
+      // Clear the filters after applying
+      setSource("")
+      setFilterMinAmount("");
+      setFilterMaxAmount("");
+      setFilterStartDate(null);
+      setFilterEndDate(null);
     } catch (error) {
       console.error('Error fetching filtered income:', error);
     }
+    
   };
+
   
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
@@ -339,7 +344,7 @@ const Income: React.FC = () => {
 
         <DataTable 
             columns={columns} 
-            data={filteredData}
+            data={incomeData}
             page={page}
             text={<SearchBar 
                       placeholder='Search by Source, Description'
@@ -348,18 +353,29 @@ const Income: React.FC = () => {
                       onClick={handleSearch}
                   />}
             filterData={<FilterBar
-              filterSource={filterSource}
-              setFilterSource={setFilterSource}
-              filterMinAmount={filterMinAmount}
-              setFilterMinAmount={setFilterMinAmount}
-              filterMaxAmount={filterMaxAmount}
-              setFilterMaxAmount={setFilterMaxAmount}
-              filterStartDate={filterStartDate}
-              setFilterStartDate={setFilterStartDate}
-              filterEndDate={filterEndDate}
-              setFilterEndDate={setFilterEndDate}
-              filterButtonText='Apply Filter'
+              selectLabel="Source"
+              selectValue={filterSource}
+              setSelectValue={setFilterSource}
+              selectOptions={[
+                { label: "All", value: "" },
+                { label: "Salary", value: "SALARY" },
+                { label: "Business", value: "BUSINESS" },
+                { label: "Side Hustle", value: "SIDE HUSTLE" },
+                { label: "Investments", value: "INVESTMENTS" },
+                { label: "Inheritance", value: "INHERITANCE" },
+                { label: "Gifts", value: "GIFTS" },
+                { label: "Others", value: "OTHERS" }
+              ]}
+              minAmount={filterMinAmount}
+              setMinAmount={setFilterMinAmount}
+              maxAmount={filterMaxAmount}
+              setMaxAmount={setFilterMaxAmount}
+              startDate={filterStartDate}
+              setStartDate={setFilterStartDate}
+              endDate={filterEndDate}
+              setEndDate={setFilterEndDate}
               filterClick={handleFilter}
+              filterButtonText="Apply Filter"
             />}
             count={count}
             onDeleteClick={handleDeleteClick}

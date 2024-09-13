@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useState, useEffect } from 'react';
 import PieChart from '../../components/Dashboard Page Components/Chart/Chart';
@@ -9,6 +11,7 @@ import DataTable from '../../components/Dashboard Page Components/Table/Table';
 import ConfirmationModal from '../../components/Dashboard Page Components/Modal/confirmModal';
 import { MoneyOff } from '@mui/icons-material';
 import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
+import FilterBar from '../../components/Dashboard Page Components/Filter/FillterBar';
 // import { useThemeBackground } from '../../context/BackgroundContext';
 
 interface Data {
@@ -45,6 +48,12 @@ const Expense: React.FC = () => {
   const [totalIncome, setTotalIncome] = useState<number>(0);
 
   // const {isDarkMode, toggleTheme} = useThemeBackground()
+  const [searchText, setSearchText] = useState<string>("");
+  const [filterCategory, setFilterCategory] = useState<string>('');
+  const [filterMinAmount, setFilterMinAmount] = useState<number | ''>('');
+  const [filterMaxAmount, setFilterMaxAmount] = useState<number | ''>('');
+  const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
+  const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
 
   const axiosInstance = useAxios();
 
@@ -95,6 +104,10 @@ const Expense: React.FC = () => {
         // console.log("expenses cannot exceed total income")
         toast.warning("Expenses cannot exceed total income")
       }
+      if (formData.amount < 0){
+        toast.warning("Expense cannot be negative")
+
+      }
     }
 
     if (formData.date) {
@@ -107,6 +120,7 @@ const Expense: React.FC = () => {
 
     request
       .then(response => {
+        console.log(response)
         toast.success(editMode ? 'Expense updated successfully.' : 'Expense added successfully.');
         setAmount('');
         setDescription('');
@@ -117,7 +131,8 @@ const Expense: React.FC = () => {
         fetchAllData(); // Refresh data after add/update
       })
       .catch(error => {
-        toast.error(`Error ${editMode ? 'updating' : 'adding'} Expense: ${error.response?.data?.message || error.message}`);
+        console.log(error);
+        // toast.error(`Error ${editMode ? 'updating' : 'adding'} Expense: ${error.response?.data?.message || error.message}`);
       });
   };
 
@@ -256,6 +271,61 @@ const Expense: React.FC = () => {
 
   if (loading) return <div>Loading...</div>;
 
+  const handleFilter = async () => {
+    const params: Record<string, any> = {};
+  
+    // Add your filters (source, amount, dates)
+    if (filterCategory) params.category = filterCategory;
+    if (filterMinAmount !== '') params['amount__gt'] = filterMinAmount;
+    if (filterMaxAmount !== '') params['amount__lt'] = filterMaxAmount;
+    if (filterStartDate) params['date__gte'] = filterStartDate.toISOString().split('T')[0];
+    if (filterEndDate) params['date__lte'] = filterEndDate.toISOString().split('T')[0];
+  
+    // Set pagination params
+    params.page = 1;
+    params.size = 10;  // Adjust according to your pagination setup
+  
+    try {
+      const response = await axiosInstance.get('/track/expense/', { params });
+      const paginatedData = response.data.results || response.data;
+  
+      // Log the paginated data to inspect it
+      console.log("Paginated Data: ", JSON.stringify(paginatedData, null, 2));
+  
+      if (Array.isArray(paginatedData)) {
+        
+        setExpenseData(paginatedData);
+        
+       
+
+      } else {
+        console.error('Received data is not an array');
+      }
+  
+      // Clear the filters after applying
+      setCategory("")
+      setFilterMinAmount("");
+      setFilterMaxAmount("");
+      setFilterStartDate(null);
+      setFilterEndDate(null);
+    } catch (error) {
+      console.error('Error fetching filtered income:', error);
+    }
+    
+  };
+
+  function handleSearch(){
+    const filtered = expenseData.filter(item =>
+      item.category.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.amount.toString().includes(searchText) ||
+      item.date.includes(searchText)
+    );
+
+    setExpenseData(filtered);
+    setSearchText("")
+  }
+
   const currentDate = new Date()
   const currentMonth = currentDate.toLocaleString("default", {month: "long"})
 
@@ -298,13 +368,50 @@ const Expense: React.FC = () => {
             columns={columns} 
             data={expenseData}
             page={page}
-            text={<SearchBar placeholder='Search by Categories'/>}
+            text={<SearchBar 
+                      placeholder='Search by Categories'
+                      value={searchText}
+                      onChange={(e:any) => setSearchText(e.target.value)}
+                      onClick={handleSearch}
+                  />}
+            filterData={<FilterBar
+              selectLabel="Category"
+              selectValue={filterCategory}
+              setSelectValue={setFilterCategory}
+              selectOptions={[
+                { label: "All", value: "" },
+                { label: 'FOOD', value: 'FOOD' },
+                { label: 'TRANSPORTATION', value: 'TRANSPORTATION' },
+                { label: 'HOUSING', value: 'HOUSING' },
+                { label: 'INSURANCE', value: 'INSURANCE' },
+                { label: 'ENTERTAINMENT', value: 'ENTERTAINMENT' },
+                { label: 'GIFTS', value: 'GIFTS' },
+                { label: 'OTHERS', value: 'OTHERS' },
+                { label: 'DEBTS', value: 'DEBTS' },
+                { label: 'EDUCATION', value: 'EDUCATION' },
+                { label: 'PERSONAL CARE', value: 'PERSONAL CARE' },
+                { label: 'ONLINE SERVICES', value: 'ONLINE SERVICES' },
+                { label: 'CLOTHING', value: 'CLOTHING' },
+                { label: 'HEALTH AND WELLNESS', value: 'HEALTH AND WELLNESS' },
+              ]}
+              minAmount={filterMinAmount}
+              setMinAmount={setFilterMinAmount}
+              maxAmount={filterMaxAmount}
+              setMaxAmount={setFilterMaxAmount}
+              startDate={filterStartDate}
+              setStartDate={setFilterStartDate}
+              endDate={filterEndDate}
+              setEndDate={setFilterEndDate}
+              filterClick={handleFilter}
+              filterButtonText="Apply Filter"
+            />}
             count={count}
             onDeleteClick={handleDeleteClick}
             onEditClick={handleEdit}
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
+            emptyMessage = "No data available"
           />
           <ConfirmationModal 
             open={open} 

@@ -7,32 +7,47 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { InputAdornment, Box } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
+interface FilterOption {
+  label: string;
+  value: string | number;
+}
+
 interface FilterBarProps {
-  filterSource: string;
-  setFilterSource: React.Dispatch<React.SetStateAction<string>>;
-  filterMinAmount: number | '';
-  setFilterMinAmount: React.Dispatch<React.SetStateAction<number | ''>>;
-  filterMaxAmount: number | '';
-  setFilterMaxAmount: React.Dispatch<React.SetStateAction<number | ''>>;
-  filterStartDate: Date | null;
-  setFilterStartDate: React.Dispatch<React.SetStateAction<Date | null>>;
-  filterEndDate: Date | null;
-  setFilterEndDate: React.Dispatch<React.SetStateAction<Date | null>>;
+  selectLabel?: string;
+  selectValue: string | number;
+  setSelectValue: React.Dispatch<React.SetStateAction<string | number>>;
+  selectOptions: FilterOption[]; // Options for the select menu
+
+  minAmount: number | '';
+  setMinAmount: React.Dispatch<React.SetStateAction<number | ''>>;
+  maxAmount: number | '';
+  setMaxAmount: React.Dispatch<React.SetStateAction<number | ''>>;
+
+  startDate: Date | null;
+  setStartDate: React.Dispatch<React.SetStateAction<Date | null>>;
+  endDate: Date | null;
+  setEndDate: React.Dispatch<React.SetStateAction<Date | null>>;
+
   filterButtonText?: string;
   filterClick?: any;
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
-  filterSource,
-  setFilterSource,
-  filterMinAmount,
-  setFilterMinAmount,
-  filterMaxAmount,
-  setFilterMaxAmount,
-  filterStartDate,
-  setFilterStartDate,
-  filterEndDate,
-  setFilterEndDate,
+  selectLabel = "Category",
+  selectValue,
+  setSelectValue,
+  selectOptions,
+
+  minAmount,
+  setMinAmount,
+  maxAmount,
+  setMaxAmount,
+
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
+
   filterButtonText = "Apply Filters",
   filterClick
 }) => {
@@ -47,54 +62,55 @@ const FilterBar: React.FC<FilterBarProps> = ({
         mt: 2 
       }}
     >
+      {/* Select Dropdown for Category or Source */}
       <TextField
-        label="Source"
+        label={selectLabel}
         select
-        value={filterSource}
+        value={selectValue}
         onChange={(e) => {
-          e.preventDefault();  // Prevent any default form submission behavior
-          setFilterSource(e.target.value as string);
+          e.preventDefault();  
+          setSelectValue(e.target.value as string);
         }}
-        sx={{ minWidth: 180 }} // Adjust the width of the select field
+        sx={{ minWidth: 180 }}
       >
-        <MenuItem value="">All</MenuItem>
-        <MenuItem value="SALARY">Salary</MenuItem>
-        <MenuItem value="BUSINESS">Business</MenuItem>
-        <MenuItem value="SIDE HUSTLE">Side Hustle</MenuItem>
-        <MenuItem value="INVESTMENTS">Investments</MenuItem>
-        <MenuItem value="INHERITANCE">Inheritance</MenuItem>
-        <MenuItem value="GIFTS">Gifts</MenuItem>
-        <MenuItem value="OTHERS">Others</MenuItem>
+        {selectOptions.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
       </TextField>
 
+      {/* Min Amount Input */}
       <TextField
         label="Min Amount"
         type="number"
-        value={filterMinAmount}
+        value={minAmount}
         onChange={(e) => {
           e.preventDefault();
-          setFilterMinAmount(e.target.value === '' ? '' : parseFloat(e.target.value));
+          setMinAmount(e.target.value === '' ? '' : parseFloat(e.target.value));
         }}
         sx={{ minWidth: 150 }}
       />
 
+      {/* Max Amount Input */}
       <TextField
         label="Max Amount"
         type="number"
-        value={filterMaxAmount}
+        value={maxAmount}
         onChange={(e) => {
           e.preventDefault();
-          setFilterMaxAmount(e.target.value === '' ? '' : parseFloat(e.target.value));
+          setMaxAmount(e.target.value === '' ? '' : parseFloat(e.target.value));
         }}
         sx={{ minWidth: 150 }}
       />
 
+      {/* Date Range Pickers */}
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <DatePicker
           label="Start Date"
-          value={filterStartDate}
-          onChange={(date) => setFilterStartDate(date)}
-          renderInput={(params:any) => (
+          value={startDate}
+          onChange={(date) => setStartDate(date)}
+          renderInput={(params: any) => (
             <TextField
               {...params}
               InputProps={{
@@ -112,9 +128,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
         
         <DatePicker
           label="End Date"
-          value={filterEndDate}
-          onChange={(date) => setFilterEndDate(date)}
-          renderInput={(params:any) => (
+          value={endDate}
+          onChange={(date) => setEndDate(date)}
+          renderInput={(params: any) => (
             <TextField
               {...params}
               InputProps={{
@@ -131,6 +147,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         />
       </LocalizationProvider>
 
+      {/* Apply Filters Button */}
       <button onClick={filterClick} type='button' className='btn btn-primary' style={{ padding: '8px 16px' }}>
         {filterButtonText}
       </button>
