@@ -11,24 +11,31 @@ const SignupPage: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [confirm_password, setConfirmPassword] = useState<string>('');
   const [gender, setGender] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false); // Add loading state
 
   const { signUpUser } = useContext(AuthContext);
 
-  const handleSignupSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSignupSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
     if (password !== confirm_password) {
       toast.error('Passwords do not match');
       return;
-    } else {
-      signUpUser(username, gender, email, password, confirm_password);
-      setUsername("")
-      setEmail("")
-      setPassword("")
-      setConfirmPassword("")
-      setGender("")
-      
     }
-    console.log({ username, email, password, gender, confirm_password });
+    setLoading(true); // Show spinner
+
+    try {
+      await signUpUser(username, gender, email, password, confirm_password);
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setGender("");
+    } catch (error) {
+      console.error('Error signing up:', error);
+      toast.error('Signup failed');
+    } finally {
+      setLoading(false); // Hide spinner
+    }
   };
   
   const fields = [
@@ -90,8 +97,8 @@ const SignupPage: React.FC = () => {
             <div className="col-lg-5 mt-5">
               <h2 className="text-center mb-2 title-color">Signup</h2>
               <p className='text-capitalize'>Create an account with <span className='title-color'>ExpenseEye</span> and track your expenses</p>
-              <Form fields={fields} onSubmit={handleSignupSubmit} submitText="Signup" />
-              <p className='text-capitalize mt-3'>already have an account? <NavLink className="text-decoration-none" to="/login">Login</NavLink></p>
+              <Form fields={fields} onSubmit={handleSignupSubmit} submitText="Signup" loading={loading}/>
+              <p className='text-capitalize text-center mt-3'>already have an account? <NavLink className="text-decoration-none" to="/login">Login</NavLink></p>
             </div>
           </div>
         </div>

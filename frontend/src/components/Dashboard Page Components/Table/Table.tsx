@@ -43,12 +43,16 @@ interface DataTableProps {
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onEditClick: (row: any) => void;
-  onDeleteClick: (id: number) => void;
+  selected: number[];
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectClick: (event: React.MouseEvent<unknown>, id: number) => void;
+  onBatchDelete: () => void;
+  isSelected: (id: number) => boolean;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
   columns,
-  data,
+  data = [],
   count,
   text,
   page,
@@ -56,13 +60,17 @@ const DataTable: React.FC<DataTableProps> = ({
   onPageChange,
   onRowsPerPageChange,
   onEditClick,
-  onDeleteClick,
   filterData,
-  emptyMessage
+  emptyMessage,
+  selected,
+  onSelectAllClick,
+  onSelectClick,
+  onBatchDelete,
+  isSelected
+  
 }) => {
   const [order, setOrder] = React.useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = React.useState<string>(columns[0].id);
-  const [selected, setSelected] = React.useState<readonly number[]>([]);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -72,36 +80,6 @@ const DataTable: React.FC<DataTableProps> = ({
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
-  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelected = data.map((item) => item.id as number);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected: readonly number[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
-
-  const isSelected = (id: number) => selected.indexOf(id) !== -1;
 
   return (
     <Box sx={{ width: '100%' }} className="shadow">
@@ -135,20 +113,13 @@ const DataTable: React.FC<DataTableProps> = ({
             <Tooltip title="Delete">
               <IconButton
               className='tablecell'
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteClick(selected[0]);
-                }}
+                onClick={onBatchDelete}
               >
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
           ) : (
-            // <Tooltip title="Filter list">
-            //   <IconButton className='tablecell'>
-            //     <FilterListIcon />
-            //   </IconButton>
-            // </Tooltip>
+          
             <>
               {filterData}
             </>
@@ -165,17 +136,13 @@ const DataTable: React.FC<DataTableProps> = ({
                   <TableCell padding="checkbox">
                     <Checkbox
                       color="primary"
-                      indeterminate={
-                        selected.length > 0 && selected.length < data.length
-                      }
-                      checked={
-                        data.length > 0 && selected.length === data.length
-                      }
-                      onChange={handleSelectAllClick}
-                      inputProps={{
-                        'aria-label': 'select all items',
-                      }}
-                      className='tablecell'
+                      indeterminate={selected.length > 0 && selected.length < data.length}
+                                    checked={data.length > 0 && selected.length === data.length}
+                                    onChange={onSelectAllClick}
+                                    className='tablecell'
+                                    inputProps={{
+                                      'aria-label': 'select all items',
+                                    }}
                     />
                   </TableCell>
                   {columns.map((column) => (
@@ -214,7 +181,7 @@ const DataTable: React.FC<DataTableProps> = ({
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.id as number)}
+                      onClick={(event) => onSelectClick(event, row.id)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
@@ -277,10 +244,15 @@ const DataTable: React.FC<DataTableProps> = ({
             onPageChange={onPageChange}
             onRowsPerPageChange={onRowsPerPageChange}
             className='bag'
+            
           /> 
         </>
         ) : 
-            <h3 className='text-center pt-2'>{emptyMessage}</h3>
+            <Typography 
+                className='text-center' 
+                color='error'
+                sx={{fontSize:"1.5rem", marginTop:"3rem", marginBottom:"2rem"}}
+            >{emptyMessage}</Typography>
         }
         
         

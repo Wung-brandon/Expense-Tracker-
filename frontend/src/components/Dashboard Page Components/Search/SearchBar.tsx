@@ -13,7 +13,7 @@ interface SearchProps {
 const SearchBar: React.FC<SearchProps> = ({ placeholder, onChange, value, onClick }) => {
   return (
     <div className="row">
-      <div className="col-4 mt-4">
+      <div className="col-lg-8 col-sm-12 mt-4">
         <div className="position-relative">
           <TextField
             type="text"

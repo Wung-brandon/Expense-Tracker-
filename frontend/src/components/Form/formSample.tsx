@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, TextField, IconButton, InputAdornment, MenuItem, Select, InputLabel, FormControl, TextareaAutosize, CircularProgress} from '@mui/material';
+import { Button, TextField, IconButton, InputAdornment, MenuItem, Select, InputLabel, FormControl, TextareaAutosize } from '@mui/material';
 import { Box } from '@mui/system';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
@@ -8,7 +8,7 @@ interface FieldProps {
   label: string;
   type: string;
   name: string;
-  value: string | number;
+  value: string;
   onChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
   required?: boolean;
   options?: { label: string; value: string }[]; // For select fields
@@ -18,14 +18,11 @@ interface FormProps {
   fields: FieldProps[];
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   submitText: string;
-  loading: boolean; // Add this line
-  open?: boolean; // Add this line
 }
 
-const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading = false }) => {
+const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // console.log('Form loading:', loading);
 
   const handlePasswordToggle = () => setShowPassword(!showPassword);
   const handleConfirmPasswordToggle = () => setShowConfirmPassword(!showConfirmPassword);
@@ -56,7 +53,6 @@ const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading = fal
       autoComplete="off"
       onSubmit={handleSubmit}
       className="form-container"
-      position="relative" // Add relative positioning for overlay
     >
       {fields.map((field, index) => {
         switch (field.type) {
@@ -68,7 +64,7 @@ const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading = fal
                   label={field.label}
                   name={field.name}
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={field.onChange as React.ChangeEventHandler<HTMLSelectElement>}
                   required={field.required}
                 >
                   <MenuItem value=""><em>-----------</em></MenuItem>
@@ -84,7 +80,7 @@ const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading = fal
                 key={index}
                 name={field.name}
                 value={field.value}
-                onChange={field.onChange}
+                onChange={field.onChange as React.ChangeEventHandler<HTMLTextAreaElement>}
                 placeholder={field.label}
                 minRows={4}
                 className="mb-4 mt-1 w-100"
@@ -146,28 +142,6 @@ const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading = fal
       >
         {submitText}
       </Button>
-      {loading && (
-        
-          <Box
-            position="fixed" // Changed from absolute to fixed
-            top="0"
-            left="0"
-            width="100vw"
-            height="100vh"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            bgcolor="rgba(0, 0, 0, 0.5)" // Dark overlay
-            zIndex={1300} // Ensure the spinner is on top of other content
-          >
-            <CircularProgress
-              size={50} // Custom size
-              color="inherit" // Inherit color from parent, which will be white
-              sx={{ color: 'white' }} // Custom color to make it white
-            />
-          </Box>
-        
-      )}
     </Box>
   );
 };

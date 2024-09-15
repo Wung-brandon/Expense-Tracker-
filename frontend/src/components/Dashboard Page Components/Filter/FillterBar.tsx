@@ -148,7 +148,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
       </LocalizationProvider>
 
       {/* Apply Filters Button */}
-      <button onClick={filterClick} type='button' className='btn btn-primary' style={{ padding: '8px 16px' }}>
+      <button onClick={filterClick} type='button' className='btn btn-primary' style={{ padding: '8px 16px', marginBottom:"1.3rem" }}>
         {filterButtonText}
       </button>
     </Box>

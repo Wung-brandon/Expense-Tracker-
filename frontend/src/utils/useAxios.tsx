@@ -33,7 +33,7 @@ const useAxios = () => {
     if (authTokens?.access) {
       const user = jwtDecode<DecodedToken>(authTokens.access);
       const isExpired = dayjs().isAfter(dayjs.unix(user.exp));
-      console.log("bool", isExpired)
+      // console.log("bool", isExpired)
 
       if (isExpired) {
         try {

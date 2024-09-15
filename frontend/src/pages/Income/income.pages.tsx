@@ -9,11 +9,10 @@ import './income.css';
 import { toast } from 'react-toastify';
 import DataTable from '../../components/Dashboard Page Components/Table/Table';
 import ConfirmationModal from '../../components/Dashboard Page Components/Modal/confirmModal';
-// import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
-// import FilterBar from '../../components/Dashboard Page Components/Filter/FilterBar';
 import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
 import FilterBar from '../../components/Dashboard Page Components/Filter/FillterBar';
-
+import ButtonComponent from '../../components/Dashboard Page Components/Button/Button.component';
+import { Typography } from '@mui/material';
 
 interface Data {
   id: number;
@@ -36,10 +35,10 @@ const Income: React.FC = () => {
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [editMode, setEditMode] = useState(false);
+  const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<Data | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  
   const [open, setOpen] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
   const [filterSource, setFilterSource] = useState<string>('');
@@ -47,6 +46,11 @@ const Income: React.FC = () => {
   const [filterMaxAmount, setFilterMaxAmount] = useState<number | ''>('');
   const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
   const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
+  
+  // const [isLoading, setIsLoading] = useState(false)
+  const [confirmLoading, setConfirmLoading] = useState<boolean>(false)
+
+  const [selected, setSelected] = useState<number[]>([]);
 
   const axiosInstance = useAxios();
   useEffect(() => {
@@ -67,75 +71,105 @@ const Income: React.FC = () => {
     }
   };
 
-  const handleIncomeSubmit = (formData: { [key: string]: any }) => {
-    if (typeof formData.amount === 'string') {
-      formData.amount = parseFloat(formData.amount);
-      if (formData.amount < 0){
-        toast.warning("Income cannot be negative")
+  // console.log("income data", incomeData);
+  const handleIncomeSubmit = async (formData: { [key: string]: any }) => {
+    // setIsLoading(false); // Start the loading spinner
+    // console.log('handleIncomeSubmit: Setting isLoading to true', isLoading);
+
+    try {
+      // Ensure amount is a number and positive
+      if (typeof formData.amount === 'string') {
+        formData.amount = parseFloat(formData.amount);
+        if (formData.amount < 0) {
+          toast.warning("Income cannot be negative");
+          return; // Stop if invalid
+        }
       }
+
+      // Format date
+      if (formData.date) {
+        formData.date = new Date(formData.date).toISOString().split('T')[0];
+      }
+
+      // Determine if we're in edit mode or add mode
+      if (editMode) {
+        // Update income logic
+        await axiosInstance.put(`/track/income/${editData?.id}/`, formData);
+        await fetchAllData();
+        toast.success("Income updated successfully");
+      } else {
+        // Add new income logic
+        await axiosInstance.post('/track/income/', formData);
+        await fetchAllData();
+        toast.success("Income added successfully");
+      }
+
+      // Refresh data or other post-submit actions
+    } catch (error) {
+      toast.error(`Error processing income: ${error.response?.data?.message || error.message}`);
+    } finally {
+      // setIsLoading(false); // Stop the loading spinner
+      setModalOpen(false); // Close the modal
+      // console.log('handleIncomeSubmit: Setting isLoading to false', isLoading);
     }
-
-    if (formData.date) {
-      formData.date = new Date(formData.date).toISOString().split('T')[0];
-    }
-
-    const request = editMode
-      ? axiosInstance.put(`/track/income/${editData?.id}/`, formData)
-      : axiosInstance.post('/track/income/', formData);
-
-    request
-      .then(response => {
-        toast.success(editMode ? 'Income updated successfully.' : 'Income added successfully.');
-        setAmount('');
-        setDescription('');
-        setDate('');
-        setSource('');
-        setEditMode(false);
-        setEditData(null);
-        fetchAllData(); // Refresh data after add/update
-      })
-      .catch(error => {
-        // toast.error(`Error ${editMode ? 'updating' : 'adding'} income: ${error.response?.data?.message || error.message}`);
-        console.error(error)
-      });
   };
+
+  
+  // Function to reset the form fields
+  const resetForm = () => {
+    setAmount('');
+    setDescription('');
+    setDate('');
+    setSource('');
+    setEditMode(false); // Switch back to add mode
+    setEditData(null); // Clear edit data
+  };
+  
+    
 
   useEffect(() => {
     const fetchData = () => {
-      axiosInstance.get('/userstats/monthly-summary/')
-        .then(response => {
+      axiosInstance
+        .get('/userstats/monthly-summary/')
+        .then((response) => {
           const responseData = response.data.monthly_summary;
+          // console.log("monthly-data",responseData);
           const currentMonth = new Date().toISOString().slice(0, 7); // Get current month in 'YYYY-MM' format
-
+  
           // Find the summary for the current month
           const currentMonthSummary = responseData.find((item: any) => item.month === currentMonth);
-
+  
           if (currentMonthSummary) {
             // Set total income for the current month
             setTotal(currentMonthSummary.income);
-
+  
             // Extract income sources and amounts
             const sources = currentMonthSummary.income_sources.map((source: any) => source.source);
             const amounts = currentMonthSummary.income_sources.map((source: any) => source.total_amount);
-
+  
             // Set data for chart or display
             setLabels(sources);
             setData(amounts);
           } else {
+            // If no data for the current month, set income and chart to empty states
+            setTotal(0); // Set total income to 0
+            setLabels([]); // Clear chart labels
+            setData([]); // Clear chart data
             console.log('No data available for the current month.');
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Error fetching data:', error);
         });
     };
-
+  
     // Fetch data every second
     const intervalId = setInterval(fetchData, 1000); // 1000ms = 1 second
-
+  
     // Cleanup function to clear the interval when the component unmounts
     return () => clearInterval(intervalId);
   }, []); // Empty dependency array so this runs once when the component mounts
+  
 
   const incomeFields = [
     {
@@ -171,14 +205,14 @@ const Income: React.FC = () => {
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value),
       required: true,
     },
-    {
-      label: 'Date',
-      type: 'date',
-      name: 'date',
-      value: date,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value),
-      required: true,
-    },
+    // {
+    //   label: 'Date',
+    //   type: 'date',
+    //   name: 'date',
+    //   value: date,
+    //   onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value),
+    //   required: true,
+    // },
   ];
 
   const columns = [
@@ -201,43 +235,61 @@ const Income: React.FC = () => {
   };
 
   const handleEdit = (row: Data) => {
-    setEditMode(true);
-    setEditData(row);
-    setSource(row.source);
-    setDescription(row.description);
-    setAmount(row.amount);
-    setDate(row.date);
-    setModalOpen(true);
+  setEditMode(true); // Set to edit mode
+  setEditData(row); // Prefill data with selected row
+  setModalOpen(true); // Open modal
   };
 
-  const handleDeleteClick = (id: number) => {
-    setSelectedId(id);
-    setOpen(true);
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = incomeData.map((item) => item.id as number);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
   };
 
-  const handleConfirmDelete = async () => {
-    if (selectedId !== null) {
-      try {
-        const response = await axiosInstance.delete(`track/income/${selectedId}/`);
-        if (response.status === 204) {
-          toast.success('Successfully deleted');
-          setIncomeData((prevData) => prevData.filter((item) => item.id !== selectedId));
-        } else {
-          toast.error('Error deleting');
-        }
-      } catch (error: unknown) {
-        console.log(error);
-        toast.error('Error deleting');
-      } finally {
-        setOpen(false);
-        setSelectedId(null);
-      }
+  const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected: number[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+    setSelected(newSelected);
+  };
+
+  const isSelected = (id: number) => selected.indexOf(id) !== -1;
+
+  const handleBatchDelete = async () => {
+    setConfirmLoading(true);
+    try {
+      await Promise.all(selected.map((id) => axiosInstance.delete(`/track/income/${id}/`)));
+      toast.success('Successfully deleted');
+      setOpen(false)
+      setSelected([]);
+      fetchAllData(); // Refresh data after deletion
+    } catch (error) {
+      console.error('Error deleting data:', error);
+    }
+    finally{
+      setConfirmLoading(false)
     }
   };
+  
 
   const handleCancelDelete = () => {
     setOpen(false);
-    setSelectedId(null);
+    setSelected([]);
   };
 
   const closeModal = () => {
@@ -245,6 +297,13 @@ const Income: React.FC = () => {
     setEditData(null);
     setModalOpen(false);
   };
+
+  const handleAddIncomeClick = () => {
+    resetForm(); // Clear fields before opening
+    setEditMode(false); // Set to add mode
+    setModalOpen(true); // Open modal
+  };
+  
 
   if (loading) return <div>Loading...</div>;
 
@@ -308,7 +367,7 @@ const Income: React.FC = () => {
     <div className="income" style={{ margin: '7rem' }}>
       <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-4">
         <h2 className="text-center mb-3 mb-sm-0">Income Summary</h2>
-        
+        <ButtonComponent text='Add Income' onClick={handleAddIncomeClick}/>
         <KeepMountedModal 
           title={editMode ? "Edit Income" : "Add Income"} 
           buttonText={editMode ? "Update Income" : "Add Income"}
@@ -318,11 +377,12 @@ const Income: React.FC = () => {
           onClose={closeModal}
           isEditMode={editMode}
           initialData={editData}
+          
         />
       </div>
 
       <div className="row shadow" style={{borderRadius:"1.5rem"}}>
-        <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3">
+        <div className="col-lg-6 col-md-6 col-sm-12 mb-4 mb-md-0 mt-5 mb-3">
             <TotalCard 
                 title={`Total Income For ${currentMonth}`} 
                 total={`$${total}`} 
@@ -334,9 +394,12 @@ const Income: React.FC = () => {
             />
           </div>
 
-        <div className="col-12 col-md-6">
-          {total === 0 ? <h2 className='text-center mt-5'>No Income Source</h2> : 
-            <PieChart data={data} labels={labels} title={`Income Sources For ${currentMonth}`} />
+        <div className="col-lg-6 col-md-6 col-sm-12">
+          {total === 0 ? <Typography  
+                              color='error' 
+                              sx={{fontSize:"1.5rem", textAlign:"center", marginTop:"7rem"}}
+                          >No Income Source</Typography> : 
+            <PieChart data={data} labels={labels} title={`Income Distribution By Source In ${currentMonth}`} />
           } 
         </div>
       </div>
@@ -347,7 +410,7 @@ const Income: React.FC = () => {
             data={incomeData}
             page={page}
             text={<SearchBar 
-                      placeholder='Search by Source, Description'
+                      placeholder='Search by Source, Description, Date and Amount'
                       value={searchText}
                       onChange={(e:any) => setSearchText(e.target.value)}
                       onClick={handleSearch}
@@ -378,18 +441,23 @@ const Income: React.FC = () => {
               filterButtonText="Apply Filter"
             />}
             count={count}
-            onDeleteClick={handleDeleteClick}
             onEditClick={handleEdit}
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
             emptyMessage = "No data available"
+            selected={selected}
+            onSelectAllClick={handleSelectAllClick}
+            onSelectClick={handleClick}
+            onBatchDelete={() => setOpen(true)}
+            isSelected={isSelected}
           />
   
         <ConfirmationModal
           open={open}
-          handleConfirm={handleConfirmDelete}
+          handleConfirm={handleBatchDelete}
           handleClose={handleCancelDelete}
+          loading={confirmLoading}
         />
       </div>
     </div>

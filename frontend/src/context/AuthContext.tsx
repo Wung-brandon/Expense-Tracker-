@@ -108,6 +108,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       );
       if (response.status === 201) {
         toast.success('Registration successful. Please check your email to activate your account.');
+        navigate('/login');
       } else {
         toast.error('Registration failed');
         throw new Error('Registration failed');
@@ -199,15 +200,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const requestVerificationResend = async (email: string) => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/resend-verification/', { email });
+      const response = await axios.post('http://127.0.0.1:8000/api/resend-verification-email/', { email });
+  
+      // If the request is successful
       if (response.status === 200) {
         toast.success('Verification link has been sent to your email.');
       } else {
         toast.error('Failed to resend verification link.');
       }
-    } catch (error) {
-      console.log(error);
-      toast.error('An error occurred while requesting a new verification link.');
+    } catch (error: any) {
+      if (error.response) {
+        // Backend responded with an error
+        const errorMessage = error.response.data?.email || error.response.data?.message || 'An error occurred.';
+        toast.error(errorMessage);
+      } else {
+        // Something else went wrong (like network issues)
+        toast.error('An error occurred while requesting a new verification link.');
+      }
     }
   };
 

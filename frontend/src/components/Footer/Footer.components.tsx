@@ -1,6 +1,6 @@
 import { Button, TextField } from "@mui/material";
 import { Box } from "@mui/system";
-import { Email, Facebook, Twitter, LinkedIn } from "@mui/icons-material";
+import { Email, LinkedIn, GitHub, WhatsApp } from "@mui/icons-material";
 import "./Footer.css";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -58,13 +58,13 @@ function Footer() {
 
           {/* Social Media Icons */}
           <div className="col-lg-3 col-md-6 d-flex align-items-center justify-content-center mb-4">
-            <Link to="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-              <Facebook fontSize="large" />
+            <Link to="https://wa.link/3ng2v5/" target="_blank" rel="noopener noreferrer" className="text-white me-3">
+              <WhatsApp fontSize="large" />
             </Link>
-            <Link to="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-              <Twitter fontSize="large" />
+            <Link to="https://github.com/Wung-brandon/" target="_blank" rel="noopener noreferrer" className="text-white me-3">
+              <GitHub fontSize="large" />
             </Link>
-            <Link to="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-white">
+            <Link to="https://www.linkedin.com/in/wung-brandon-000917256/" target="_blank" rel="noopener noreferrer" className="text-white">
               <LinkedIn fontSize="large" />
             </Link>
           </div>

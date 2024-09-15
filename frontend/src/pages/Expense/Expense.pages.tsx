@@ -12,6 +12,8 @@ import ConfirmationModal from '../../components/Dashboard Page Components/Modal/
 import { MoneyOff } from '@mui/icons-material';
 import SearchBar from '../../components/Dashboard Page Components/Search/SearchBar';
 import FilterBar from '../../components/Dashboard Page Components/Filter/FillterBar';
+import ButtonComponent from '../../components/Dashboard Page Components/Button/Button.component';
+import { Typography } from '@mui/material';
 // import { useThemeBackground } from '../../context/BackgroundContext';
 
 interface Data {
@@ -42,10 +44,11 @@ const Expense: React.FC = () => {
   const [editData, setEditData] = useState<Data | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
   const [totalIncome, setTotalIncome] = useState<number>(0);
+  const [totalBudget, setTotalBudget] = useState<number>(0);
+  // const [totalExpense, setTotalExpense] = useState<number>(0);
 
   // const {isDarkMode, toggleTheme} = useThemeBackground()
   const [searchText, setSearchText] = useState<string>("");
@@ -54,6 +57,8 @@ const Expense: React.FC = () => {
   const [filterMaxAmount, setFilterMaxAmount] = useState<number | ''>('');
   const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
   const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
+
+  const [selected, setSelected] = useState<number[]>([]);
 
   const axiosInstance = useAxios();
 
@@ -72,7 +77,9 @@ const Expense: React.FC = () => {
             // Set total income for the current month
             setTotal(currentMonthSummary.expenses);
             setTotalIncome(currentMonthSummary.income)
-            console.log("total income", currentMonthSummary.income)
+            setTotalBudget(currentMonthSummary.budget)
+            // console.log("totals", currentMonthSummary)
+            // console.log("total budget", currentMonthSummary.budget)
             // Extract income sources and amounts
             const categories = currentMonthSummary.expense_categories.map((category: any) => category.category);
             const amounts = currentMonthSummary.expense_categories.map((category: any) => category.total_amount);
@@ -81,7 +88,11 @@ const Expense: React.FC = () => {
             setLabels(categories);
             setData(amounts);
           } else {
-            console.log('No data available for the current month.');
+              // If no data for the current month, set income and chart to empty states
+              setTotal(0); // Set total income to 0
+              setLabels([]); // Clear chart labels
+              setData([]); // Clear chart data
+              console.log('No data available for the current month.');
           }
         })
         .catch(error => {
@@ -97,7 +108,8 @@ const Expense: React.FC = () => {
   }, []); // Empty dependency array so this runs once when the component mounts
 
 
-  const handleExpenseSubmit = (formData: { [key: string]: any }) => {
+  // console.log("total budget", totalBudget)
+  const handleExpenseSubmit = async (formData: { [key: string]: any }) => {
     if (typeof formData.amount === 'string') {
       formData.amount = parseFloat(formData.amount);
       if (formData.amount > totalIncome){
@@ -106,7 +118,9 @@ const Expense: React.FC = () => {
       }
       if (formData.amount < 0){
         toast.warning("Expense cannot be negative")
-
+      }
+      else if (formData.amount > totalBudget || formData.amount + total > totalBudget){
+        toast.warning("Expenses Cannot Exceed The Allocated Budget Set For The Month")
       }
     }
 
@@ -114,28 +128,43 @@ const Expense: React.FC = () => {
       formData.date = new Date(formData.date).toISOString().split('T')[0];
     }
 
-    const request = editMode
-      ? axiosInstance.put(`/track/expense/${editData?.id}/`, formData)
-      : axiosInstance.post('/track/expense/', formData);
-
-    request
-      .then(response => {
-        console.log(response)
-        toast.success(editMode ? 'Expense updated successfully.' : 'Expense added successfully.');
-        setAmount('');
-        setDescription('');
-        setDate('');
-        setCategory('');
-        setEditMode(false);
-        setEditData(null);
-        fetchAllData(); // Refresh data after add/update
-      })
-      .catch(error => {
-        console.log(error);
-        // toast.error(`Error ${editMode ? 'updating' : 'adding'} Expense: ${error.response?.data?.message || error.message}`);
-      });
+    // Check if we're in edit mode or add mode
+    if (editMode) {
+      // Update income logic
+      await axiosInstance.put(`/track/expense/${editData?.id}/`, formData)
+        .then(() => {
+          toast.success("Expense updated successfully");
+          resetForm(); // Clear form after successful edit
+          fetchAllData(); // Refresh data
+        })
+        .catch(error => {
+          toast.error(`Error updating expense: ${error.response?.data?.message || error.message}`);
+        });
+    } else {
+      // Add new income logic
+      await axiosInstance.post('/track/expense/', formData)
+        .then(() => {
+          toast.success("Expense added successfully");
+          resetForm(); // Clear form after successful add
+          fetchAllData(); // Refresh data
+        })
+        .catch(error => {
+          // toast.error(`Error adding expense: ${error.response?.data?.message || error.message}`);
+          console.log(`Error adding expense: ${error.response?.data?.message || error.message}`);
+        });
+    }
+  
+    setModalOpen(false); 
   };
 
+  const resetForm = () => {
+      setAmount("")
+      setDescription("")
+      setDate("")
+      setCategory("")
+      setEditMode(false);
+      setEditData(null);
+  }
   const expenseFields = [
     {
       label: 'Category',
@@ -176,14 +205,14 @@ const Expense: React.FC = () => {
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value), 
       required: true,
     },
-    {
-      label: 'Date',
-      type: 'date',
-      name: 'date',
-      value: date,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value),
-      required: true,
-    },
+    // {
+    //   label: 'Date',
+    //   type: 'date',
+    //   name: 'date',
+    //   value: date,
+    //   onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value),
+    //   required: true,
+    // },
   ];
 
   const columns = [
@@ -233,33 +262,51 @@ const Expense: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleDeleteClick = (id: number) => {
-    setSelectedId(id);
-    setOpen(true);
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = expenseData.map((item) => item.id as number);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
   };
 
-  const handleConfirmDelete = async () => {
-    if (selectedId !== null) {
-      try {
-        const response = await axiosInstance.delete(`track/expense/${selectedId}/`);
-        if (response.status === 204) {
-          toast.success('Successfully deleted');
-          setExpenseData((prevData) => prevData.filter((item) => item.id !== selectedId));
-        } else {
-          toast.error('Error deleting');
-        }
-      } catch (error: unknown) {
-        toast.error('Error deleting');
-      } finally {
-        setOpen(false);
-        setSelectedId(null);
-      }
+  const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected: number[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+    setSelected(newSelected);
+  };
+
+  const isSelected = (id: number) => selected.indexOf(id) !== -1;
+
+  const handleBatchDelete = async () => {
+    try {
+      await Promise.all(selected.map((id) => axiosInstance.delete(`/track/expense/${id}/`)));
+      toast.success('Successfully deleted');
+      setOpen(false)
+      setSelected([]);
+      fetchAllData(); // Refresh data after deletion
+    } catch (error) {
+      console.error('Error deleting data:', error);
     }
   };
 
   const handleCancelDelete = () => {
     setOpen(false);
-    setSelectedId(null);
+    setSelected([]);
   };
 
 
@@ -326,6 +373,12 @@ const Expense: React.FC = () => {
     setSearchText("")
   }
 
+  const handleAddExpenseClick = () => {
+    resetForm(); // Clear fields before opening
+    setEditMode(false); // Set to add mode
+    setModalOpen(true); // Open modal
+  };
+
   const currentDate = new Date()
   const currentMonth = currentDate.toLocaleString("default", {month: "long"})
 
@@ -333,6 +386,7 @@ const Expense: React.FC = () => {
     <div className="income" style={{margin: "7rem"}}>
       <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-4">
         <h2 className="text-center mb-3 mb-sm-0">Expense Summary</h2>
+        <ButtonComponent text='Add Expense' onClick={handleAddExpenseClick}/>
         <KeepMountedModal 
           title={editMode ? "Edit Expense" : "Add Expense"} 
           buttonText={editMode ? "Update Expense" : "Add Expense"}
@@ -357,8 +411,11 @@ const Expense: React.FC = () => {
           />
         </div>
         <div className="col-12 col-md-6">
-          {total === 0 ? <h2 className='text-center mt-5'>No Expense Category</h2> : 
-            <PieChart data={data} labels={labels} title={`Expense Category For ${currentMonth}`} />
+          {total === 0 ? <Typography 
+                              color='error' 
+                              sx={{fontSize:"1.5rem", textAlign:"center", marginTop:"7rem"}}
+                          >No Expense Category</Typography> : 
+            <PieChart data={data} labels={labels} title={`Expense Distribution By Category In ${currentMonth}`} />
           } 
         </div>
       </div>
@@ -369,7 +426,7 @@ const Expense: React.FC = () => {
             data={expenseData}
             page={page}
             text={<SearchBar 
-                      placeholder='Search by Categories'
+                      placeholder='Search by Categories, Description, Date and Amount'
                       value={searchText}
                       onChange={(e:any) => setSearchText(e.target.value)}
                       onClick={handleSearch}
@@ -406,17 +463,21 @@ const Expense: React.FC = () => {
               filterButtonText="Apply Filter"
             />}
             count={count}
-            onDeleteClick={handleDeleteClick}
             onEditClick={handleEdit}
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
             emptyMessage = "No data available"
+            selected={selected}
+            onSelectAllClick={handleSelectAllClick}
+            onSelectClick={handleClick}
+            onBatchDelete={() => setOpen(true)}
+            isSelected={isSelected}
           />
           <ConfirmationModal 
             open={open} 
             handleClose={handleCancelDelete} 
-            handleConfirm={handleConfirmDelete} 
+            handleConfirm={handleBatchDelete} 
           />
         </div>
       </div>

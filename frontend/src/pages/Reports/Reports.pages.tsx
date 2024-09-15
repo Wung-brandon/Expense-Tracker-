@@ -6,7 +6,12 @@ import ReportApexBarChart from '../../components/Dashboard Page Components/Chart
 // import LineChart from '../../components/Dashboard Page Components/Chart/LineChart';
 import StackBarChart from '../../components/Dashboard Page Components/Chart/StackBarChart';
 // import { ProgressBar } from 'react-bootstrap';
-
+import { CircularProgress, Box } from '@mui/material';
+import dayjs, { Dayjs } from 'dayjs';
+import CustomizedTables from '../../components/Dashboard Page Components/Table/DownloadTable';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+// import LineAreaChart from '../../components/Dashboard Page Components/Chart/LineareaChart';
 interface MonthlySummary {
   month: string;
   income: number;
@@ -32,8 +37,8 @@ const Reports: React.FC = () => {
   const currentMonth = currentDate.toLocaleString("default", {month: "long"})
   // console.log(`month name: ${currentMonth}`)
 
-  const [year, setYear] = useState<number>(currentYear)
-  const [month, setMonth] = useState<number>(monthNumber)
+  const [year, setYear] = useState<number>(currentYear); // Set default to current year
+  const [month, setMonth] = useState<number>(monthNumber);
   
   const [overallIncomeData, setOverallIncomeData] = useState<number[]>([]);
   const [overallIncomeLabels, setOverallIncomeLabels] = useState<string[]>([]);
@@ -51,8 +56,11 @@ const Reports: React.FC = () => {
   const [monthlyData, setMonthlyData] = useState<MonthlySummary[]>([]);
 
   const [monthlyExpenseTableData, setMonthlyExpenseTableData] = useState<MonthlyExpenseSummaryTableData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  
+  const [currentWeekExpenseData, setCurrentWeekExpenseData] = useState<number[]>([]);
+  const [currentWeekExpenseLabels, setCurrentWeekExpenseLabels] = useState<string[]>([]);
 
   const axiosInstance = useAxios();
 
@@ -129,6 +137,7 @@ const Reports: React.FC = () => {
       axiosInstance.get('/userstats/monthly-summary/')
         .then(response => {
           const responseData = response.data.monthly_summary;
+          console.log("monthly data",responseData);
           const currentMonth = new Date().toISOString().slice(0, 7); 
 
           const currentMonthSummary = responseData.find((item: any) => item.month === currentMonth);
@@ -161,13 +170,15 @@ const Reports: React.FC = () => {
       axiosInstance.get("/userstats/monthly-summary/")
       .then((response) => {
         const data = response.data.monthly_summary.map((monthData: any) => ({
-          month: new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" })
+          month: new Intl.DateTimeFormat("en-US", { month: "long" })
             .format(new Date(monthData.month)),
           income: monthData.income,
           expenses: monthData.expenses,
           budget: monthData.budget,
           // balance: monthData.income - monthData.expenses, 
         }));
+        console.log("monthData: " , data)
+        
         setMonthlyData(data);
       })
       .catch((error) => {
@@ -178,7 +189,6 @@ const Reports: React.FC = () => {
 
     return () => clearInterval(intervalId);
   }, []);
-
   
 
   const series = [
@@ -203,34 +213,140 @@ const Reports: React.FC = () => {
   // X-axis categories (months)
   const categories = monthlyData.map((item) => item.month);
 
-  const columns = [
-    // { id: 'id', label: 'Id', numeric: true },
-    { id: 'amount', label: 'Amount', numeric: true },
-    { id: 'date', label: 'Date', numeric: false },
-    { id: 'category', label: 'Category', numeric: false },
-    { id: 'description', label: 'Description', numeric: false },
-  ];
+  // const columns = [
+  //   // { id: 'id', label: 'Id', numeric: true },
+  //   { id: 'amount', label: 'Amount', numeric: true },
+  //   { id: 'date', label: 'Date', numeric: false },
+  //   { id: 'category', label: 'Category', numeric: false },
+  //   { id: 'description', label: 'Description', numeric: false },
+  // ];
+
+  // useEffect(() => {
+  //   const fetchMonthlyExpenseTableData = async () => {
+  //     const response = await axiosInstance.get(`/userstats/expenses/${year}/${month}/`)
+  //     const expenseData = response.data.expenses
+  //     console.log("expenses data year and month", expenseData)
+  //     setMonthlyExpenseTableData(expenseData)
+  //   }
+
+  //   const intervalId = setInterval(fetchMonthlyExpenseTableData, 1000); 
+
+  //   return () => clearInterval(intervalId);
+  // }, [])
+
+  
+
+  function getWeekNumber(date:any){
+    const oneJan:any = new Date(currentDate.getFullYear(), 0, 1)
+    return Math.ceil((((date - oneJan) / 86400000) + oneJan.getTimezoneOffset() / 1440 ) / 7)
+  }
+  
+  const currentYearWeekNumber = getWeekNumber(currentDate)
+  // const previousYearWeekNumber = currentYearWeekNumber - 1;
+  // console.log("previous week number",previousYearWeekNumber)
 
   useEffect(() => {
-    const fetchMonthlyExpenseTableData = async () => {
-      const response = await axiosInstance.get(`/userstats/expenses/${year}/${month}/`)
-      const expenseData = response.data.expenses
-      // console.log("expenses data year and month", expenseData)
-      setMonthlyExpenseTableData(expenseData)
-    }
+    const fetchWeeklyExpenseData = async () => {
+      const response = await axiosInstance.get("/userstats/weekly-summary/")
+      const weekly_summary = response.data.weekly_summary
+      const currentWeekNumber = getWeekNumber(currentDate)
+      // console.log("week number" ,currentWeekNumber)
+      // const previousWeekNumber = currentWeekNumber - 1;
+      
+      const currentWeek = `${currentYear}-${currentWeekNumber.toString().padStart(2, '0')}`
+      // const previousWeek = `${currentYear}-${previousWeekNumber.toString().padStart(2, '0')}`;
+      // console.log("previous week",previousWeek)
 
-    const intervalId = setInterval(fetchMonthlyExpenseTableData, 1000); 
+      const currentWeekSummary = weekly_summary.find((item: any) => item.week === currentWeek);
+      // const previousWeekSummary = weekly_summary.find((item: any) => item.week === previousWeek);
+
+      // console.log("Current Week", currentWeek) 
+      // console.log("weekly summary data year and month", weekly_summary)
+      // console.log("current week data", currentWeekSummary)
+      if (currentWeekSummary){
+        const categories = currentWeekSummary.expense_categories.map((category:any) => category.category)
+        const amounts = currentWeekSummary.expense_categories.map((amount: any) => amount.total_amount )
+        // console.log("categories", categories)
+        // console.log("amounts", amounts)
+        setCurrentWeekExpenseData(amounts)
+        setCurrentWeekExpenseLabels(categories)
+      }
+      // if (previousWeekSummary){
+      //   const amounts = previousWeekSummary.expense_categories.map((amount: any) => amount.total_amount);
+      //   setPreviousWeekExpenseData(amounts);
+      // }
+
+      
+    }
+    const intervalId = setInterval(fetchWeeklyExpenseData, 1000); 
 
     return () => clearInterval(intervalId);
   }, [])
 
-  
+  useEffect(() => {
+    const fetchMonthlyExpenseTableData = async () => {
+      try {
+        const response = await axiosInstance.get(`/userstats/expenses/${year}/${month}/`);
+        const expenseData = response.data.expenses;
+        setMonthlyExpenseTableData(expenseData);
+        console.log("expenses data year and month", expenseData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
+    fetchMonthlyExpenseTableData();
+  }, [year, month]);
+
+  const handleDateChange = (newDate: Dayjs) => {
+    setYear(newDate.year());
+    setMonth(newDate.month() + 1); // Months are zero-indexed in Date objects
+  };
+
+  const columns = ['Category', 'Amount', 'Description', 'Date'];
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
   
+  const monthTableData = monthlyExpenseTableData.map((expense) => ({
+    category: expense.category,
+    amount: expense.amount,
+    description: expense.description,
+    date: expense.date
+  }))
   
 
   return (
     <div style={{margin: "7rem"}}>
+      {/* <div className="chart-container">
+        <LineAreaChart chartTitle='Monthly Financial Overview' labels={categories} data={series} color='#FEB019'/>
+      </div> */}
+
+      <div className="row justify-content-center align-items-center">
+
+        <div className="col-lg-6 col-sm-12 chart-container">
+          <StackBarChart categories={categories} series={series} title="Monthly Financial Overview" />
+        </div>
+        <div className="col-lg-6">
+        <ReportApexBarChart
+            title={`Expense for this Week (Week ${currentYearWeekNumber})`}
+            labels={currentWeekExpenseLabels}
+            data={currentMonthExpenseData}
+            categories={currentWeekExpenseLabels}
+            colors={['#00E396', '#FEB019', '#00E396']} 
+          />
+        </div>
+      </div>
+      
   
       <div className="row justify-content-center align-items-center">
         <div className="col-lg-6 col-sm-12 mb-4">
@@ -276,9 +392,21 @@ const Reports: React.FC = () => {
       <div className="chart-container">
         <LineChart categories={categories} series={series} title="Monthly Financial Overview" />
       </div> */}
+      
       <div className="chart-container">
-        <StackBarChart categories={categories} series={series} title="Monthly Financial Overview" />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <div>
+        <h1>Monthly Expense Report</h1>
+        <CustomizedTables
+          columns={columns}
+          rows={monthTableData}
+          onDateChange={handleDateChange}
+          message="No records found for the selected month and year"
+        />
       </div>
+    </LocalizationProvider>
+      </div>
+      
 
     </div>
   );

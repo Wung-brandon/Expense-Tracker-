@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
+import ButtonComponent from '../Button/Button.component';
 import Form from '../../Form/Form.components';
 import { useState, useEffect } from "react";
 
@@ -26,17 +27,18 @@ interface FieldProps {
   type: string;
   name: string;
   value: string | number;
-  onChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+  onChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement>;
   required?: boolean;
   options?: Option[]; // Options for select fields
 }
 
+// Define the props for the KeepMountedModal component
 interface KeepMountedModalProps {
   title: string;
   buttonText: string;
   fields: FieldProps[];
-  onSubmit: (data: { [key: string]: any }) => Promise<void>; // Ensure onSubmit returns a promise
-  open: boolean; // Controlled open prop
+  onSubmit: (data: { [key: string]: any }) => void;
+  open: boolean; // Controlled open prop (removed default)
   onClose: () => void; // Controlled close prop
   isEditMode?: boolean; // Indicates edit mode
   initialData?: { [key: string]: any }; // Initial data for editing
@@ -47,15 +49,15 @@ const KeepMountedModal: React.FC<KeepMountedModalProps> = ({
   buttonText,
   fields,
   onSubmit,
-  open,
+  open, // Remove the controlledOpen default
   onClose,
   isEditMode = false,
   initialData = {},
 }) => {
   const [formFields, setFormFields] = useState<FieldProps[]>(fields);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    // Update formFields if in edit mode and initialData exists
     if (isEditMode && initialData) {
       const updatedFields = fields.map((field) => ({
         ...field,
@@ -63,29 +65,30 @@ const KeepMountedModal: React.FC<KeepMountedModalProps> = ({
       }));
       setFormFields(updatedFields);
     } else {
+      // Reset fields for add mode
       setFormFields(fields);
     }
   }, [isEditMode, initialData, fields]);
 
   const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
-    setIsLoading(true); // Show spinner when form is submitted
 
     const formData: { [key: string]: any } = {};
     formFields.forEach(field => {
       formData[field.name] = field.value;
     });
 
-    onSubmit(formData)
-      .then(() => {
-        onClose(); // Close modal on successful form submit
-      })
-      .catch((error) => {
-        console.error('Form submission error:', error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Hide spinner when submission is complete
-      });
+    onSubmit(formData);
+    onClose(); // Close modal on form submit
+  };
+
+  // Handle form field changes and update formFields state
+  const handleFieldChange = (name: string, value: string | number) => {
+    setFormFields(prevFields =>
+      prevFields.map(field =>
+        field.name === name ? { ...field, value } : field
+      )
+    );
   };
 
   return (
@@ -98,11 +101,15 @@ const KeepMountedModal: React.FC<KeepMountedModalProps> = ({
     >
       <Box sx={style}>
         <h4 className='text-center mb-4'>{title}</h4>
+        {/* Pass updated fields and handle form changes */}
         <Form 
-          fields={formFields}
+          fields={formFields.map(field => ({
+            ...field,
+            onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+              handleFieldChange(field.name, e.target.value), // Handle field change
+          }))}
           onSubmit={handleFormSubmit}
           submitText={buttonText}
-          loading={isLoading}
         />
       </Box>
     </Modal>

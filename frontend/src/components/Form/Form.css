@@ -1,5 +1,5 @@
 /* Form.css */
-.form-container {
+/* .form-container {
     max-width: 500px;
     margin: auto;
   }
@@ -11,5 +11,11 @@
   .form-container .MuiButton-root {
     padding: 0.75rem;
     font-size: 1rem;
-  }
+  } */
   
+  /* styles.css */
+.custom-spinner {
+  width: 50px; /* Custom size */
+  height: 50px; /* Custom size */
+  color: #fff; /* Custom color */
+}

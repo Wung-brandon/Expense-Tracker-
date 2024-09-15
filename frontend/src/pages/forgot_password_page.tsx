@@ -28,7 +28,7 @@ const ForgotPasswordPage: React.FC = () => {
   return (
     <section style={{ backgroundColor: "#c0c0c0", height:"650px" }}>
         <div className="d-flex justify-content-center align-items-center  h-100 ">
-            <div className="shadow rounded bg-light p-4" style={{ width: '100%', maxWidth: '1000px' }}>
+            <div className="shadow rounded bg-light p-4" style={{ width: '100%', maxWidth: '900px' }}>
                 <div className="row">
                     <div className="col-lg-7">
                         <img src={forgot} alt="" className='img-fluid'/>

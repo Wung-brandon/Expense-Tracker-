@@ -6,6 +6,7 @@ import TeamSection from '../components/About Page Components/Team.about';
 import HowItWorksSection from '../components/About Page Components/ItWorks/HowItWorks.about';
 import WhyChooseSection from '../components/About Page Components/ChooseUs/Choose.about';
 import aboutImg from "../assets/aboutHero.jpg"
+import { motion, useScroll } from "framer-motion";
 
 const features = [
   {
@@ -67,8 +68,29 @@ const teamMembers = [
 ];
 
 const AboutPage: React.FC = () => {
+  const { scrollYProgress } = useScroll();
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <motion.div className="d-flex flex-column min-vh-100" animate={{
+     
+      }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      layout
+      >
+         <motion.div
+        className="progress-bar"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "10px",
+          backgroundColor: "#4a148c",  
+          transformOrigin: "0%",
+          scaleX: scrollYProgress,  
+          zIndex: 1000  
+        }}
+      />
       {/* Hero Section */}
       <HeroSection
         title="About ExpenseEye"
@@ -97,7 +119,7 @@ const AboutPage: React.FC = () => {
         description="Join thousands of users already tracking their expenses with ease!"
         buttonText="Sign Up Now"
       /> */}
-    </div>
+    </motion.div>
   );
 };
 

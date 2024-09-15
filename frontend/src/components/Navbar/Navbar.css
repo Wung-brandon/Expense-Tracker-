@@ -30,3 +30,11 @@ li a.active{
     transition: all ease-in 0.5s;
   }
   
+  @media (min-width: 768px) {
+    .navbar-collapse {
+      display: flex !important; /* Force the navbar to stay open on larger screens */
+    }
+  }
+  
+
+  
