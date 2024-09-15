@@ -261,27 +261,6 @@ class ResendVerificationEmailView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data["email"]
-        user = User.objects.get(email=email)
-
-        # Generate new verification token and link
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = PasswordResetTokenGenerator().make_token(user)
-        verification_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}"
-
-        # Create the message as a string
-        message = (
-            f"Hi {user.username},\n\n"
-            f"Please click the link below to verify your email:\n"
-            f"{verification_link}\n\n"
-            f"If you did not make this request, you can ignore this email.\n\n"
-            f"Thanks,\n"
-            f"Your Team"
-        )
-        subject = "Verify your Account"
-
-        # Send verification email
-        send_notification(user, message, subject)
-
-        return Response({"message": "Verification email resent."}, status=status.HTTP_200_OK)
+        serializer.save()  # This will trigger the email sending logic
+        return Response({"message": "Verification link has been sent to your email."}, status=status.HTTP_200_OK)
     

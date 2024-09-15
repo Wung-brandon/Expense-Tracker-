@@ -4,22 +4,32 @@ from django.db.models import Sum
 from django.utils import timezone
 
 class IncomeSerializer(serializers.ModelSerializer):
+    date = serializers.DateField(read_only=True) 
     class Meta:
         model = Income
-        fields = ["id", 'user', "amount", "source", "description", "date"]
-        read_only_fields = ['id', 'user']
+        fields = ["id", "user", "amount", "source", "description", "date"]
+        read_only_fields = ['id', 'user', 'date']
 
     def validate_amount(self, value):
         if value <= 0:
             raise serializers.ValidationError("Income amount must be positive.")
         return value
+    def create(self, validated_data):
+        # Ensure that 'date' is set to today if not provided
+        validated_data['date'] = timezone.now().date()
+        return super().create(validated_data)
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
+    date = serializers.DateField(read_only=True) 
     class Meta:
         model = Expense
         fields = ["id", "amount", "category", 'user', "description", "date"]
-        read_only_fields = ['id', 'user']
+        read_only_fields = ['id', 'user', 'date']
+    def create(self, validated_data):
+        # Ensure that 'date' is set to today if not provided
+        validated_data['date'] = timezone.now().date()
+        return super().create(validated_data)
 
     # def validate(self, data):
     #     # Validate positive expense amount

@@ -8,6 +8,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
 from .models import User, Profile
+from .utils import send_notification
 
 import smtplib
 from email.mime.text import MIMEText
@@ -151,6 +152,7 @@ class EmailVerificationSerializer(serializers.Serializer):
 class ResendVerificationEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
+    # Store the user after validation
     def validate_email(self, value):
         try:
             user = User.objects.get(email=value)
@@ -158,23 +160,33 @@ class ResendVerificationEmailSerializer(serializers.Serializer):
                 raise serializers.ValidationError("This account is already verified.")
         except User.DoesNotExist:
             raise serializers.ValidationError("No user with this email exists.")
+        
+        self.user = user  # Store the user object for use in save()
         return value
 
     def save(self):
-        email = self.validated_data['email']
-        user = User.objects.get(email=email)
+        # Use the validated email and user instance stored in validation
+        user = self.user
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = PasswordResetTokenGenerator().make_token(user)
         verification_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}"
-        
-        send_mail(
-            'Verify Your Email',
-            f'Please use the following link to verify your email: {verification_link}',
-            settings.EMAIL_HOST_USER,
-            [user.email],
-            fail_silently=False,
-        )
 
+        # Send the verification email
+        try:
+            message = (
+            f"Hi {user.username},\n\n"
+            f"Please click the link below to verify your email:\n"
+            f"{verification_link}\n\n"
+            f"If you did not make this request, you can ignore this email.\n\n"
+            f"Thanks,\n"
+            f"Your Team"
+        )
+            subject = "Verify your Account"
+
+            # Send verification email
+            send_notification(user, message, subject)
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to send email: {str(e)}")
 
 class EmailSerializer(serializers.Serializer):
     """

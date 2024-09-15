@@ -87,7 +87,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
@@ -95,6 +95,9 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
    
 }
+
+TIME_ZONE = 'Africa/Douala'  # Set timezone to Cameroon
+USE_TZ = True  # Ensure Django uses timezone-aware datetime objects
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -6,8 +6,9 @@ from dateutil.relativedelta import relativedelta
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models.functions import TruncWeek
+from django.db.models.functions import TruncWeek, ExtractWeekDay
 from django.utils import timezone
+import pytz
 from expense_api.serializers import ExpenseSerializer
 
 class ExpenseSummaryStatsView(APIView):
@@ -375,11 +376,101 @@ class MonthlyExpensesView(APIView):
 
             # Filter expenses for the logged-in user within the date range
             expenses = Expense.objects.filter(user=request.user, date__range=(start_date, end_date))
+            
 
             # Serialize the expenses data
             serializer = ExpenseSerializer(expenses, many=True)
+            response = {
+                "expenses": serializer.data,
+                }
 
-            return Response({"expenses": serializer.data}, status=status.HTTP_200_OK)
+            return Response(response, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+class DayOfWeekExpensesView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # Get the current year and week
+        today = datetime.date.today()
+        current_week = today.isocalendar()[1]  # Get the ISO week number
+        current_year = today.year
+
+        # Optionally, the user can pass `week` and `year` in the query params
+        week = request.query_params.get('week', current_week)  # Use current week if not provided
+        year = request.query_params.get('year', current_year)  # Use current year if not provided
+
+        # Query to calculate total spent per day of the specific week
+        expenses = Expense.objects.filter(
+            user=request.user,
+            date__week=week,  # Filter by week number
+            date__year=year   # Filter by year
+        ).annotate(
+            day_of_week=ExtractWeekDay('date')  # Extract the day of the week
+        ).values('day_of_week').annotate(
+            total_spent=Sum('amount')  # Sum the expenses for each day of the week
+        ).order_by('day_of_week')
+        
+        # Initialize data dictionary with default values for each day
+        data = {
+            "Monday": 0,
+            "Tuesday": 0,
+            "Wednesday": 0,
+            "Thursday": 0,
+            "Friday": 0,
+            "Saturday": 0,
+            "Sunday": 0
+        }
+
+        # Map Django's day_of_week numbers (1=Sunday, 2=Monday, ..., 7=Saturday) to day names
+        day_mapping = {
+            2: "Monday",
+            3: "Tuesday",
+            4: "Wednesday",
+            5: "Thursday",
+            6: "Friday",
+            7: "Saturday",
+            1: "Sunday",
+        }
+
+        # Update data based on the query results
+        for expense in expenses:
+            day = expense["day_of_week"]
+            day_name = day_mapping.get(day)
+            if day_name:
+                data[day_name] = expense["total_spent"]
+
+        return Response({
+            "week": week,
+            "year": year,
+            "day_data": data
+        })
+        
+class CurrentDayExpensesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get the current time in the user's local timezone (Africa/Douala)
+        user_timezone = pytz.timezone('Africa/Douala')  # Set timezone to Cameroon
+        now = timezone.now().astimezone(user_timezone)  # Convert current time to local timezone
+        
+        # Calculate start and end of the current day in the user's timezone
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+        # Filter expenses that fall within the start and end of the day for the user
+        today_expenses = Expense.objects.filter(
+            user=request.user,
+            date__range=(today_start, today_end)
+        ).values("category").annotate(
+            total_spent=Sum("amount")
+        ).order_by("category")
+
+        data = {}
+        for expense in today_expenses:
+            data[expense["category"]] = expense["total_spent"]
+        
+        return Response({
+            "current_day": data
+        })

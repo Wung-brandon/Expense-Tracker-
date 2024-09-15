@@ -21,7 +21,7 @@ class ExpenseListCreateView(ListCreateAPIView):
     
     serializer_class = ExpenseSerializer
     permission_classes = [IsAuthenticated, IsOwner]
-    queryset = Expense.objects.all()
+    queryset = Expense.objects.all().order_by('-id')
     
     def perform_create(self, serializer):
         return serializer.save(user=self.request.user)
@@ -50,7 +50,7 @@ class IncomeListCreateView(ListCreateAPIView):
     
     serializer_class = IncomeSerializer
     permission_classes = [IsAuthenticated, IsOwner]
-    queryset = Income.objects.all()
+    queryset = Income.objects.all().order_by('-id',)
     
     def perform_create(self, serializer):
         try:
