@@ -105,7 +105,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             name="full_name"
             value={formData.full_name}
             onChange={handleInputChange}
-            required
             sx={{ mb: 2 }}
           />
 

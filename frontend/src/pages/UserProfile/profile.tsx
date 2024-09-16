@@ -58,7 +58,6 @@ const ProfilePage: React.FC = () => {
               <Typography variant="h4" gutterBottom>
                 {userProfile.full_name}
               </Typography>
-              <Typography variant="body1"><strong>Id: </strong>{userProfile.id}</Typography>
               <Typography variant="body1"><strong>Email: </strong>{userProfile.email}</Typography>
               <Typography variant="body1"><strong>Location: </strong>{userProfile.location || "Not specified"}</Typography>
               <Typography variant="body1"><strong>Phone: </strong>{userProfile.phone_number || "Not specified"}</Typography>
