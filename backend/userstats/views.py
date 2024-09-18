@@ -217,7 +217,7 @@ class MonthlySummaryStatsView(APIView):
         ).values('month__year', 'month__month').annotate(
             total_budget=Sum('amount')
         ).order_by('month__year', 'month__month')
-
+        
         # Prepare data structure to hold the monthly summary
         monthly_summary = {}
 
@@ -227,7 +227,7 @@ class MonthlySummaryStatsView(APIView):
             if year_month not in monthly_summary:
                 monthly_summary[year_month] = {
                     'income': 0, 'expenses': 0, 'budget': 0, 
-                    'income_sources': [], 'expense_categories': []
+                    'balance': 0, 'income_sources': [], 'expense_categories': []
                 }
             monthly_summary[year_month]['income'] = entry['total_income']
 
@@ -245,7 +245,7 @@ class MonthlySummaryStatsView(APIView):
             if year_month not in monthly_summary:
                 monthly_summary[year_month] = {
                     'income': 0, 'expenses': 0, 'budget': 0, 
-                    'income_sources': [], 'expense_categories': []
+                    'balance': 0, 'income_sources': [], 'expense_categories': []
                 }
             monthly_summary[year_month]['expenses'] = entry['total_expense']
 
@@ -263,14 +263,31 @@ class MonthlySummaryStatsView(APIView):
             if year_month not in monthly_summary:
                 monthly_summary[year_month] = {
                     'income': 0, 'expenses': 0, 'budget': 0, 
-                    'income_sources': [], 'expense_categories': []
+                    'balance': 0, 'income_sources': [], 'expense_categories': []
                 }
             monthly_summary[year_month]['budget'] = entry['total_budget']
 
+        # Calculate total balance (income - expenses) for each month
+        for year_month, data in monthly_summary.items():
+            data['balance'] = data['income'] - data['expenses']
+
         # Convert to list of dictionaries for JSON serialization
         result = [{'month': month, **data} for month, data in monthly_summary.items()]
+        # or method 2
+        # results = []
+        # for month, data in monthly_summary.items():
+        #     results.append({
+        #         'month': month,
+        #         'income': data['income'],
+        #         'expenses': data['expenses'],
+        #         'budget': data['budget'],
+        #         'balance': data['balance'],
+        #         'income_sources': data['income_sources'],
+        #         'expense_categories': data['expense_categories']
+        #     })
 
         return Response({"monthly_summary": result}, status=status.HTTP_200_OK)
+
 
 class WeeklySummaryStatsView(APIView):
     permission_classes = [IsAuthenticated]

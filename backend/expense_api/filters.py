@@ -1,5 +1,5 @@
 from django_filters.rest_framework import FilterSet
-from .models import Income, Expense
+from .models import Income, Expense, Budget
 
 class ExpenseFilter(FilterSet):
     class Meta:
@@ -17,4 +17,13 @@ class IncomeFilter(FilterSet):
             'source': ['exact'],  
             'amount': ['gt', 'lt'],
             'date': ['gte', 'lte'],
+        }
+
+class BudgetFilter(FilterSet):
+    class Meta:
+        model = Budget
+        fields = {
+            
+            'amount': ['gt', 'lt'],
+            'month': ['gte', 'lte'],
         }

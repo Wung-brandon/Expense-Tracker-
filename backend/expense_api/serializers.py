@@ -1,6 +1,7 @@
 from .models import Expense, Income, MonthlyReport, Budget
 from rest_framework import serializers
 from django.db.models import Sum
+from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
 class IncomeSerializer(serializers.ModelSerializer):
@@ -60,27 +61,27 @@ class BudgetSerializer(serializers.ModelSerializer):
         fields = ["id", "amount", 'user', "month"]
         read_only_fields = ['user']
 
-    def validate(self, data):
-        # Validate positive budget amount
-        if data['amount'] <= 0:
-            raise serializers.ValidationError("Budget amount must be positive.")
+    # def validate(self, data):
+    #     # Validate positive budget amount
+    #     if data['amount'] <= 0:
+    #         raise serializers.ValidationError("Budget amount must be positive.")
 
-        # Check if the user has sufficient income for the budget
-        user = self.context['request'].user
-        month = data.get('month', timezone.now())
-        start_date = month.replace(day=1)
-        end_date = (start_date + relativedelta(months=1)) - timezone.timedelta(days=1)
+    #     # Check if the user has sufficient income for the budget
+    #     user = self.context['request'].user
+    #     month = data.get('month', timezone.now())
+    #     start_date = month.replace(day=1)
+    #     end_date = (start_date + relativedelta(months=1)) - timezone.timedelta(days=1)
 
-        total_income = Income.objects.filter(user=user, date__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum'] or 0
-        total_budget = Budget.objects.filter(user=user, month=month).aggregate(Sum('amount'))['amount__sum'] or 0
+    #     total_income = Income.objects.filter(user=user, date__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum'] or 0
+    #     total_budget = Budget.objects.filter(user=user, month=month).aggregate(Sum('amount'))['amount__sum'] or 0
 
-        if total_income == 0:
-            raise serializers.ValidationError("No income found for this month. Please add income before creating a budget.")
+    #     if total_income == 0:
+    #         raise serializers.ValidationError("No income found for this month. Please add income before creating a budget.")
         
-        if data['amount'] + total_budget > total_income:
-            raise serializers.ValidationError("Total budget for this month exceeds total income.")
+    #     if data['amount'] + total_budget > total_income:
+    #         raise serializers.ValidationError("Total budget for this month exceeds total income.")
 
-        return data
+    #     return data
 
 
 class MonthlyReportSerializer(serializers.ModelSerializer):
