@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Avatar, Button, Dialog, DialogTitle, DialogContent, Typography, Grid, Paper } from '@mui/material';
 import EditProfileForm from '../../components/Form/profileForm';
-import useAxios from '../../utils/useAxios';
+import { useUser } from '../../context/UserProfileContext';
 import './profile.css'; // Use for additional custom styling
 
 const ProfilePage: React.FC = () => {
-  const [userProfile, setUserProfile] = useState<any>(null);
   const [openModal, setOpenModal] = useState(false);
-  const axiosInstance = useAxios();
-
-  const fetchUserProfile = async () => {
-    const response = await axiosInstance.get("/user/profile/");
-    const profileInfo = response.data.results[0];
-    setUserProfile(profileInfo);
-  };
-
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
+  const {userProfile } = useUser()  
 
   const handleEditProfile = () => {
     setOpenModal(true);
@@ -28,8 +17,8 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="container profile-page d-flex justify-content-center">
-      <Paper elevation={3} className="shadow p-4 w-100 mt-5" style={{ maxWidth: '800px' }}>
+    <div className="container profile-page d-flex justify-content-center ">
+      <Paper elevation={3} className="shadow p-4 w-100 mt-5 chart-container" style={{ maxWidth: '800px' }}>
         {userProfile ? (
           <Grid container spacing={4} alignItems="center">
             <Grid item xs={12} md={4} className="text-center">
@@ -55,14 +44,14 @@ const ProfilePage: React.FC = () => {
             </Grid>
 
             <Grid item xs={12} md={8}>
-              <Typography variant="h4" gutterBottom>
+              <Typography variant="h4" className='text' gutterBottom>
                 {userProfile.full_name}
               </Typography>
-              <Typography variant="body1"><strong>Email: </strong>{userProfile.email}</Typography>
-              <Typography variant="body1"><strong>Location: </strong>{userProfile.location || "Not specified"}</Typography>
-              <Typography variant="body1"><strong>Phone: </strong>{userProfile.phone_number || "Not specified"}</Typography>
-              <Typography variant="body1"><strong>Gender: </strong>{userProfile.gender || "Not specified"}</Typography>
-              <Typography variant="body1"><strong>Bio: </strong>{userProfile.bio || "No bio available"}</Typography>
+              <Typography variant="body1" className='text'><strong>Email: </strong>{userProfile.email}</Typography>
+              <Typography variant="body1" className='text'><strong>Location: </strong>{userProfile.location || "Not specified"}</Typography>
+              <Typography variant="body1" className='text'><strong>Phone: </strong>{userProfile.phone_number || "Not specified"}</Typography>
+              <Typography variant="body1" className='text'><strong>Gender: </strong>{userProfile.gender || "Not specified"}</Typography>
+              <Typography variant="body1" className='text'><strong>Bio: </strong>{userProfile.bio || "No bio available"}</Typography>
               <Button
                 variant="contained"
                 color="primary"
@@ -84,8 +73,6 @@ const ProfilePage: React.FC = () => {
         <DialogContent>
           {userProfile && (
             <EditProfileForm
-              userProfile={userProfile}
-              setUserProfile={setUserProfile}
               closeModal={handleModalClose}
             />
           )}

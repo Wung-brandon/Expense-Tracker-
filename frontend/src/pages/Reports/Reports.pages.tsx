@@ -137,7 +137,7 @@ const Reports: React.FC = () => {
       axiosInstance.get('/userstats/monthly-summary/')
         .then(response => {
           const responseData = response.data.monthly_summary;
-          console.log("monthly data",responseData);
+          // console.log("monthly data",responseData);
           const currentMonth = new Date().toISOString().slice(0, 7); 
 
           const currentMonthSummary = responseData.find((item: any) => item.month === currentMonth);
@@ -177,7 +177,7 @@ const Reports: React.FC = () => {
           budget: monthData.budget,
           // balance: monthData.income - monthData.expenses, 
         }));
-        console.log("monthData: " , data)
+        // console.log("monthData: " , data)
         
         setMonthlyData(data);
       })
@@ -396,7 +396,7 @@ const Reports: React.FC = () => {
       <div className="chart-container">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div>
-        <h1>Monthly Expense Report</h1>
+        <h1 className='text'>Monthly Expense Report</h1>
         <CustomizedTables
           columns={columns}
           rows={monthTableData}

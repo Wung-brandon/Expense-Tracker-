@@ -15,3 +15,30 @@
     color: gray;
   }
   
+  /* search.css */
+
+/* General styles for the search input */
+.search-input {
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Styles for the search icon */
+.search-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* Styles specific to dark mode */
+.dark-mode .search-input {
+  background-color: #333;
+  color: #fff;
+}
+
+.dark-mode .search-icon {
+  color: #fff;
+}

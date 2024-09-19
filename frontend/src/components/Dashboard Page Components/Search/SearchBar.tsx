@@ -1,35 +1,59 @@
 import React from 'react';
 import SearchIcon from '@mui/icons-material/Search';
-import { TextField } from '@mui/material';
+import { TextField, Box } from '@mui/material';
+import { useThemeBackground } from '../../../context/BackgroundContext';
 import "./search.css"
+import "../DarkModeStyles.css"
 
 interface SearchProps {
   placeholder: string;
-  onChange?: any;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   value?: string;
-  onClick?: any;
+  onClick?: () => void;
 }
 
 const SearchBar: React.FC<SearchProps> = ({ placeholder, onChange, value, onClick }) => {
+  const { isDarkMode } = useThemeBackground();
+  
   return (
-    <div className="row">
-      <div className="col-lg-8 col-sm-12 mt-4">
-        <div className="position-relative">
-          <TextField
-            type="text"
-            className="form-control fs-2 search-input"
-            placeholder={placeholder}
-            onChange={onChange}
-            value={value}
-          />
-          <SearchIcon 
-            className="search-icon fs-2" 
-            onClick={onClick} 
-            style={{ cursor: 'pointer' }} 
-          />
-        </div>
-      </div>
-    </div>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        position: 'relative',
+        width: '55%',
+        maxWidth: '800px', 
+        paddingTop: '16px',
+        paddingBottom: '16px',
+        borderRadius: '8px',
+      }}
+      className={isDarkMode ? 'custom-dark-mode' : ''}
+    >
+      <TextField
+        type="text"
+        placeholder={placeholder}
+        onChange={onChange}
+        value={value}
+        fullWidth
+        
+      />
+      <SearchIcon
+        onClick={onClick}
+        sx={{
+          position: "absolute",
+          top: "50%",
+          right: "10px",
+          transform: "translateY(-50%)",
+          fontSize: "1.8rem",
+          color: "gray",
+          cursor: 'pointer',
+          '&:hover': {
+            color: isDarkMode? '#fff' : '#555',
+          },
+        }}
+        
+      />
+    </Box>
   );
 };
 

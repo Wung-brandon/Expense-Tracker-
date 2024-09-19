@@ -34,6 +34,7 @@ const Expense: React.FC = () => {
   const [date, setDate] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [expenseData, setExpenseData] = useState<Data[]>([]);
+  const [originalExpenseData, setOriginalExpenseData] = useState<Data[]>([]);
 
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
@@ -232,6 +233,7 @@ const Expense: React.FC = () => {
     try {
       const response = await axiosInstance.get(`/track/expense/?page=${page + 1}&size=${rowsPerPage}`);
       const responseData = response.data;
+      setOriginalExpenseData(responseData.results)
       setExpenseData(responseData.results);
       setCount(responseData.count);
       setLoading(false);
@@ -322,7 +324,7 @@ const Expense: React.FC = () => {
     const params: Record<string, any> = {};
   
     // Add your filters (source, amount, dates)
-    if (filterCategory) params.category = filterCategory;
+    if (filterCategory && filterCategory !== 'ALL') params.category = filterCategory;
     if (filterMinAmount !== '') params['amount__gt'] = filterMinAmount;
     if (filterMaxAmount !== '') params['amount__lt'] = filterMaxAmount;
     if (filterStartDate) params['date__gte'] = filterStartDate.toISOString().split('T')[0];
@@ -362,7 +364,7 @@ const Expense: React.FC = () => {
   };
 
   function handleSearch(){
-    const filtered = expenseData.filter(item =>
+    const filtered = originalExpenseData.filter(item =>
       item.category.toLowerCase().includes(searchText.toLowerCase()) ||
       item.description.toLowerCase().includes(searchText.toLowerCase()) ||
       item.amount.toString().includes(searchText) ||
@@ -436,7 +438,7 @@ const Expense: React.FC = () => {
               selectValue={filterCategory}
               setSelectValue={setFilterCategory}
               selectOptions={[
-                { label: "All", value: "" },
+                { label: "ALL", value: "ALL" },
                 { label: 'FOOD', value: 'FOOD' },
                 { label: 'TRANSPORTATION', value: 'TRANSPORTATION' },
                 { label: 'HOUSING', value: 'HOUSING' },

@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { InputAdornment, Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { useThemeBackground } from '../../../context/BackgroundContext';
+import "../DarkModeStyles.css"
 
 interface FilterOption {
   label: string;
@@ -14,9 +15,9 @@ interface FilterOption {
 
 interface FilterBarProps {
   selectLabel?: string;
-  selectValue: string | number;
+  selectValue?: string | number;
   setSelectValue: React.Dispatch<React.SetStateAction<string | number>>;
-  selectOptions: FilterOption[]; // Options for the select menu
+  selectOptions: FilterOption[];
 
   minAmount: number | '';
   setMinAmount: React.Dispatch<React.SetStateAction<number | ''>>;
@@ -29,7 +30,7 @@ interface FilterBarProps {
   setEndDate: React.Dispatch<React.SetStateAction<Date | null>>;
 
   filterButtonText?: string;
-  filterClick?: any;
+  filterClick?: () => void;
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
@@ -51,15 +52,20 @@ const FilterBar: React.FC<FilterBarProps> = ({
   filterButtonText = "Apply Filters",
   filterClick
 }) => {
+  const { isDarkMode } = useThemeBackground();
+
   return (
     <Box 
+      className={isDarkMode ? 'custom-dark-mode' : ''}
       sx={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'space-evenly', 
         flexWrap: 'wrap', 
         gap: '16px', 
-        mt: 2 
+        mt: 2,
+        padding: '16px',
+        borderRadius: '8px'
       }}
     >
       {/* Select Dropdown for Category or Source */}
@@ -67,11 +73,15 @@ const FilterBar: React.FC<FilterBarProps> = ({
         label={selectLabel}
         select
         value={selectValue}
-        onChange={(e) => {
-          e.preventDefault();  
-          setSelectValue(e.target.value as string);
+        onChange={(e) => setSelectValue(e.target.value as string)}
+        sx={{ 
+          minWidth: 180,
+          backgroundColor: isDarkMode ? '#333' : '#ffffff',
+          color: isDarkMode ? '#fff' : '#000',
+          '& .MuiInputLabel-root': {
+            color: isDarkMode ? '#bbb' : '#000',
+          },
         }}
-        sx={{ minWidth: 180 }}
       >
         {selectOptions.map((option) => (
           <MenuItem key={option.value} value={option.value}>
@@ -85,11 +95,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
         label="Min Amount"
         type="number"
         value={minAmount}
-        onChange={(e) => {
-          e.preventDefault();
-          setMinAmount(e.target.value === '' ? '' : parseFloat(e.target.value));
+        onChange={(e) => setMinAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
+        sx={{
+          minWidth: 150,
+          '& .MuiInputLabel-root': {
+            color: isDarkMode ? '#bbb' : '#000',
+          },
         }}
-        sx={{ minWidth: 150 }}
       />
 
       {/* Max Amount Input */}
@@ -97,11 +109,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
         label="Max Amount"
         type="number"
         value={maxAmount}
-        onChange={(e) => {
-          e.preventDefault();
-          setMaxAmount(e.target.value === '' ? '' : parseFloat(e.target.value));
+        onChange={(e) => setMaxAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
+        sx={{
+          minWidth: 150,
+          '& .MuiInputLabel-root': {
+            color: isDarkMode ? '#bbb' : '#000',
+          },
         }}
-        sx={{ minWidth: 150 }}
       />
 
       {/* Date Range Pickers */}
@@ -110,47 +124,51 @@ const FilterBar: React.FC<FilterBarProps> = ({
           label="Start Date"
           value={startDate}
           onChange={(date) => setStartDate(date)}
-          renderInput={(params: any) => (
-            <TextField
-              {...params}
-              InputProps={{
-                ...params.InputProps,
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <CalendarTodayIcon />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ minWidth: 180 }}
-            />
-          )}
+          sx={{
+            '& .MuiInputLabel-root': {
+            color: isDarkMode ? '#bbb' : '#000',
+          },
+          }}
+          className={isDarkMode ? 'dark-mode' : ''}
+          slotProps={{
+            textField: {
+              variant: 'outlined',
+            },
+          }}
+          components={{ 
+            OpenPickerIcon: CalendarTodayIcon 
+          }}
         />
-        
+
         <DatePicker
           label="End Date"
           value={endDate}
           onChange={(date) => setEndDate(date)}
-          renderInput={(params: any) => (
-            <TextField
-              {...params}
-              InputProps={{
-                ...params.InputProps,
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <CalendarTodayIcon />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ minWidth: 180 }}
-            />
-          )}
+          className={isDarkMode ? 'dark-mode' : ''}
+          sx={{
+            '& .MuiInputLabel-root': {
+            color: isDarkMode ? '#bbb' : '#000',
+          },
+          }}
+          slotProps={{
+            textField: {
+              variant: 'outlined',
+            },
+          }}
+          components={{ 
+            OpenPickerIcon: CalendarTodayIcon 
+          }}
         />
       </LocalizationProvider>
 
       {/* Apply Filters Button */}
-      <button onClick={filterClick} type='button' className='btn btn-primary' style={{ padding: '8px 16px', marginBottom:"1.3rem" }}>
+      <Button 
+        onClick={filterClick} 
+        variant="contained" 
+        sx={{ padding: '8px 16px', backgroundColor: isDarkMode ? '#4a148c' : 'primary'}}
+      >
         {filterButtonText}
-      </button>
+      </Button>
     </Box>
   );
 };

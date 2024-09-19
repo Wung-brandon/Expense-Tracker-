@@ -82,7 +82,7 @@ const LineAreaChart: React.FC<ChartProps> = ({ chartTitle, labels, data, color, 
     <Container fluid className="p-3">
       <div className="card shadow-sm chart-container">
         <div className="card-body">
-          <h5 className="card-title">{chartTitle}</h5>
+          <h5 className="card-title text">{chartTitle}</h5>
           <ReactApexChart
             options={chartData.options}
             series={chartData.series}

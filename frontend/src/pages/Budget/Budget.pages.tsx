@@ -23,13 +23,14 @@ const Budget = () => {
   
   useEffect(() => {
     fetchBudgetHistory();
-    fetchChartData();
+    // fetchChartData();
   }, []);
 
   const axiosInstance = useAxios()
   const fetchBudgetHistory = async () => {
     try {
-      const response = await axiosInstance.get('/api/budget/history');
+      const response = await axiosInstance.get('/track/budget/');
+      console.log("budget history fetched", response.data);
       setBudgetHistory(response.data);
       setFilteredData(response.data);
     } catch (error) {
@@ -37,14 +38,14 @@ const Budget = () => {
     }
   };
 
-  const fetchChartData = async () => {
-    try {
-      const response = await axiosInstance.get('/api/budget/charts');
-      setChartData(response.data);
-    } catch (error) {
-      console.error('Error fetching chart data:', error);
-    }
-  };
+  // const fetchChartData = async () => {
+  //   try {
+  //     const response = await axiosInstance.get('/api/budget/charts');
+  //     setChartData(response.data);
+  //   } catch (error) {
+  //     console.error('Error fetching chart data:', error);
+  //   }
+  // };
 
   const handleBudgetSubmit = async () => {
     try {
@@ -59,14 +60,14 @@ const Budget = () => {
     }
   };
 
-  const handleSearch = () => {
-    const filtered = budgetHistory.filter(item => 
-      item.category.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      item.amount >= filterByAmount.min &&
-      item.amount <= filterByAmount.max
-    );
-    setFilteredData(filtered);
-  };
+  // const handleSearch = () => {
+  //   const filtered = budgetHistory.filter(item => 
+  //     item.category.toLowerCase().includes(searchQuery.toLowerCase()) &&
+  //     item.amount >= filterByAmount.min &&
+  //     item.amount <= filterByAmount.max
+  //   );
+  //   setFilteredData(filtered);
+  // };
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -167,12 +168,12 @@ const Budget = () => {
                 onChange={(date) => setEndDate(date)}
                 placeholderText="End Date"
               />
-              <Button variant="contained" onClick={handleSearch}>Filter</Button>
+              {/* <Button variant="contained" onClick={handleSearch}>Filter</Button> */}
             </div>
 
             <div style={{ height: 400, width: '100%' }}>
               <DataGrid
-                rows={filteredData}
+                rows={budgetHistory}
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}

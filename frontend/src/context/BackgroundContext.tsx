@@ -6,6 +6,7 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 interface ThemeContextType {
   isDarkMode: boolean;
   toggleTheme: () => void;
+  clearMode: () => void;
 }
 
 // Create the context with a default value
@@ -19,8 +20,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setIsDarkMode((prevMode) => !prevMode);
   };
 
+  const clearMode = () => {
+    setIsDarkMode(false);
+  }
+
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ isDarkMode, toggleTheme, clearMode }}>
       {children}
     </ThemeContext.Provider>
   );

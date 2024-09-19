@@ -1,30 +1,40 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, MenuItem, InputLabel, FormControl, Select } from '@mui/material';
 import useAxios from '../../utils/useAxios';
 import { toast } from 'react-toastify';
+import { useUser } from '../../context/UserProfileContext';
 
-interface EditProfileFormProps {
-  userProfile: any;
-  setUserProfile: React.Dispatch<React.SetStateAction<any>>;
-  closeModal: () => void;
-}
-
-const EditProfileForm: React.FC<EditProfileFormProps> = ({
-  userProfile, setUserProfile, closeModal
-}) => {
+const EditProfileForm: React.FC<{ closeModal: () => void }> = ({ closeModal }) => {
+  const { userProfile, setUserProfile, fetchUserProfile } = useUser(); // Get userProfile from context
   const [formData, setFormData] = useState({
-    id: userProfile.id,
-    full_name: userProfile.full_name || '',
-    location: userProfile.location || '',
-    phone_number: userProfile.phone_number || '',
-    bio: userProfile.bio || '',
-    gender: userProfile.gender || '',
-    email: userProfile.email || '',
+    id: userProfile?.id || '',
+    full_name: userProfile?.full_name || '',
+    location: userProfile?.location || '',
+    phone_number: userProfile?.phone_number || '',
+    bio: userProfile?.bio || '',
+    gender: userProfile?.gender || '',
+    email: userProfile?.email || '',
     profile_img: null,
   });
 
   const axiosInstance = useAxios();
+
+  useEffect(() => {
+    if (userProfile) {
+      // Update form data if userProfile is updated
+      setFormData({
+        id: userProfile.id,
+        full_name: userProfile.full_name || '',
+        location: userProfile.location || '',
+        phone_number: userProfile.phone_number || '',
+        bio: userProfile.bio || '',
+        gender: userProfile.gender || '',
+        email: userProfile.email || '',
+        profile_img: null,
+      });
+    }
+  }, [userProfile]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -47,12 +57,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     form.append('location', formData.location);
     form.append('phone_number', formData.phone_number);
     form.append('bio', formData.bio);
-    
-    // Nested user fields
     form.append('email', formData.email);
     form.append('gender', formData.gender);
-
-    
 
     if (formData.profile_img) {
       form.append('profile_img', formData.profile_img);
@@ -64,126 +70,122 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           'Content-Type': 'multipart/form-data',
         },
       });
+
       if (response.status === 200) {
-        console.log("data", response.data)
-        setUserProfile(response.data);
-        toast.success("Profile updated successfully");
+        setUserProfile(response.data); // Update the context with the new profile data
+        fetchUserProfile(); // Optionally refetch to make sure everything is updated
+        toast.success('Profile updated successfully');
         closeModal();
-      }
-      else{
-        toast.error("Profile update failed")
-      }
-      
-    } catch (error: any) {
-      console.error("Profile update failed", error.response || error);
-      if (error.response?.data) {
-        // Show specific error messages
-        toast.error(error.response.data.detail || "An error occurred while updating the profile");
       } else {
-        toast.error("An unknown error occurred");
+        toast.error('Profile update failed');
+      }
+    } catch (error: any) {
+      console.error('Profile update failed', error.response || error);
+      if (error.response?.data) {
+        toast.error(error.response.data.detail || 'An error occurred while updating the profile');
+      } else {
+        toast.error('An unknown error occurred');
       }
     }
   };
 
   return (
-    
-      <Box
-        sx={{
-          maxWidth: 600,
-          width: '100%',
-          backgroundColor: '#fff',
-          padding: '2rem',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        }}
-      >
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Full Name"
-            variant="outlined"
-            fullWidth
-            name="full_name"
-            value={formData.full_name}
+    <Box
+      sx={{
+        maxWidth: 600,
+        width: '100%',
+        backgroundColor: '#fff',
+        padding: '2rem',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      }}
+    >
+      <form onSubmit={handleSubmit}>
+        <TextField
+          label="Full Name"
+          variant="outlined"
+          fullWidth
+          name="full_name"
+          value={formData.full_name}
+          onChange={handleInputChange}
+          sx={{ mb: 2 }}
+        />
+
+        <TextField
+          label="Location"
+          variant="outlined"
+          fullWidth
+          name="location"
+          value={formData.location}
+          onChange={handleInputChange}
+          sx={{ mb: 2 }}
+        />
+
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="gender-label">Gender</InputLabel>
+          <Select
+            labelId="gender-label"
+            id="gender"
+            name="gender"
+            value={formData.gender}
             onChange={handleInputChange}
-            sx={{ mb: 2 }}
+            label="Gender"
+          >
+            <MenuItem value="MALE">Male</MenuItem>
+            <MenuItem value="FEMALE">Female</MenuItem>
+            <MenuItem value="OTHER">Other</MenuItem>
+          </Select>
+        </FormControl>
+
+        <TextField
+          label="Email"
+          variant="outlined"
+          fullWidth
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          sx={{ mb: 2 }}
+        />
+
+        <TextField
+          label="Phone Number"
+          variant="outlined"
+          fullWidth
+          name="phone_number"
+          value={formData.phone_number}
+          onChange={handleInputChange}
+          sx={{ mb: 2 }}
+        />
+
+        <TextField
+          label="Bio"
+          variant="outlined"
+          fullWidth
+          multiline
+          rows={3}
+          name="bio"
+          value={formData.bio}
+          onChange={handleInputChange}
+          sx={{ mb: 2 }}
+        />
+
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel htmlFor="profile_img">Profile Image</InputLabel>
+          <input
+            id="profile_img"
+            name="profile_img"
+            type="file"
+            onChange={handleImageChange}
+            style={{ marginTop: '10px' }}
           />
+        </FormControl>
 
-          <TextField
-            label="Location"
-            variant="outlined"
-            fullWidth
-            name="location"
-            value={formData.location}
-            onChange={handleInputChange}
-            sx={{ mb: 2 }}
-          />
-
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel id="gender-label">Gender</InputLabel>
-            <Select
-              labelId="gender-label"
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-              label="Gender"
-            >
-              <MenuItem value="MALE">Male</MenuItem>
-              <MenuItem value="FEMALE">Female</MenuItem>
-              <MenuItem value="OTHER">Other</MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            label="Email"
-            variant="outlined"
-            fullWidth
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            sx={{ mb: 2 }}
-          />
-
-          <TextField
-            label="Phone Number"
-            variant="outlined"
-            fullWidth
-            name="phone_number"
-            value={formData.phone_number}
-            onChange={handleInputChange}
-            sx={{ mb: 2 }}
-          />
-
-          <TextField
-            label="Bio"
-            variant="outlined"
-            fullWidth
-            multiline
-            rows={3}
-            name="bio"
-            value={formData.bio}
-            onChange={handleInputChange}
-            sx={{ mb: 2 }}
-          />
-
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel htmlFor="profile_img">Profile Image</InputLabel>
-            <input
-              id="profile_img"
-              name="profile_img"
-              type="file"
-              onChange={handleImageChange}
-              style={{ marginTop: '10px' }}
-            />
-          </FormControl>
-
-          <Button variant="contained" color="primary" type="submit" fullWidth>
-            Save Changes
-          </Button>
-        </form>
-      </Box>
-    
+        <Button variant="contained" color="primary" type="submit" fullWidth>
+          Save Changes
+        </Button>
+      </form>
+    </Box>
   );
 };
 

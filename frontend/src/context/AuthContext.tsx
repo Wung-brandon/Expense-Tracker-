@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // Updated to import jwtDecode correctly
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useThemeBackground } from './BackgroundContext';
 
 interface AuthContextProps {
   user: UserProps | null;
@@ -56,7 +58,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const {clearMode} = useThemeBackground()
+
   const loginUser = async (email: string, password: string) => {
+    clearMode()
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/token/', {
         email,
@@ -68,6 +73,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const decodedToken = jwtDecode<UserProps>(tokens.access);
   
         // Check if user is verified
+        // fetchUserProfile()
         if (!decodedToken.is_verified) {
           toast.error('Your account is not activated. Please verify your email.');
           return;
@@ -120,6 +126,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logoutUser = () => {
+    clearMode();
+    localStorage.clear();
     setUser(null);
     setAuthToken(null);
     localStorage.removeItem('authTokens');
@@ -227,8 +235,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(false);
   }, [authTokens]);
 
+  const contextValues = {
+    user,
+    authTokens,
+    setAuthToken,
+    setUser,
+    loginUser,
+    signUpUser,
+    logoutUser,
+    forgotPassword,
+    verifyEmail,
+    resetPassword,
+    requestVerificationResend,
+  }
+
   return (
-    <AuthContext.Provider value={{ user, authTokens, setAuthToken, setUser, loginUser, signUpUser, logoutUser, forgotPassword, verifyEmail, resetPassword, requestVerificationResend }}>
+    <AuthContext.Provider value={contextValues}>
       {loading ? null : children}
     </AuthContext.Provider>
   );

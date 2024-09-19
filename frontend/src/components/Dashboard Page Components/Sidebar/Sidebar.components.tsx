@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import { DarkModeOutlined } from '@mui/icons-material';
+import { DarkModeOutlined, LightModeOutlined } from '@mui/icons-material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -26,11 +26,11 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItem from '@mui/material/ListItem';
 import { Link } from 'react-router-dom';
 import "./Sidebar.css";
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import AuthContext from '../../../context/AuthContext';
-import useAxios from '../../../utils/useAxios';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useThemeBackground } from '../../../context/BackgroundContext';
+import { useUser } from '../../../context/UserProfileContext';
 
 const drawerWidth = 240;
 
@@ -128,32 +128,9 @@ const AppBar = styled(MuiAppBar, {
 
 
 export default function Sidebar() {
-  const axiosInstance = useAxios();
-  const { authTokens, logoutUser } = useContext(AuthContext);
-  const [userProfile, setUserProfile] = useState<any>(null);
-
-  // Fetch user profile function
-  const fetchUserProfile = async () => {
-    if (!authTokens) {
-      console.error("No authentication token available");
-      return;
-    }
-
-    try {
-      const response = await axiosInstance.get("/user/profile/");
-      if (response.data && response.data.results.length > 0) {
-        setUserProfile(response.data.results[0]);
-      } else {
-        console.error("User profile not found");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserProfile();
-  }, [authTokens]);
+  const { logoutUser } = useContext(AuthContext);
+  const {userProfile} = useUser()
+  
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -195,7 +172,8 @@ export default function Sidebar() {
           </Typography>
           <div className="d-flex align-items-center justify-content-center">
             <IconButton onClick={toggleTheme} color='inherit'>
-              <DarkModeOutlined />
+              {isDarkMode? <LightModeOutlined /> : <DarkModeOutlined />}
+              {/* <DarkModeOutlined /> */}
             </IconButton>
             <IconButton color="inherit">
               <NotificationsIcon />

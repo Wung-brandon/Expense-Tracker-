@@ -1,0 +1,65 @@
+/* Restrict dark mode styles to elements inside a specific container with 'dark-mode' */
+.custom-dark-mode .MuiTextField-root {
+    color: #808080;
+  }
+  
+  /* Dark mode input styles scoped to 'custom-dark-mode' */
+  .custom-dark-mode .MuiInputBase-input {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .custom-dark-mode .MuiInputLabel-root {
+    color: #bbb;
+  }
+  
+  .custom-dark-mode .MuiOutlinedInput-root {
+    background-color: #333;
+  }
+  
+  .custom-dark-mode .MuiOutlinedInput-root fieldset {
+    border-color: #555;
+  }
+  
+  .custom-dark-mode .MuiOutlinedInput-root:hover fieldset {
+    border-color: #888;
+  }
+  
+  .custom-dark-mode .MuiInputAdornment-root .MuiSvgIcon-root {
+    color: #fff;
+  }
+  
+  /* Button styles scoped to dark mode */
+  /* .custom-dark-mode .button-custom {
+    background-color: #4a148c;
+    color: #fff;
+  }
+  
+  .custom-dark-mode .button-custom:hover {
+    background-color: #38006b;
+    color: #fff;
+  } */
+  
+  
+  /* button styles */
+  .button-custom {
+    padding: 8px 16px;
+    background-color: #4a148c; /* For dark mode */
+    color: #fff;
+  }
+  
+  .button-custom-light {
+    background-color: #1976d2; /* For light mode */
+    color: #fff;
+  }
+  
+  .button-custom:hover {
+    background-color: #38006b; /* For dark mode hover */
+    color: #fff;
+  }
+  
+  .button-custom-light:hover {
+    background-color: #1565c0; /* For light mode hover */
+    color: #fff;
+  }
+  

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import TotalCard from "../../components/Dashboard Page Components/Widgets/Widgets.components";
 import './DashboardPage.css'; // Ensure this file handles any additional styles
 import useAxios from "../../utils/useAxios";
-import { AttachMoney, AccountBalance, MoneyOff, Savings } from '@mui/icons-material';
+import { AttachMoney, AccountBalance, MoneyOff, Savings, Balance } from '@mui/icons-material';
 import ReusableBarChart from "../../components/Dashboard Page Components/Chart/VersusBarChart";
 // import { ProgressBar } from "react-bootstrap";
 import LineAreaChart from "../../components/Dashboard Page Components/Chart/LineareaChart";
@@ -15,7 +15,7 @@ interface MonthlyDataTrend {
   income: number;
   expenses: number;
   budget: number;
-  // balance: number;
+  balance: number;
 }
 
 function DashboardPage() {
@@ -170,10 +170,10 @@ function DashboardPage() {
   const fetchCurrentdayExpenses = async () => {
     try {
       const response = await axiosInstance.get("/userstats/current-day/");
-      console.log("Full response data: ", response.data); // Log full response data
+      // console.log("Full response data: ", response.data); 
   
       const data = response.data.current_day; // Check if this path is correct
-      console.log("current day: ", data);
+      // console.log("current day: ", data);
       
       setCurrentDayExpenses(data);
     } catch (error) {
@@ -202,6 +202,7 @@ function DashboardPage() {
             expenses: monthData.expenses,
             income: monthData.income,
             budget: monthData.budget,
+            balance: monthData.balance,
           }));
           // console.log("monthData: ", data);
           setMonthlyData(data);
@@ -219,6 +220,7 @@ function DashboardPage() {
   const monthExpenseData = monthlyData.map((item) => item.expenses);
   const monthIncomeData = monthlyData.map((item) => item.income);
   const monthBudgetData = monthlyData.map((item) => item.budget)
+  const monthBalanceData = monthlyData.map((item) => item.balance);
 
   useEffect(() => {
     // Fetch the data from the API
@@ -284,10 +286,10 @@ function DashboardPage() {
         </div>
 
        
-      <div className="row justify-content-center align-items-center">
+      <div className="row ms-4 justify-content-center align-items-center">
         <div className="col-lg-6 col-sm-12">
           <LineAreaChart
-            chartTitle="Daily Expenses"
+            chartTitle="Daily Expenses For This Week"
             name="Expenses"
             labels={dailyLabels}
             data={dailyData}
@@ -328,16 +330,17 @@ function DashboardPage() {
       </div>
     </div>
 
-        <div className="row ms-4 justify-content-center align-items-center">
-            <div className="col-lg-6 col-sm-12">
-              <ReusableBarChart
-                data={[currentMonthIncome, currentMonthExpenses]}
-                labels={["Income", "Expenses"]}
-                title={`Income vs Expenses in ${month}`}
-                colors={["#4a148c", "#F44336"]}
-              />
-            </div>
-            <div className="col-lg-6 col-sm-12">
+    <div className="row ms-4 justify-content-center align-items-center">
+    <div className="col-lg-6 col-sm-12">
+        <LineAreaChart
+          chartTitle="Monthly Balance Trend"
+          name="Balance"
+          labels={monthlyLabels}
+          data={monthBalanceData}
+          color="#38812f"
+        />
+      </div>
+      <div className="col-lg-6 col-sm-12">
               {hasData ? (
                   <ReusableBarChart
                     title={`Expenses for Today (${new Date().toLocaleDateString()})`}
@@ -351,15 +354,26 @@ function DashboardPage() {
                   </div>
                 )}
             </div>
-            
-            {/* <div className="col-lg-6 col-sm-12">
+    </div>
+
+        <div className="row ms-4 justify-content-center align-items-center">
+            <div className="col-lg-6 col-sm-12">
               <ReusableBarChart
-                data={[previousMonthIncome, currentMonthIncome]}
-                labels={[previousMonth, month]}
-                title={`Income Comparison: ${previousMonth} vs ${month}`}
+                data={[currentMonthIncome, currentMonthExpenses]}
+                labels={["Income", "Expenses"]}
+                title={`Income vs Expenses in ${month}`}
                 colors={["#4a148c", "#F44336"]}
               />
-            </div> */}
+            </div>
+            <div className="col-lg-6 col-sm-12">
+                <ReusableBarChart
+                  data={[previousMonthIncome, currentMonthIncome]}
+                  labels={[previousMonth, month]}
+                  title={`Income Comparison: ${previousMonth} vs ${month}`}
+                  colors={["#4a148c", "#F44336"]}
+                />
+             </div>
+            
           </div>
         
           <div className="row ms-4 mt-4 justify-content-center align-items-center">
@@ -398,6 +412,7 @@ function DashboardPage() {
                 />
             </div>
           </div>
+          
       </main>
       
     </div>

@@ -71,7 +71,7 @@ const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading = fal
                   onChange={field.onChange}
                   required={field.required}
                 >
-                  <MenuItem value=""><em>-----------</em></MenuItem>
+                  <MenuItem value="All"><em>-----------</em></MenuItem>
                   {field.options?.map(option => (
                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                   ))}

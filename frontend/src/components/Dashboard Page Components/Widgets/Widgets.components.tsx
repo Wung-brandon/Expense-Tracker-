@@ -26,7 +26,7 @@ const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon, backgro
         padding: 4,
         margin: 6,
         height: 'auto',
-        width: '100%',
+        width: {xs: '50', sm: '100%'},
         backgroundColor: backgroundColor,  
         borderRadius: 7,
         boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
@@ -43,7 +43,7 @@ const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon, backgro
           },
         },
       }}
-      className="widget"
+      // className="widget"
     >
       <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, marginBottom: { xs: 2, sm: 0 } }}>
         <Typography variant="h6">{title}</Typography>

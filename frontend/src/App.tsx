@@ -20,32 +20,34 @@ import { ThemeProvider } from './context/BackgroundContext';
 import "./app.css"
 import DashboardLayout from './Layout/DashboardLayout';
 import ProfilePage from './pages/UserProfile/profile';
+import { UserProvider } from './context/UserProfileContext';
 
 function App() {
   return (
     <Router>
       <ThemeProvider>
-      
-      <AuthProvider>
-        <ToastContainer />
-        <Routes>
-          <Route path='/' element={<Layout><HomePage /></Layout>} />
-          <Route path='/about' element={<Layout><AboutPage /></Layout>} />
-          <Route path='/signup' element={<SignupPage />} />
-          <Route path='/login' element={<Layout><LoginPage /></Layout>} />
-          <Route path='/forgot-password' element={<Layout><ForgotPasswordPage /></Layout>} />
-          <Route path='/reset-password/:uidb64/:token/' element={<Layout><ResetPasswordPage /></Layout>} />
-          <Route path="*" element={<Layout><NotFoundPage /></Layout>} />
-          
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout><DashboardPage /></DashboardLayout></ProtectedRoute>} />
-          <Route path='/dashboard/income' element={<DashboardLayout><Income /></DashboardLayout>} />
-          <Route path='/dashboard/expense' element={<DashboardLayout><Expense /></DashboardLayout>} />
-          <Route path='/dashboard/budget' element={<DashboardLayout><Budget /></DashboardLayout>} />
-          <Route path='/dashboard/reports' element={<DashboardLayout><Reports /></DashboardLayout>} />
-          <Route path='/dashboard/profile' element={<DashboardLayout><ProfilePage /></DashboardLayout>} />
+        <AuthProvider>
+        <UserProvider>
+          <ToastContainer />
+          <Routes>
+            <Route path='/' element={<Layout><HomePage /></Layout>} />
+            <Route path='/about' element={<Layout><AboutPage /></Layout>} />
+            <Route path='/signup' element={<SignupPage />} />
+            <Route path='/login' element={<Layout><LoginPage /></Layout>} />
+            <Route path='/forgot-password' element={<Layout><ForgotPasswordPage /></Layout>} />
+            <Route path='/reset-password/:uidb64/:token/' element={<Layout><ResetPasswordPage /></Layout>} />
+            <Route path="*" element={<Layout><NotFoundPage /></Layout>} />
+            
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout><DashboardPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path='/dashboard/income' element={<DashboardLayout><Income /></DashboardLayout>} />
+            <Route path='/dashboard/expense' element={<DashboardLayout><Expense /></DashboardLayout>} />
+            <Route path='/dashboard/budget' element={<DashboardLayout><Budget /></DashboardLayout>} />
+            <Route path='/dashboard/reports' element={<DashboardLayout><Reports /></DashboardLayout>} />
+            <Route path='/dashboard/profile' element={<DashboardLayout><ProfilePage /></DashboardLayout>} />
 
-        </Routes>
-      </AuthProvider>
+          </Routes>
+        </UserProvider>
+       </AuthProvider>
       </ThemeProvider>
     </Router>
   );

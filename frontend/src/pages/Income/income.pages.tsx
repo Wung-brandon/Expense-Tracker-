@@ -32,6 +32,7 @@ const Income: React.FC = () => {
   const [date, setDate] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [incomeData, setIncomeData] = useState<Data[]>([]);
+  const [originalIncomeData, setOriginalIncomeData] = useState<Data[]>([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -63,6 +64,7 @@ const Income: React.FC = () => {
       const response = await axiosInstance.get(`/track/income/?page=${page + 1}&size=${rowsPerPage}`);
       const responseData = response.data;
       setIncomeData(responseData.results);
+      setOriginalIncomeData(responseData.results)
       setCount(responseData.count);
       setLoading(false);
     } catch (error) {
@@ -308,7 +310,7 @@ const Income: React.FC = () => {
   if (loading) return <div>Loading...</div>;
 
   function handleSearch(){
-    const filtered = incomeData.filter(item =>
+    const filtered = originalIncomeData.filter(item =>
       item.source.toLowerCase().includes(searchText.toLowerCase()) ||
       item.description.toLowerCase().includes(searchText.toLowerCase()) ||
       item.amount.toString().includes(searchText) ||
@@ -322,7 +324,7 @@ const Income: React.FC = () => {
     const params: Record<string, any> = {};
   
     // Add your filters (source, amount, dates)
-    if (filterSource) params.source = filterSource;
+    if (filterSource && filterSource !== 'ALL') params.source = filterSource;
     if (filterMinAmount !== '') params['amount__gt'] = filterMinAmount;
     if (filterMaxAmount !== '') params['amount__lt'] = filterMaxAmount;
     if (filterStartDate) params['date__gte'] = filterStartDate.toISOString().split('T')[0];
@@ -335,12 +337,14 @@ const Income: React.FC = () => {
     try {
       const response = await axiosInstance.get('/track/income/', { params });
       const paginatedData = response.data.results || response.data;
+      
       console.log("data" ,paginatedData)
   
       // Log the paginated data to inspect it
       console.log("Paginated Data: ", JSON.stringify(paginatedData, null, 2));
   
       if (Array.isArray(paginatedData)) {
+        setOriginalIncomeData(paginatedData)
         setIncomeData(paginatedData);
 
       } else {
@@ -420,7 +424,7 @@ const Income: React.FC = () => {
               selectValue={filterSource}
               setSelectValue={setFilterSource}
               selectOptions={[
-                { label: "All", value: "" },
+                { label: "ALL", value: "ALL" },
                 { label: "Salary", value: "SALARY" },
                 { label: "Business", value: "BUSINESS" },
                 { label: "Side Hustle", value: "SIDE HUSTLE" },

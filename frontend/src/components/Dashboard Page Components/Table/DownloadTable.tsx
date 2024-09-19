@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { TextField, MenuItem, Divider, Typography } from '@mui/material';
+import { TextField, MenuItem, Divider, Typography, IconButton } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { Button } from 'react-bootstrap';
@@ -15,7 +15,10 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
-import {toast} from "react-toastify"
+import { toast } from "react-toastify";
+import { useThemeBackground } from '../../../context/BackgroundContext';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import "../DarkModeStyles.css"
 
 interface ExpenseRow {
   category: string;
@@ -56,6 +59,7 @@ const CustomizedTables: React.FC<CustomizedTablesProps> = ({ columns, rows, onDa
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
   const [selectedExportOption, setSelectedExportOption] = useState<string>('PDF');
   const [filteredRows, setFilteredRows] = useState<ExpenseRow[]>([]);
+  const { isDarkMode } = useThemeBackground();
 
   useEffect(() => {
     if (selectedDate) {
@@ -78,7 +82,7 @@ const CustomizedTables: React.FC<CustomizedTablesProps> = ({ columns, rows, onDa
   const handleDownload = () => {
     if (filteredRows.length === 0) {
       alert(message); // Show message when no data is available for the selected month/year
-      toast.warning("No data available")
+      toast.warning("No data available");
       return;
     }
 
@@ -122,26 +126,43 @@ const CustomizedTables: React.FC<CustomizedTablesProps> = ({ columns, rows, onDa
   };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '10px' }} className='chart-container'>
+    <div className={isDarkMode ? 'custom-dark-mode' : ''}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }} className='chart-container'>
         <TextField
           select
           label="Download as"
           value={selectedExportOption}
           onChange={handleExportChange}
-          sx={{ width: 120 }}
+          sx={{
+            width: 120,
+            backgroundColor: isDarkMode ? '#333' : '#fff', // Background color for dark mode
+            '& .MuiInputLabel-root': {
+              color: isDarkMode ? '#bbb' : '#000', // Label color
+            },
+            
+          }}
+          className='text'
         >
           {exportOptions.map((option) => (
             <MenuItem key={option} value={option}>
               {option}
             </MenuItem>
           ))}
-          <Divider orientation="horizontal" variant="middle" sx={{ margin: '10px 0', backgroundColor: '#000' }} />
+          <Divider
+            orientation="horizontal"
+            variant="middle"
+            sx={{ margin: '10px 0', backgroundColor: isDarkMode ? '#444' : '#000' }} // Divider color
+          />
         </TextField>
 
+        {/* Date Picker */}
         <DatePicker
           views={['year', 'month']}
-          sx={{marginLeft: '10px'}}
+          sx={{
+            marginLeft: '10px',
+            width: 'auto',
+            
+          }}
           label="Pick Month & Year"
           minDate={dayjs().subtract(10, 'year')}
           maxDate={dayjs()}
@@ -153,16 +174,18 @@ const CustomizedTables: React.FC<CustomizedTablesProps> = ({ columns, rows, onDa
               variant: 'outlined',
             },
           }}
+          components={{ 
+            OpenPickerIcon: CalendarTodayIcon 
+          }} // Using CalendarTodayIcon for DatePicker
         />
 
+        {/* Download Button */}
         <Button
           variant="contained"
-          className='ps-1'
-          style={{backgroundColor: '#4a148c', color: 'white', marginLeft: '15px', marginBottom: '5px', marginTop: "2px" }}
+          className={isDarkMode ? 'button-custom' : 'button-custom-light'}
           onClick={handleDownload}
         >
           Download
-          
         </Button>
       </div>
 
@@ -171,7 +194,7 @@ const CustomizedTables: React.FC<CustomizedTablesProps> = ({ columns, rows, onDa
           {message}
         </Typography>
       ) : (
-        <TableContainer component={Paper} className='chart-container'>
+        <TableContainer component={Paper} className='chart-container tab'>
           <Table sx={{ minWidth: 700 }} aria-label="customized table">
             <TableHead>
               <TableRow>
@@ -183,10 +206,10 @@ const CustomizedTables: React.FC<CustomizedTablesProps> = ({ columns, rows, onDa
             <TableBody>
               {filteredRows.map((row, index) => (
                 <StyledTableRow key={index}>
-                  <StyledTableCell>{row.category}</StyledTableCell>
-                  <StyledTableCell>{row.amount}</StyledTableCell>
-                  <StyledTableCell>{row.description || 'No description'}</StyledTableCell>
-                  <StyledTableCell>{row.date}</StyledTableCell>
+                  <StyledTableCell className='tablecell'>{row.category}</StyledTableCell>
+                  <StyledTableCell className='tablecell'>{row.amount}</StyledTableCell>
+                  <StyledTableCell className='tablecell'>{row.description}</StyledTableCell>
+                  <StyledTableCell className='tablecell'>{row.date}</StyledTableCell>
                 </StyledTableRow>
               ))}
             </TableBody>
