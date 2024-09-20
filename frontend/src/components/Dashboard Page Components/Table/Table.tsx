@@ -71,7 +71,7 @@ const DataTable: React.FC<DataTableProps> = ({
   const [order, setOrder] = React.useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = React.useState<string>(columns[0].id);
 
-  console.log("columns", columns[0].label)
+  // console.log("columns", columns[0].label)
 
   const { isDarkMode } = useThemeBackground();
 

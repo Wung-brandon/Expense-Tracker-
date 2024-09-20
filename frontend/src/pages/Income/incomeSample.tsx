@@ -317,3 +317,23 @@ const Income: React.FC = () => {
 };
 
 export default Income;
+
+
+
+
+// useEffect(() => {
+//   fetchBudgetHistory();
+//   // fetchChartData();
+// }, []);
+
+// const axiosInstance = useAxios()
+// const fetchBudgetHistory = async () => {
+//   try {
+//     const response = await axiosInstance.get('/track/budget/');
+//     console.log("budget history fetched", response.data.results);
+//     setBudgetHistory(response.data);
+//     setFilteredData(response.data);
+//   } catch (error) {
+//     console.error('Error fetching budget history:', error);
+//   }
+// };

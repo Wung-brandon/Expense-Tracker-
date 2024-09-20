@@ -81,6 +81,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
           '& .MuiInputLabel-root': {
             color: isDarkMode ? '#bbb' : '#000',
           },
+          '& .MuiSelect-icon': {
+            color: isDarkMode ? '#fff' : '#000', // Change dropdown icon color here
+          },
         }}
       >
         {selectOptions.map((option) => (

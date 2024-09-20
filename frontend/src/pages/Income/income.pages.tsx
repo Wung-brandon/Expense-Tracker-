@@ -386,7 +386,7 @@ const Income: React.FC = () => {
       </div>
 
       <div className="row shadow" style={{borderRadius:"1.5rem"}}>
-        <div className="col-lg-6 col-md-6 col-sm-12 mb-4 mb-md-0 mt-5 mb-3">
+        <div className="col-lg-6 col-md-6 col-sm-12 d-flex justify-content-center align-items-center">
             <TotalCard 
                 title={`Total Income For ${currentMonth}`} 
                 total={`$${total}`} 
@@ -395,6 +395,7 @@ const Income: React.FC = () => {
                 hoverBackgroundColor="#4CAF50"  
                 iconColor="#2E7D32"
                 hoverIconColor="#FFFFFF"
+                width={{xs:"50%", sm: "70%"}}
             />
           </div>
 
@@ -407,7 +408,7 @@ const Income: React.FC = () => {
           } 
         </div>
       </div>
-      <div className="d-flex flex-column">
+      <div className="d-flex flex-column mt-5">
 
         <DataTable 
             columns={columns} 
@@ -425,13 +426,13 @@ const Income: React.FC = () => {
               setSelectValue={setFilterSource}
               selectOptions={[
                 { label: "ALL", value: "ALL" },
-                { label: "Salary", value: "SALARY" },
-                { label: "Business", value: "BUSINESS" },
-                { label: "Side Hustle", value: "SIDE HUSTLE" },
-                { label: "Investments", value: "INVESTMENTS" },
-                { label: "Inheritance", value: "INHERITANCE" },
-                { label: "Gifts", value: "GIFTS" },
-                { label: "Others", value: "OTHERS" }
+                { label: "SALARY", value: "SALARY" },
+                { label: "BUSINESS", value: "BUSINESS" },
+                { label: "SIDE HUSTLE", value: "SIDE HUSTLE" },
+                { label: "INVESTMENTS", value: "INVESTMENTS" },
+                { label: "INHERITANCE", value: "INHERITANCE" },
+                { label: "GIFTS", value: "GIFTS" },
+                { label: "OTHERS", value: "OTHERS" }
               ]}
               minAmount={filterMinAmount}
               setMinAmount={setFilterMinAmount}

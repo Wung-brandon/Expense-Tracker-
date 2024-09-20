@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Card, Typography, Box } from '@mui/material';
 import { SvgIconComponent } from '@mui/icons-material';
@@ -10,10 +11,11 @@ interface TotalCardProps {
   backgroundColor?: string;  
   hoverBackgroundColor?: string;  
   iconColor?: string;  
-  hoverIconColor?: string;  
+  hoverIconColor?: string; 
+  width? : any 
 }
 
-const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon, backgroundColor, hoverBackgroundColor, iconColor, hoverIconColor }) => {
+const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon, backgroundColor, hoverBackgroundColor, iconColor, hoverIconColor, width }) => {
   // const { isDarkMode } = useThemeBackground();
   
   return (
@@ -26,7 +28,7 @@ const TotalCard: React.FC<TotalCardProps> = ({ title, total, icon: Icon, backgro
         padding: 4,
         margin: 6,
         height: 'auto',
-        width: {xs: '50', sm: '100%'},
+        width: width,
         backgroundColor: backgroundColor,  
         borderRadius: 7,
         boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',

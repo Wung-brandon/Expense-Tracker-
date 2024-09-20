@@ -197,8 +197,7 @@ function DashboardPage() {
       axiosInstance.get("/userstats/monthly-summary/")
         .then((response) => {
           const data = response.data.monthly_summary.map((monthData: any) => ({
-            month: new Intl.DateTimeFormat("en-US", { month: "long" })
-              .format(new Date(monthData.month)),
+            month: new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date(monthData.month)),
             expenses: monthData.expenses,
             income: monthData.income,
             budget: monthData.budget,
@@ -275,6 +274,7 @@ function DashboardPage() {
                 title={card.title}
                 total={card.total}
                 icon={card.icon}
+                width={{xs:"60%", md:"90%", sm: "80%", lg:"100%"}}
                 backgroundColor={card.backgroundColor}  // Pass background color
                 hoverBackgroundColor={card.hoverBackgroundColor}  // Pass hover background color
                 iconColor={card.iconColor}  // Pass icon color

@@ -7,7 +7,7 @@ interface ChartProps {
   labels: string[]; // X-axis labels (e.g., months or days)
   data: number[] | number;   // Y-axis data points (e.g., expenses)
   color: string;    // Color for the chart
-  name : string; // Name of the chart
+  name: string; // Name of the chart
 }
 
 const LineAreaChart: React.FC<ChartProps> = ({ chartTitle, labels, data, color, name }) => {
@@ -22,6 +22,7 @@ const LineAreaChart: React.FC<ChartProps> = ({ chartTitle, labels, data, color, 
       chart: {
         type: 'area',
         height: '100%',
+        width: '100%', // Make it responsive to parent container width
         toolbar: {
           show: false,
         },
@@ -72,6 +73,42 @@ const LineAreaChart: React.FC<ChartProps> = ({ chartTitle, labels, data, color, 
             chart: {
               height: 250,
             },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px', // Smaller font for small screens
+                },
+              },
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px',
+                },
+              },
+            },
+          },
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 200,
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '9px', // Even smaller font for extra small screens
+                },
+              },
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '9px',
+                },
+              },
+            },
           },
         },
       ],
@@ -87,8 +124,7 @@ const LineAreaChart: React.FC<ChartProps> = ({ chartTitle, labels, data, color, 
             options={chartData.options}
             series={chartData.series}
             type="area"
-            height={350}
-            
+            height={350} // Default height
           />
         </div>
       </div>

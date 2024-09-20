@@ -73,6 +73,7 @@ const Expense: React.FC = () => {
 
           // Find the summary for the current month
           const currentMonthSummary = responseData.find((item: any) => item.month === currentMonth);
+          console.log("current month ", currentMonthSummary)
 
           if (currentMonthSummary) {
             // Set total income for the current month
@@ -401,7 +402,7 @@ const Expense: React.FC = () => {
         />
       </div>
       <div className="row shadow" style={{borderRadius:"1.5rem"}}>
-        <div className="col-12 col-md-6 mb-4 mb-md-0 mt-5 mb-3 rounded">
+        <div className="col-12 col-md-6 rounded d-flex justify-content-center align-items-center">
           <TotalCard 
               title={`Total Expenses For ${currentMonth}`} 
               total={total} 
@@ -410,6 +411,7 @@ const Expense: React.FC = () => {
               hoverBackgroundColor="#F44336"  
               iconColor="#D32F2F"
               hoverIconColor="#FFFFFF"
+              width={{xs:"50%", sm: "70%"}}
           />
         </div>
         <div className="col-12 col-md-6">
