@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseEye Notification</title>
+  </head>
+  <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f5f5f5; padding: 20px;">
+      <tr>
+        <td align="center">
+          <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <!-- Header -->
+            <tr>
+              <td align="center" style="padding-bottom: 20px;">
+                <h1 style="color: #333333; margin: 0;">ExpenseEye</h1>
+                <p style="color: #888888; margin: 0;">Stay on top of your finances</p>
+              </td>
+            </tr>
+            <!-- Body Content -->
+            <tr>
+              <td>
+                <h2 style="color: #333333;">Dear {{user.username}},</h2>
+                <p style="color: #555555; font-size: 16px; line-height: 1.5;">
+                  We would like to inform you that your expenses are approaching the budget limit for {{date}}. 
+                  Your current remaining budget is <strong>${{remaining_budget}}</strong>.
+                  After this expense of <strong>${{new_expense}}</strong>, your remaining budget will be 
+                  <strong>${{new_remaining_budget}}</strong>.
+                </p>
+                <p style="color: #555555; font-size: 16px; line-height: 1.5;">
+                  We encourage you to review your budget to ensure you stay within your financial goals for the month.
+                  Please be advised to review your expenses and plan your remaining budget carefully. 
+                </p>
+                <p>If you need assistance or further information, don't hesitate to contact us.
+                  <span>expenseeye24@gmail.com</span></p>
+              </td>
+            </tr>
+            <!-- Call to Action -->
+            {% comment %} <tr>
+              <td align="center" style="padding-top: 20px;">
+                <a href="{{dashboard_link}}" style="background-color: #ff5733; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 4px; font-size: 16px;">View Your Dashboard</a>
+              </td>
+            </tr> {% endcomment %}
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="padding-top: 30px; color: #888888; font-size: 14px;">
+                <p style="margin: 0;">Thank you for using ExpenseEye to manage your finances.</p>
+                <p style="margin: 0;">&copy; {{current_year}} ExpenseEye. All rights reserved.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

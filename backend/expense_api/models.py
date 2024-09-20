@@ -23,7 +23,7 @@ class Income(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     source = models.CharField(max_length=150, choices=DEFAULT_SOURCE, default="SALARY")
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)  # Ensure this is a DateField
     created = models.DateTimeField(auto_now_add=True)
@@ -59,7 +59,7 @@ class Expense(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.CharField(choices=DEFAULT_EXPENSE_CATEGORY, default="FOOD", max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
@@ -134,13 +134,14 @@ class Expense(models.Model):
 class Budget(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
     month = models.DateField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
     
     class Meta:
-        verbose_name = "Budget"
+        verbose_name_plural = "Budget"
     
     def __str__(self):
         return f"{self.user.username} - {self.month.strftime('%B %Y')} - {self.amount}"
@@ -156,7 +157,8 @@ class Budget(models.Model):
         # Calculate the total income for the selected month
         total_income = Income.objects.filter(user=self.user, date__range=[start_date, end_date]).aggregate(total_income=Sum('amount'))['total_income'] or 0
         # Calculate total budget already set for the month
-        total_budget = Budget.objects.filter(user=self.user, month=self.month).aggregate(total_budget=Sum('amount'))['total_budget'] or 0
+        total_budget = Budget.objects.filter(user=self.user, month__range=[start_date, end_date]).aggregate(total_budget=Sum('amount'))['total_budget'] or 0
+        print("Total budget", total_budget)
         
         if total_income == 0:
             raise ValueError("No income found for the selected month. Please add income first before setting a budget.")

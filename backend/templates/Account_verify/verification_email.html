@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .email-container { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h1 { color: #333333; }
+        p { color: #555555; }
+        .btn { background-color: #007bff; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { font-size: 12px; color: #999999; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h1>Verify Your Account</h1>
+        <p>Dear {{ user.username }},</p>
+        <p>Thank you for registering with ExpenseEye. To activate your account, please click the button below:</p>
+        <p><a href="{{ verification_link }}" class="btn">Verify My Account</a></p>
+        <p>If you did not register with ExpenseEye, please disregard this email.</p>
+        <p>Thank you for choosing ExpenseEye to manage your expenses.</p>
+        <p>Best regards,<br>The ExpenseEye Team</p>
+        <div class="footer">If you are having trouble clicking the button, copy and paste this link: {{ verification_link }}</div>
+    </div>
+</body>
+</html>

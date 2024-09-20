@@ -16,18 +16,21 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from .utils import send_notification
 from django.conf import settings
 from rest_framework.parsers import FormParser, MultiPartParser
-
+import logging
 # Create your views here.
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
     permission_classes = [AllowAny]
     
+logger = logging.getLogger(__name__)
 class SignUpView(GenericAPIView):
     serializer_class = SignUpSerializer
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        logger.info("Signup request received")
         if serializer.is_valid():
+            logger.info("User data is valid, saving user...")
             serializer.save()
 
             try:
@@ -39,20 +42,18 @@ class SignUpView(GenericAPIView):
                 verification_link = request.build_absolute_uri(
                     reverse('verify-email', kwargs={'uidb64': uid, 'token': token})
                 )
+                
+                context = {
+                    "user" : user,
+                    "verification_link" : verification_link
+                }
 
                 # Create the message as a string
-                message = (
-                    f"Hi {user.username},\n\n"
-                    f"Please click the link below to activate your Account:\n"
-                    f"{verification_link}\n\n"
-                    f"If you did not make this request, you can ignore this email.\n\n"
-                    f"Thanks,\n"
-                    f"Your Team"
-                )
+                template_path = "Account_verify/verification_email.html"
                 subject = "Verify your Account"
 
                 # Send verification email
-                send_notification(user, message, subject)
+                send_notification(user, subject, template_path, context)
 
                 return Response(
                     {"message": "Registration successful. Please check your email to verify your account."},
@@ -60,6 +61,7 @@ class SignUpView(GenericAPIView):
                 )
              
             except Exception as e:
+                logger.error(f"Error in signup: {e}")
                 return Response(
                     {"message": f"Registration failed: {str(e)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -135,28 +137,18 @@ class ForgotPasswordView(GenericAPIView):
             reset_url = f"http://localhost:5173/reset-password/{encoded_pk}/{token}/"
 
             # Create the message as a string
-            message = (
-                f"Hi {user.username},\n\n"
-                f"Please click the link below to reset your password:\n"
-                f"{reset_url}\n\n"
-                f"If you did not make this request, you can ignore this email.\n\n"
-                f"Thanks,\n"
-                f"Your Team"
-            )
-            
+            context = {
+                'user': user,
+                'reset_url': reset_url,
+            }
+
+            # Use the 'password_reset.html' template
             subject = "Password Reset Request"
-            
-            send_notification(user, message, subject)
+            template_path = "forgot_password/password_reset.html"
+            send_notification(user, subject, template_path, context)
             
             return redirect(reset_url)
             
-            # redirect_url = f"http://localhost:5173/reset-password"
-            # return redirect(redirect_url)
-
-            # return Response(
-            #     {"message": "Password reset link has been sent to your email."},
-            #     status=status.HTTP_200_OK,
-            # )
         else:
             return Response(
                 {"message": "User does not exist."},
@@ -213,8 +205,9 @@ class ResetPasswordView(GenericAPIView):
         
         # Send a success email
         subject = "Password Reset Successful"
-        message = f"Your password has been successfully reset."
-        send_notification(user, message, subject)
+        template_path = "forgot_password/reset_success.html"
+        context = {"user": user}
+        send_notification(user, subject, template_path, context)
 
 
         return Response(
@@ -240,10 +233,14 @@ class EmailVerificationView(APIView):
             # Construct the redirect URL with a success message
             redirect_url = f"http://localhost:5173/login?account_verified=True"
             
+            context = {
+                "user": user,
+                "redirect_url": redirect_url,
+            }
              # Send confirmation email
-            message = f"Hi {user.username},\n\nYour account has been activated successfully.\n\nThanks,\nYour Team"
+            template_path = "Account_verify/verification_success.html"
             subject = "Account Activated"
-            send_notification(user, message, subject)
+            send_notification(user, subject, template_path, context)
 
 
             # Redirect the user to the frontend login page

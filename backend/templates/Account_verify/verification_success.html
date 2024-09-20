@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .email-container { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h1 { color: #333333; }
+        p { color: #555555; }
+        .footer { font-size: 12px; color: #999999; margin-top: 20px; }
+        .btn { background-color: #007bff; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h1>Account Successfully Verified</h1>
+        <p>Dear {{ user.username }},</p>
+        <p>We are pleased to inform you that your ExpenseEye account has been successfully verified.</p>
+        <p>You can now log in and start managing your expenses. Click the link below to login</p>
+        <p><a href="{{ redirect_url }}" class="btn">Login</a></p>
+        <p>Thank you for trusting ExpenseEye with your financial management.</p>
+        <p>Best regards,<br>The ExpenseEye Team</p>
+    </div>
+</body>
+</html>

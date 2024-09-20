@@ -80,7 +80,7 @@ class BudgetListCreateView(ListCreateAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = BudgetFilter
     filterset_fields = ["amount", "month"]
-    search_fields = ["description"]
+    search_fields = ["description", "date"]
     ordering_fields = ["-id", "amount", "month"]
     pagination_class = PageNumberPagination
     

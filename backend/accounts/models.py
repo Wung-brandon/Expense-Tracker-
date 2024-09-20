@@ -45,7 +45,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["username"]
     
     def __str__(self):
-        return self.username
+        return self.username if self.username else 'User'
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
@@ -56,7 +56,7 @@ class Profile(models.Model):
     profile_img = models.ImageField(upload_to="user_images", blank=True, null=True)
     
     def __str__(self):
-        return self.full_name
+        return self.full_name if self.full_name else 'Profile'
     
 
 def create_profile(sender, created, instance, **kwargs):

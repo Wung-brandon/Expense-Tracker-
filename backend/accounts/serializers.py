@@ -79,7 +79,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["username", "email", "password", "confirm_password"]
+        fields = ["username", "email", "password", "gender", "confirm_password"]
 
     def validate(self, attrs):
         if attrs["password"] != attrs["confirm_password"]:
@@ -91,6 +91,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         user = User.objects.create(
             username=validated_data["username"],
             email=validated_data["email"],
+            gender=validated_data["gender"],
         )
         user.set_password(validated_data["password"])
         user.save()
