@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, TextField, IconButton, InputAdornment, MenuItem, Select, InputLabel, FormControl, TextareaAutosize, CircularProgress} from '@mui/material';
 import { Box } from '@mui/system';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -18,14 +18,29 @@ interface FormProps {
   fields: FieldProps[];
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   submitText: string;
-  loading: boolean; // Add this line
-  open?: boolean; // Add this line
+  loading?: boolean;
+  open?: boolean; 
+  initialValues?: Record<string, string | number>; // For pre-filling fields in edit mode
+  isEditing?: boolean; // To determine if the form is in edit mode
 }
 
-const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading = false }) => {
+const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading, initialValues, isEditing }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formValues, setFormValues] = useState<Record<string, string | number>>({});
   // console.log('Form loading:', loading);
+  useEffect(() => {
+    if (initialValues) {
+      setFormValues(initialValues);
+    }
+  }, [initialValues]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormValues({
+      ...formValues,
+      [e.target.name]: e.target.value
+    });
+  };
 
   const handlePasswordToggle = () => setShowPassword(!showPassword);
   const handleConfirmPasswordToggle = () => setShowConfirmPassword(!showConfirmPassword);

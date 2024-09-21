@@ -52,7 +52,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 }}
           >
             <CircularProgress 
-              size={50} // Custom size
+              size={100} // Custom size
               color="inherit" 
               sx={{ color: 'white' }}
             />

@@ -95,8 +95,10 @@ const Income: React.FC = () => {
 
       // Determine if we're in edit mode or add mode
       if (editMode) {
+        console.log("formData updated", formData);
         // Update income logic
         await axiosInstance.put(`/track/income/${editData?.id}/`, formData);
+        
         await fetchAllData();
         toast.success("Income updated successfully");
       } else {
@@ -107,7 +109,7 @@ const Income: React.FC = () => {
       }
 
       // Refresh data or other post-submit actions
-    } catch (error) {
+    } catch (error:any) {
       toast.error(`Error processing income: ${error.response?.data?.message || error.message}`);
     } finally {
       // setIsLoading(false); // Stop the loading spinner
