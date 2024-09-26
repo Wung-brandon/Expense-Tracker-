@@ -159,9 +159,10 @@ const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading, init
         style={{ background: "linear-gradient(to right bottom, #9733ee, #da22ff )" }}
         className="w-100 mt-2"
       >
-        {submitText}
+        {loading ? <CircularProgress size={24}/> : submitText}
+        
       </Button>
-      {loading && (
+      {/* {loading && (
         
           <Box
             position="fixed" // Changed from absolute to fixed
@@ -182,7 +183,7 @@ const Form: React.FC<FormProps> = ({ fields, onSubmit, submitText, loading, init
             />
           </Box>
         
-      )}
+      )} */}
     </Box>
   );
 };

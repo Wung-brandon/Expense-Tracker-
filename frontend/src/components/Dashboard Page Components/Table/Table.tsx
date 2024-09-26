@@ -17,6 +17,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Button } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import { useThemeBackground } from '../../../context/BackgroundContext';
 
@@ -119,14 +120,14 @@ const DataTable: React.FC<DataTableProps> = ({
             </Typography>
           )}
           {selected.length > 0 ? (
-            <Tooltip title="Delete">
-              <IconButton
-                onClick={onBatchDelete}
-                sx={{ color: isDarkMode ? '#ff4d4d' : '#f44336' }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
+              <Button 
+                  startIcon={<DeleteIcon />} 
+                  onClick={onBatchDelete}
+                  sx={{ color: isDarkMode ? '#ff4d4d' : '#f44336' }} 
+                  color='error' 
+                  variant='outlined'>Delete
+              </Button>
+             
           ) : (
             <>{filterData}</>
           )}
@@ -229,7 +230,16 @@ const DataTable: React.FC<DataTableProps> = ({
                           </TableCell>
                         ))}
                         <TableCell align="center">
-                          <IconButton
+                          <Button 
+                              endIcon={<EditIcon />}
+                              color='primary'
+                              variant='outlined'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEditClick(row);
+                              }}
+                          >Edit</Button>
+                          {/* <IconButton
                             color="primary"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -237,7 +247,7 @@ const DataTable: React.FC<DataTableProps> = ({
                             }}
                           >
                             <EditIcon />
-                          </IconButton>
+                          </IconButton> */}
                         </TableCell>
                       </TableRow>
                     );

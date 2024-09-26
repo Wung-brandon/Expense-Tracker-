@@ -34,7 +34,7 @@ function Features() {
                   initial="hidden"
                   animate={inView ? 'visible' : 'hidden'}
                   transition={{ duration: 0.5 }}
-                  className="card shadow text-center"
+                  className="card text-center"
                 >
                   <div className="card-body">
                     {feature.icon}

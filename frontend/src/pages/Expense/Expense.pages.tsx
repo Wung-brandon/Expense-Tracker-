@@ -151,7 +151,7 @@ const Expense: React.FC = () => {
           fetchAllData(); // Refresh data
         })
         .catch(error => {
-          // toast.error(`Error adding expense: ${error.response?.data?.message || error.message}`);
+          toast.error(`Not connected to the internet`);
           console.log(`Error adding expense: ${error.response?.data?.message || error.message}`);
         });
     }
