@@ -85,7 +85,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
         
             send_notification(user, subject, template_path, context)
         # Notify user if expenses are approaching or exceeding budget
-        elif (remaining_budget <= 1000) or (remaining_budget - data['amount'] <= 1000):
+        elif (remaining_budget <= 1000) or (remaining_budget - data['amount'] <= 1000) and remaining_budget >= 0:
             # user_email = user.email
             subject = f"Approaching Budget Limit for {formatted_date}"
             context = {
